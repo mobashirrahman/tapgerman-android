@@ -61,6 +61,11 @@ import org.robolectric.annotation.GraphicsMode
 @RunWith(AndroidJUnit4::class)
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @Config(sdk = [34], qualifiers = "w411dp-h891dp-xhdpi")
+// The v1 createComposeRule is deprecated in favour of androidx.compose.ui.test.junit4.v2, which
+// switches to a StandardTestDispatcher and so needs explicit synchronisation. For screenshot
+// capture there is nothing to synchronise — the capture happens after setContent returns — so
+// the deprecated-but-working v1 rule is kept rather than adding that hand for no gain.
+@Suppress("DEPRECATION")
 class AppScreenshotTest {
 
     @get:Rule
