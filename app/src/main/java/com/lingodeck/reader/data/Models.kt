@@ -7,6 +7,10 @@ package com.lingodeck.reader.data
  * `extension/src/dictionary.js`, so a golden fixture generated from the web extension can be
  * compared field-for-field.
  */
+
+/** Light, dark, or follow the system. User-selectable; the pre-redesign app only followed the system. */
+enum class ThemeMode { System, Light, Dark }
+
 data class Article(
     val url: String,
     val title: String,

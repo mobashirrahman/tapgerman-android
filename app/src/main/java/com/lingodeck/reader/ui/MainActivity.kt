@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import com.lingodeck.reader.anki.AnkiDroid
 import com.lingodeck.reader.data.Article
+import com.lingodeck.reader.ui.theme.LingoDeckTheme
 import java.io.File
 import kotlin.math.roundToInt
 

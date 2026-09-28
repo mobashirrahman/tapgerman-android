@@ -25,21 +25,22 @@ minSdk = "26"
 # --- Compose -----------------------------------------------------------------
 composeBom = "2026.06.00"
 
-# Material 3 Expressive, as far as a stable release carries it.
+# Material 3 Expressive is not reachable from a stable release.
 #
-# material3 1.4.0 ships the whole Expressive *theming* layer: MaterialExpressiveTheme,
-# MotionScheme (standard + expressive spring sets), the expressive shape scale and the
-# emphasised type roles. Its aar-metadata says minCompileSdk 35 / minAGP 8.6, so it sits
-# comfortably on the toolchain above.
-#
-# The Expressive *components* — LoadingIndicator, ContainedLoadingIndicator, ButtonGroup,
-# SplitButton, FloatingToolbar, WavyProgressIndicator — only exist in 1.5.0-alpha, and
-# every 1.5.0 alpha declares minCompileSdk 37 / minAGP 9.1, which drags the whole graph to
+# Verified against the published sources rather than the bytecode: in material3 1.4.0 both
+# `MotionScheme` and `MaterialExpressiveTheme` are declared `internal`, and the Expressive
+# components (LoadingIndicator, ContainedLoadingIndicator, ButtonGroup, SplitButton,
+# FloatingToolbar, WavyProgressIndicator) do not exist at all. They first appear in 1.5.0-alpha,
+# and every 1.5.0 alpha declares minCompileSdk 37 / minAGP 9.1, which drags the graph to
 # Compose 1.12 and forces the AGP 9 migration this project is deliberately not doing.
-# ui/components/Expressive.kt hand-builds those five on top of MotionScheme, so the motion
-# feel is the real thing even though the widgets are ours.
 #
-# Revisit when material3 1.5.0+ goes stable and the newest BOM can carry it.
+# So the expressive layer is built here instead. The tokens it would have supplied are the parts
+# that are easy to own anyway: ui/theme/Shape.kt holds the round shape scale, Motion.kt holds the
+# springs, and ui/components/Expressive.kt holds the four components worth having. Nothing is lost
+# visually; what is lost is provenance.
+#
+# Revisit when material3 1.5.0+ goes stable and a BOM can carry it. That is the moment to
+# re-export the library versions of those four composables and delete ui/components/Expressive.kt.
 material3 = "1.4.0"
 
 # --- AndroidX ----------------------------------------------------------------
