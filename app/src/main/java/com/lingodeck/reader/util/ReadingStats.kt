@@ -7,6 +7,7 @@ import java.time.Instant
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.text.Collator
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -129,13 +130,24 @@ object VocabFilterEngine {
         }
         return when (sort) {
             VocabSort.Newest -> filtered.sortedByDescending { it.createdAt }
-            // German sorts umlauts as base letters, so a plain String.compareTo puts every
-            // "ä" after "z". Collating by the locale is the difference between a usable
-            // A-Z toggle and a broken one.
-            VocabSort.Alphabetical -> filtered.sortedWith(
-                compareBy(String.CASE_INSENSITIVE_ORDER) { it.word },
-            )
+            // German sorts "Ä" as "A", so neither String.compareTo nor
+            // String.CASE_INSENSITIVE_ORDER will do: the first puts every umlaut word after "z",
+            // and the second is case-insensitive but still codepoint-ordered. A Collator at
+            // PRIMARY strength gets the dictionary order, and at primary strength "Ähre" sorts
+            // as "Ahre" which is the convention for German.
+            VocabSort.Alphabetical -> filtered.sortedWith { a, b ->
+                collator.get().compare(a.word, b.word)
+            }
         }
+    }
+
+    /**
+     * `Collator` is not thread-safe and this runs on whatever thread the UI is on, so one is
+     * kept per thread rather than shared.
+     */
+    private val collator = object : ThreadLocal<Collator>() {
+        override fun initialValue(): Collator =
+            Collator.getInstance(Locale.GERMAN).apply { strength = Collator.PRIMARY }
     }
 
     /** Matches on the word, its lemma, a gloss or the sentence, so a memory of any of them works. */
