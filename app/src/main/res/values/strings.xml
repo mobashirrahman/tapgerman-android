@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">LingoDeck Reader</string>
+    <string name="attribution">Definitions: Kaikki / English Wiktionary (CC BY-SA 4.0)</string>
+    <string name="empty_reader">Share a German article from your browser, or open the sample.</string>
+</resources>

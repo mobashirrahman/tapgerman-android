@@ -1,0 +1,18 @@
+.gradle/
+build/
+dist/
+local.properties
+.idea/
+*.iml
+*.apk
+.DS_Store
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Release signing material. Never committed: the keystore and the property file
+# holding its credentials are generated locally, see README "Building".
+*.jks
+*.keystore
+keystore.properties
+

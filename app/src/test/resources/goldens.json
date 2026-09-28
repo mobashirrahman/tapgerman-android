@@ -1,0 +1,488 @@
+{
+  "generatedFrom": "lingodeck/extension/src",
+  "cards": {
+    "plain": {
+      "word": "Häuser",
+      "lemma": "Haus",
+      "definitions": [
+        "house",
+        "building"
+      ],
+      "meaning": "house",
+      "sentence": "Das Haus ist groß.",
+      "translation": "",
+      "grammar": "noun",
+      "partOfSpeech": "Noun",
+      "ipa": "/ˈhaʊ̯zɐ/",
+      "languageCode": "de",
+      "source": "tagesschau.de via LingoDeck Reader"
+    },
+    "noLemma": {
+      "word": "Häuser",
+      "lemma": "Häuser",
+      "definitions": [
+        "house",
+        "building"
+      ],
+      "meaning": "house",
+      "sentence": "Das Haus ist groß.",
+      "translation": "",
+      "grammar": "noun",
+      "partOfSpeech": "Noun",
+      "ipa": "/ˈhaʊ̯zɐ/",
+      "languageCode": "de",
+      "source": "tagesschau.de via LingoDeck Reader"
+    },
+    "quote": {
+      "word": "Schloss\"",
+      "lemma": "Schloss\"",
+      "definitions": [
+        "\"castle\""
+      ],
+      "meaning": "\"castle\"",
+      "sentence": "Das Schloss \"leuchtet\".",
+      "translation": "A \"b\"\\c",
+      "grammar": "noun",
+      "partOfSpeech": "Noun",
+      "ipa": "/ˈhaʊ̯zɐ/",
+      "languageCode": "de",
+      "source": "tagesschau.de via LingoDeck Reader"
+    },
+    "homonym": {
+      "word": "Schloss",
+      "lemma": "Schloss",
+      "definitions": [
+        "lock"
+      ],
+      "meaning": "lock",
+      "sentence": "Das Schloss klemmt.",
+      "translation": "",
+      "grammar": "noun",
+      "partOfSpeech": "Noun",
+      "ipa": "/ˈhaʊ̯zɐ/",
+      "languageCode": "de",
+      "source": "tagesschau.de via LingoDeck Reader"
+    },
+    "empty": {
+      "word": "Wort",
+      "lemma": "Wort",
+      "definitions": [],
+      "meaning": "word",
+      "sentence": "Ein Wort genügt.",
+      "translation": "",
+      "grammar": "",
+      "partOfSpeech": "",
+      "ipa": "",
+      "languageCode": "de",
+      "source": "tagesschau.de via LingoDeck Reader"
+    }
+  },
+  "normalizeLookupWord": [
+    [
+      "  Häuser  ",
+      "Häuser"
+    ],
+    [
+      "«Die Zeit»",
+      "Die Zeit"
+    ],
+    [
+      "„Straße,",
+      "Straße"
+    ],
+    [
+      "a'b-c",
+      "a'b-c"
+    ],
+    [
+      "!!!",
+      ""
+    ],
+    [
+      "",
+      ""
+    ],
+    [
+      null,
+      ""
+    ],
+    [
+      "ß",
+      "ß"
+    ]
+  ],
+  "buildKaikkiUrl": [
+    [
+      "Häuser",
+      "de",
+      "https://kaikki.org/dictionary/German/meaning/H/H%C3%A4/H%C3%A4user.jsonl"
+    ],
+    [
+      "ö",
+      "de",
+      "https://kaikki.org/dictionary/German/meaning/%C3%B6/%C3%B6/%C3%B6.jsonl"
+    ],
+    [
+      "École",
+      "fr",
+      "https://kaikki.org/dictionary/French/meaning/%C3%89/%C3%89c/%C3%89cole.jsonl"
+    ],
+    [
+      "!!!",
+      "de",
+      null
+    ],
+    [
+      "word",
+      "xx",
+      null
+    ],
+    [
+      "it's-ok",
+      "de",
+      "https://kaikki.org/dictionary/German/meaning/i/it/it's-ok.jsonl"
+    ]
+  ],
+  "buildAnkiStableId": {
+    "plain": "lingodeck-v1-34laphjabcxzg",
+    "noLemma": "lingodeck-v1-24iskmth80dnc",
+    "quote": "lingodeck-v1-285lft2x159a7",
+    "homonym": "lingodeck-v1-2ty15kxljbrtw",
+    "empty": "lingodeck-v1-1ln0eu3wbd225"
+  },
+  "buildSenseTag": {
+    "plain": "sense::16acl65ac2syj",
+    "noLemma": "sense::16acl65ac2syj",
+    "quote": "sense::q2onpiew3hwh",
+    "homonym": "sense::34tkq0at7k44i",
+    "empty": "sense::14983tyfkkleh"
+  },
+  "buildLanguageTag": [
+    [
+      "de",
+      "language::de"
+    ],
+    [
+      "en-US",
+      "language::en-US"
+    ],
+    [
+      "we ird!",
+      "language::weird"
+    ],
+    [
+      "",
+      "language::unknown"
+    ]
+  ],
+  "escapeHtml": [
+    [
+      "<b>&\"'",
+      "&lt;b&gt;&amp;&quot;&#039;"
+    ],
+    [
+      "Häuser & Söhne",
+      "Häuser &amp; Söhne"
+    ]
+  ],
+  "toAnkiTsvCell": [
+    [
+      "=1+1",
+      "'=1+1"
+    ],
+    [
+      "@cmd",
+      "'@cmd"
+    ],
+    [
+      "normal",
+      "normal"
+    ],
+    [
+      "a\tb\nc",
+      "a b<br>c"
+    ],
+    [
+      "  -5",
+      "'  -5"
+    ],
+    [
+      "<x>",
+      "&lt;x&gt;"
+    ]
+  ],
+  "highlightSurface": [
+    [
+      "Das Haus ist groß.",
+      "Haus",
+      [],
+      "Das <span class=\"target\">Haus</span> ist groß."
+    ],
+    [
+      "Der Häuser wegen.",
+      "Häuser",
+      [
+        "Haus"
+      ],
+      "Der <span class=\"target\">Häuser</span> wegen."
+    ],
+    [
+      "Die Hauskatze.",
+      "Haus",
+      [],
+      "Die Hauskatze."
+    ],
+    [
+      "Das <b>Haus</b> & Co.",
+      "Haus",
+      [],
+      "Das &lt;b&gt;<span class=\"target\">Haus</span>&lt;/b&gt; &amp; Co."
+    ]
+  ],
+  "buildAnkiNote": {
+    "plain": {
+      "deckName": "LingoDeck",
+      "modelName": "LingoDeck Context v2",
+      "fields": {
+        "StableId": "lingodeck-v1-34laphjabcxzg",
+        "Surface": "Häuser",
+        "Lemma": "Haus",
+        "Reading": "/ˈhaʊ̯zɐ/",
+        "Audio": "",
+        "Meaning": "<ol class=\"senses\"><li>house</li><li>building</li></ol>",
+        "Sentence": "Das <span class=\"target\">Haus</span> ist groß.",
+        "Translation": "",
+        "Grammar": "noun",
+        "Source": "tagesschau.de via LingoDeck Reader"
+      },
+      "options": {
+        "allowDuplicate": false,
+        "duplicateScope": "deck"
+      },
+      "tags": [
+        "lingodeck",
+        "language::de",
+        "sense::16acl65ac2syj",
+        "pos::noun"
+      ]
+    },
+    "noLemma": {
+      "deckName": "LingoDeck",
+      "modelName": "LingoDeck Context v2",
+      "fields": {
+        "StableId": "lingodeck-v1-24iskmth80dnc",
+        "Surface": "Häuser",
+        "Lemma": "",
+        "Reading": "/ˈhaʊ̯zɐ/",
+        "Audio": "",
+        "Meaning": "<ol class=\"senses\"><li>house</li><li>building</li></ol>",
+        "Sentence": "Das Haus ist groß.",
+        "Translation": "",
+        "Grammar": "noun",
+        "Source": "tagesschau.de via LingoDeck Reader"
+      },
+      "options": {
+        "allowDuplicate": false,
+        "duplicateScope": "deck"
+      },
+      "tags": [
+        "lingodeck",
+        "language::de",
+        "sense::16acl65ac2syj",
+        "pos::noun"
+      ]
+    },
+    "quote": {
+      "deckName": "LingoDeck",
+      "modelName": "LingoDeck Context v2",
+      "fields": {
+        "StableId": "lingodeck-v1-285lft2x159a7",
+        "Surface": "Schloss&quot;",
+        "Lemma": "",
+        "Reading": "/ˈhaʊ̯zɐ/",
+        "Audio": "",
+        "Meaning": "&quot;castle&quot;",
+        "Sentence": "Das Schloss &quot;leuchtet&quot;.",
+        "Translation": "A &quot;b&quot;\\c",
+        "Grammar": "noun",
+        "Source": "tagesschau.de via LingoDeck Reader"
+      },
+      "options": {
+        "allowDuplicate": false,
+        "duplicateScope": "deck"
+      },
+      "tags": [
+        "lingodeck",
+        "language::de",
+        "sense::q2onpiew3hwh",
+        "pos::noun"
+      ]
+    },
+    "homonym": {
+      "deckName": "LingoDeck",
+      "modelName": "LingoDeck Context v2",
+      "fields": {
+        "StableId": "lingodeck-v1-2ty15kxljbrtw",
+        "Surface": "Schloss",
+        "Lemma": "",
+        "Reading": "/ˈhaʊ̯zɐ/",
+        "Audio": "",
+        "Meaning": "lock",
+        "Sentence": "Das <span class=\"target\">Schloss</span> klemmt.",
+        "Translation": "",
+        "Grammar": "noun",
+        "Source": "tagesschau.de via LingoDeck Reader"
+      },
+      "options": {
+        "allowDuplicate": false,
+        "duplicateScope": "deck"
+      },
+      "tags": [
+        "lingodeck",
+        "language::de",
+        "sense::34tkq0at7k44i",
+        "pos::noun"
+      ]
+    },
+    "empty": {
+      "deckName": "LingoDeck",
+      "modelName": "LingoDeck Context v2",
+      "fields": {
+        "StableId": "lingodeck-v1-1ln0eu3wbd225",
+        "Surface": "Wort",
+        "Lemma": "",
+        "Reading": "",
+        "Audio": "",
+        "Meaning": "word",
+        "Sentence": "Ein <span class=\"target\">Wort</span> genügt.",
+        "Translation": "",
+        "Grammar": "",
+        "Source": "tagesschau.de via LingoDeck Reader"
+      },
+      "options": {
+        "allowDuplicate": false,
+        "duplicateScope": "deck"
+      },
+      "tags": [
+        "lingodeck",
+        "language::de",
+        "sense::14983tyfkkleh"
+      ]
+    }
+  },
+  "buildAnkiNoteAudio": {
+    "deckName": "LingoDeck",
+    "modelName": "LingoDeck Context v2",
+    "fields": {
+      "StableId": "lingodeck-v1-34laphjabcxzg",
+      "Surface": "Häuser",
+      "Lemma": "Haus",
+      "Reading": "/ˈhaʊ̯zɐ/",
+      "Audio": "[sound:x.mp3]",
+      "Meaning": "<ol class=\"senses\"><li>house</li><li>building</li></ol>",
+      "Sentence": "Das <span class=\"target\">Haus</span> ist groß.",
+      "Translation": "",
+      "Grammar": "noun",
+      "Source": "tagesschau.de via LingoDeck Reader"
+    },
+    "options": {
+      "allowDuplicate": false,
+      "duplicateScope": "deck"
+    },
+    "tags": [
+      "lingodeck",
+      "language::de",
+      "sense::16acl65ac2syj",
+      "pos::noun"
+    ]
+  },
+  "constants": {
+    "ANKI_MODEL": "LingoDeck Context v2",
+    "ANKI_CARD_TEMPLATE": "Recognition",
+    "ANKI_FIELDS": [
+      "StableId",
+      "Surface",
+      "Lemma",
+      "Reading",
+      "Audio",
+      "Meaning",
+      "Sentence",
+      "Translation",
+      "Grammar",
+      "Source"
+    ],
+    "FRONT_TEMPLATE": "<div class=\"word\">{{Surface}}</div>{{#Lemma}}<div class=\"lemma\">{{Lemma}}</div>{{/Lemma}}{{#Reading}}<div class=\"reading\">{{Reading}}</div>{{/Reading}}{{#Sentence}}<div class=\"context\">{{Sentence}}</div>{{/Sentence}}",
+    "BACK_TEMPLATE": "{{FrontSide}}<hr id=\"answer\">{{#Audio}}<div class=\"audio\">{{Audio}}</div>{{/Audio}}<div class=\"meaning\">{{Meaning}}</div>{{#Grammar}}<div class=\"grammar\">{{Grammar}}</div>{{/Grammar}}{{#Translation}}<div class=\"context\">{{Translation}}</div>{{/Translation}}{{#Source}}<div class=\"meta\">{{Source}}</div>{{/Source}}",
+    "MODEL_CSS": ".card{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Arial,sans-serif;font-size:20px;line-height:1.5;text-align:left}\n.word{font-size:34px;font-weight:700;line-height:1.2}\n.lemma,.reading{font-size:16px;opacity:.65}\n.context{margin-top:16px;padding:12px 14px;border-left:4px solid #f7b32b;background:rgba(128,128,128,.14);border-radius:0 6px 6px 0}\n.target{background:rgba(247,179,43,.4);border-radius:3px;padding:0 3px;font-weight:700}\n.senses{margin:0;padding-left:22px}\n.senses li{margin-bottom:4px}\n.grammar{margin-top:10px;font-size:16px;opacity:.75}\n.audio{margin-top:12px}\n.meta{margin-top:16px;font-size:12px;opacity:.55;word-break:break-word}\nhr#answer{margin:18px 0;border:none;border-top:1px solid rgba(128,128,128,.4)}\n.context-sep{margin:14px 0;border:none;border-top:1px dashed rgba(128,128,128,.35)}"
+  },
+  "kaikkiSample": "{\"word\":\"Haus\",\"lang\":\"German\",\"lang_code\":\"de\",\"pos\":\"noun\",\"head_templates\":[{\"expansion\":\"Haus n (strong, genitive Hauses)\"}],\"sounds\":[{\"ipa\":\"/haʊ̯s/\"},{\"mp3_url\":\"https://upload.wikimedia.org/haus.mp3\"}],\"senses\":[{\"glosses\":[\"house\",\"building\"],\"tags\":[\"archaic\"],\"raw_tags\":[\"in compounds\"],\"examples\":[{\"text\":\"Das Haus ist groß.\",\"english\":\"The house is big.\"}]},{\"glosses\":[\"(music) house music\"]},{\"glosses\":[]}]}\n{\"word\":\"Häuser\",\"lang\":\"German\",\"lang_code\":\"de\",\"pos\":\"noun\",\"senses\":[{\"glosses\":[\"plural of Haus\"],\"form_of\":[{\"word\":\"Haus\"}]}]}\n{not json\n{\"word\":\"Haus\",\"pos\":\"verb\",\"senses\":[{\"glosses\":[\"to house\"]}]}",
+  "parseKaikkiJsonl": {
+    "word": "Haus",
+    "language": "German",
+    "languageCode": "de",
+    "entries": [
+      {
+        "word": "Haus",
+        "partOfSpeech": "noun",
+        "head": "Haus n (strong, genitive Hauses)",
+        "ipa": "/haʊ̯s/",
+        "audioUrl": "https://upload.wikimedia.org/haus.mp3",
+        "formOf": "",
+        "definitions": [
+          {
+            "gloss": "house",
+            "tags": [
+              "archaic",
+              "in compounds"
+            ],
+            "examples": [
+              {
+                "text": "Das Haus ist groß.",
+                "translation": "The house is big."
+              }
+            ]
+          },
+          {
+            "gloss": "(music) house music",
+            "tags": [],
+            "examples": []
+          }
+        ]
+      },
+      {
+        "word": "Häuser",
+        "partOfSpeech": "noun",
+        "head": "",
+        "ipa": "",
+        "audioUrl": "",
+        "formOf": "Haus",
+        "definitions": [
+          {
+            "gloss": "plural of Haus",
+            "tags": [],
+            "examples": []
+          }
+        ]
+      },
+      {
+        "word": "Haus",
+        "partOfSpeech": "verb",
+        "head": "",
+        "ipa": "",
+        "audioUrl": "",
+        "formOf": "",
+        "definitions": [
+          {
+            "gloss": "to house",
+            "tags": [],
+            "examples": []
+          }
+        ]
+      }
+    ],
+    "sourceName": "Kaikki / English Wiktionary",
+    "license": "CC BY-SA 4.0"
+  },
+  "parseKaikkiJsonlEmpty": null,
+  "parseKaikkiJsonlJunk": null
+}
