@@ -37,6 +37,12 @@ android {
                 storePassword = keystoreProperties.getProperty("storePassword")
                 keyAlias = keystoreProperties.getProperty("keyAlias")
                 keyPassword = keystoreProperties.getProperty("keyPassword")
+                // v1 is redundant above API 23 and v2 covers minSdk 26 on its own, but v3 is
+                // what makes a later key rotation possible without reinstalling, so it is
+                // requested explicitly rather than left to whatever AGP defaults to.
+                enableV1Signing = false
+                enableV2Signing = true
+                enableV3Signing = true
             }
         }
     }

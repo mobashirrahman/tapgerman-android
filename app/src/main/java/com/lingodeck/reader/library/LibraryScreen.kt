@@ -173,11 +173,16 @@ fun LibraryScreen(
                 }
             }
 
-            item(key = "recent-header") {
-                SectionHeader(
-                    title = stringResource(R.string.library_recently_read),
-                    count = state.library.size,
-                )
+            // Only when there is something under it. A "Recently read 0" heading above an empty
+            // state is a label for a list that does not exist, and on a fresh install that was
+            // the first thing on the screen after the hero card.
+            if (state.library.isNotEmpty()) {
+                item(key = "recent-header") {
+                    SectionHeader(
+                        title = stringResource(R.string.library_recently_read),
+                        count = state.library.size,
+                    )
+                }
             }
 
             if (state.library.isEmpty()) {
