@@ -2,39 +2,41 @@
 <!--
   The mark: a page of text with one word marked.
 
-  The product's whole idea is that you tap a word in a German article and find out what it
-  means, so the identity is that gesture rather than a speech bubble. A page plate, two plain
-  lines of text, and one line drawn taller in the electric accent so it reads as highlighted
-  rather than merely differently coloured.
+  The product's whole idea is that you tap a word in a German article and find out what it means,
+  so the identity is that gesture rather than a speech bubble or a book.
 
-  Geometry sits inside the 66dp safe zone of the 108dp viewport (21..87), which means the
-  launcher can round, square or squircle this mask without cropping the mark, and the same
-  artwork is legible as the splash icon.
+  An earlier draft put a white rounded plate on the gradient with the bars inside it. Rendering it
+  showed the problem straight away: a shape inside a shape inside a launcher mask is three levels of
+  nesting, and at 48dp it collapsed into a generic list icon. Dropping the plate leaves the text
+  block directly on the gradient, which is bolder and higher contrast.
+
+  Three bars share a left edge and have ragged right ends, so the block reads as lines of text
+  rather than a stack of equal pills. The middle bar is taller *and* accented: height carries the
+  signal as well as hue, because hue alone stops reading at 48dp.
+
+  The sizing was measured rather than guessed. Android's adaptive-icon mask is the centre 72x72 of
+  the 108x108 canvas, so anything past radius 36 can be cropped, and the platform's key line is
+  radius 33. The geometry is scaled about the centre until its furthest point sits at 32.5.
+  tools/render_icon.py rasterises these vectors against circle, squircle and full-bleed masks at
+  512, 192, 96 and 48px; rendering is what caught the first version overflowing the circle.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-
-    <!-- The page -->
-    <path
-        android:fillColor="#FFFFFFFF"
-        android:pathData="M40,24 h28 a14,14 0 0 1 14,14 v32 a14,14 0 0 1 -14,14 h-28 a14,14 0 0 1 -14,-14 v-32 a14,14 0 0 1 14,-14 z" />
-
     <!-- Line one -->
     <path
-        android:fillColor="#FF1A1822"
-        android:pathData="M40,34 h30 a4,4 0 0 1 4,4 v0 a4,4 0 0 1 -4,4 h-30 a4,4 0 0 1 -4,-4 v0 a4,4 0 0 1 4,-4 z" />
+        android:fillColor="#F2F0FF"
+        android:pathData="M35,31.5 h34.5 a4.5,4.5 0 0 1 4.5,4.5 v0 a4.5,4.5 0 0 1 -4.5,4.5 h-34.5 a4.5,4.5 0 0 1 -4.5,-4.5 v0 a4.5,4.5 0 0 1 4.5,-4.5 z" />
 
-    <!-- The highlighted word: taller than the lines around it, which is what makes it read
-         as marked up rather than just differently coloured -->
+    <!-- The marked word: same left edge, taller, in the accent -->
     <path
-        android:fillColor="#FFD2FF6B"
-        android:pathData="M42,50 h18 a6,6 0 0 1 6,6 v1 a6,6 0 0 1 -6,6 h-18 a6,6 0 0 1 -6,-6 v-1 a6,6 0 0 1 6,-6 z" />
+        android:fillColor="#C9F53C"
+        android:pathData="M36.5,47.5 h23 a6,6 0 0 1 6,6 v0.5 a6,6 0 0 1 -6,6 h-23 a6,6 0 0 1 -6,-6 v-0.5 a6,6 0 0 1 6,-6 z" />
 
     <!-- Line two -->
     <path
-        android:fillColor="#FF1A1822"
-        android:pathData="M40,69 h26 a4,4 0 0 1 4,4 v0 a4,4 0 0 1 -4,4 h-26 a4,4 0 0 1 -4,-4 v0 a4,4 0 0 1 4,-4 z" />
+        android:fillColor="#F2F0FF"
+        android:pathData="M35,66.5 h29.5 a4.5,4.5 0 0 1 4.5,4.5 v0 a4.5,4.5 0 0 1 -4.5,4.5 h-29.5 a4.5,4.5 0 0 1 -4.5,-4.5 v0 a4.5,4.5 0 0 1 4.5,-4.5 z" />
 </vector>

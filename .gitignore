@@ -16,3 +16,6 @@ captures/
 *.keystore
 keystore.properties
 
+
+# Icon previews produced by tools/render_icon.py.
+build/icon-preview/
