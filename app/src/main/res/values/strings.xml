@@ -1,6 +1,183 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Every user-facing string in the app.
+
+  Before the redesign all of this was inline English in Kotlin, and `res/values/strings.xml` held
+  three entries of which only `app_name` was ever referenced. Nothing else could be translated,
+  and nothing could be checked by lint.
+
+  German is not a UI locale here — the app's interface is English, because its users are English
+  speakers reading German — but the copy is now externalised, which is the half of localisation
+  that has to happen before the other half is possible.
+-->
 <resources>
     <string name="app_name">LingoDeck Reader</string>
-    <string name="attribution">Definitions: Kaikki / English Wiktionary (CC BY-SA 4.0)</string>
-    <string name="empty_reader">Share a German article from your browser, or open the sample.</string>
+    <string name="brand_name">LingoDeck</string>
+
+    <!-- Navigation -->
+    <string name="tab_library">Library</string>
+    <string name="tab_words">Words</string>
+    <string name="tab_settings">Settings</string>
+    <string name="back_to_library">Back to library</string>
+
+    <!-- Library -->
+    <string name="library_read_headline">Read it in German</string>
+    <string name="library_read_body">Share any article from your browser, or paste a link. Tap any word to see what it means.</string>
+    <string name="library_url_hint">https://…</string>
+    <string name="library_clear_url">Clear</string>
+    <string name="library_read_action">Read article</string>
+    <string name="library_reading">Reading…</string>
+    <string name="library_recently_read">Recently read</string>
+    <string name="library_more_options">More options for %1$s</string>
+    <string name="library_read_menu">Read</string>
+    <string name="library_remove_menu">Remove from library</string>
+    <string name="library_empty_title">Nothing read yet</string>
+    <string name="library_empty_body">Share a German article from your browser, or paste its address above, and it will open here ready to read.</string>
+    <string name="library_no_words_title">No words collected</string>
+    <string name="library_no_words_body">Open an article and tap any word. The ones you keep show up on the Words tab.</string>
+    <string name="library_go_to_words">Go to words</string>
+    <string name="library_share_error">Share a page link to read it here.</string>
+    <string name="library_unreadable">Could not read that page.</string>
+
+    <!-- Stats -->
+    <plurals name="stat_articles">
+        <item quantity="one">article read</item>
+        <item quantity="other">articles read</item>
+    </plurals>
+    <plurals name="stat_words">
+        <item quantity="one">word kept</item>
+        <item quantity="other">words kept</item>
+    </plurals>
+    <string name="stat_sent_to_anki">on Anki</string>
+
+    <!-- Article cards -->
+    <string name="article_minutes">%1$d min</string>
+    <string name="article_minutes_read">%1$d min read</string>
+    <plurals name="article_word_count">
+        <item quantity="one">%1$d word</item>
+        <item quantity="other">%1$d words</item>
+    </plurals>
+    <plurals name="article_words_saved">
+        <item quantity="one">%1$d word</item>
+        <item quantity="other">%1$d words</item>
+    </plurals>
+
+    <!-- Reader -->
+    <string name="reader_hint">Tap any word for its meaning. Hold to hear it.</string>
+    <string name="reader_words_here">Words in this article</string>
+    <string name="reader_smaller">A−</string>
+    <string name="reader_larger">A+</string>
+    <string name="reader_progress_words">Words looked at in this article</string>
+    <string name="reader_progress_words_count">Words looked at in this article: %1$d</string>
+    <string name="reader_session_empty_title">No words yet</string>
+    <string name="reader_session_empty_body">Tap any word in the article and it will be listed here, so you can see what you have met without leaving the page.</string>
+    <string name="reader_session_saved">saved</string>
+    <string name="reader_session_looked_up">looked up</string>
+    <string name="reader_session_open_list">Open word list</string>
+
+    <!-- Lookup card -->
+    <string name="lookup_pronounce">Pronounce</string>
+    <string name="lookup_close">Close</string>
+    <string name="lookup_loading">Looking up…</string>
+    <string name="lookup_which_meaning">Which meaning?</string>
+    <string name="lookup_show_fewer">Show fewer</string>
+    <string name="lookup_show_all">Show all %1$d</string>
+    <string name="lookup_save">Save</string>
+    <string name="lookup_saved">Saved</string>
+    <string name="lookup_anki">Anki</string>
+    <string name="lookup_no_entry">No dictionary entry for \"%1$s\".</string>
+    <string name="lookup_saved_message">Saved to your word list.</string>
+
+    <!-- Anki outcomes -->
+    <string name="anki_created">Added to Anki.</string>
+    <string name="anki_appended">Appended the sentence to the existing Anki card.</string>
+    <string name="anki_appended_short">Appended to the existing Anki card.</string>
+    <string name="anki_already_present">That sentence is already on the Anki card.</string>
+    <string name="anki_permission_needed">AnkiDroid\'s permission is needed to add cards.</string>
+
+    <!-- Word list -->
+    <string name="words_title">Words</string>
+    <string name="words_search_hint">Search words, glosses or sentences</string>
+    <string name="words_clear_search">Clear search</string>
+    <string name="words_sort_newest">Newest</string>
+    <string name="words_sort_alphabetical">A–Z</string>
+    <string name="words_filter_all">All</string>
+    <string name="words_filter_not_sent">Not on Anki</string>
+    <string name="words_filter_sent">On Anki</string>
+    <string name="words_filter_by_article">By article</string>
+    <string name="words_saved_header">Saved</string>
+    <string name="words_empty_title">No words yet</string>
+    <string name="words_empty_body">Open an article, tap a word, and choose Save. Everything you keep is collected here.</string>
+    <string name="words_empty_action">Find an article</string>
+    <string name="words_no_match_title">Nothing matches</string>
+    <string name="words_no_match_query">No saved word matches \"%1$s\". Search also looks through glosses and the sentence each word came from.</string>
+    <string name="words_no_match_filter">No words in this filter yet.</string>
+    <string name="words_of_lemma">of %1$s</string>
+    <plurals name="words_more_glosses">
+        <item quantity="one">+%1$d more</item>
+        <item quantity="other">+%1$d more</item>
+    </plurals>
+    <string name="words_hear">Hear %1$s</string>
+    <string name="words_remove">Remove %1$s</string>
+    <string name="words_send_to_anki">Send to Anki</string>
+    <string name="words_on_anki">On Anki</string>
+    <string name="words_export_all">Export all as Anki TSV</string>
+    <string name="words_removed">Removed \"%1$s\"</string>
+    <string name="words_rereading">Re-reading %1$s…</string>
+    <string name="undo">Undo</string>
+    <string name="article_removed">Removed \"%1$s\"</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_version">Version %1$s</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_dynamic_title">Use wallpaper colours</string>
+    <string name="settings_dynamic_body">Material You, from the system palette. Off by default: the accent marks which words are tappable and which you have saved, and handing that to an arbitrary wallpaper colour makes the app\'s one real affordance unreliable.</string>
+    <string name="settings_reading">Reading</string>
+    <string name="settings_text_size">Article text size</string>
+    <string name="settings_text_size_sp">%1$d sp</string>
+    <string name="settings_text_sample">Das ist die höchste Zahl des Quartals.</string>
+    <string name="settings_tint_title">Tint tappable words</string>
+    <string name="settings_tint_body">Colours every word in the article slightly, so it is visible that words can be tapped. Words you have saved are tinted further and underlined.</string>
+    <string name="settings_anki">Anki</string>
+    <string name="settings_deck">Deck name</string>
+    <string name="settings_deck_body">Cards are created in this deck in AnkiDroid, which must be installed and have granted LingoDeck access.</string>
+    <string name="settings_data">Data</string>
+    <string name="settings_data_articles">Articles in the library</string>
+    <string name="settings_data_words">Words saved</string>
+    <string name="settings_data_sent">Sent to Anki</string>
+    <string name="settings_export">Export all words as Anki TSV</string>
+    <string name="settings_clear_words">Clear word list</string>
+    <string name="settings_clear_history">Clear article history</string>
+    <string name="settings_about">About</string>
+    <string name="settings_about_body">An Android companion to the LingoDeck Chrome extension. Words saved here and in the browser land on the same Anki card.</string>
+    <string name="settings_clear_words_title">Clear the word list?</string>
+    <plurals name="settings_clear_words_body">
+        <item quantity="one">This removes the %1$d saved word from this device. Cards already in AnkiDroid are not touched.</item>
+        <item quantity="other">This removes all %1$d saved words from this device. Cards already in AnkiDroid are not touched.</item>
+    </plurals>
+    <string name="settings_clear_history_title">Clear article history?</string>
+    <plurals name="settings_clear_history_body">
+        <item quantity="one">This removes the %1$d saved article from this device. Saved words are not touched.</item>
+        <item quantity="other">This removes all %1$d saved articles from this device. Saved words are not touched.</item>
+    </plurals>
+    <string name="settings_confirm_clear">Clear</string>
+    <string name="settings_cancel">Cancel</string>
+    <string name="settings_haptics">Haptics</string>
+    <string name="settings_haptics_body">A short tick when a word is tapped and a longer one when it is held. Also stands down automatically when the system has animations turned off.</string>
+
+    <!-- Attribution and licences. CC BY-SA 4.0 requires the dictionary credit to be visible
+         wherever the definitions are shown, so it is not localised away or hidden in an
+         about screen only. -->
+    <string name="attribution">Definitions: Kaikki / English Wiktionary, CC BY-SA 4.0</string>
+    <string name="licence_fonts">Typefaces: Literata and Inter, both under the SIL Open Font Licence 1.1.</string>
+    <string name="licences_title">Font licences</string>
+
+    <!-- Share sheet -->
+    <string name="share_anki_export">Export Anki TSV</string>
+    <string name="share_anki_mime">text/tab-separated-values</string>
 </resources>

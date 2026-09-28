@@ -34,6 +34,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +46,7 @@ import com.lingodeck.reader.anki.AnkiDroid
 import com.lingodeck.reader.library.LibraryScreen
 import com.lingodeck.reader.reader.LookupCardHost
 import com.lingodeck.reader.reader.ReaderScreen
+import com.lingodeck.reader.settings.LicenceDialog
 import com.lingodeck.reader.settings.SettingsScreen
 import com.lingodeck.reader.store.Settings
 import com.lingodeck.reader.ui.MainViewModel
@@ -54,12 +57,15 @@ import com.lingodeck.reader.ui.components.MorphingLoadingIndicator
 import com.lingodeck.reader.ui.theme.LingoTheme
 import com.lingodeck.reader.ui.theme.Space
 import com.lingodeck.reader.words.WordListScreen
+import com.lingodeck.reader.R
+import androidx.compose.ui.res.stringResource
+import com.lingodeck.reader.ui.UiText
 
 /** The three tabs. The reader is a pushed level on top of them, not a fourth tab. */
-private enum class Tab(val screen: Screen, val label: String) {
-    Library(Screen.Library, "Library"),
-    Words(Screen.Words, "Words"),
-    Settings(Screen.Settings, "Settings"),
+private enum class Tab(val screen: Screen, val labelRes: Int) {
+    Library(Screen.Library, R.string.tab_library),
+    Words(Screen.Words, R.string.tab_words),
+    Settings(Screen.Settings, R.string.tab_settings),
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,6 +82,7 @@ fun AppShell(
     val snackbar = remember { SnackbarHostState() }
     val context = LocalContext.current
     val vocabView by model.vocabView.collectAsStateWithLifecycle()
+    var showLicences by remember { mutableStateOf(false) }
     val expandedSenses by model.expandedSenses.collectAsStateWithLifecycle()
     val currentTab = Tab.entries.firstOrNull { it.screen == state.screen }
 
@@ -85,18 +92,24 @@ fun AppShell(
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
     ) { granted ->
-        if (granted) model.sendLookupToAnki() else model.showMessage("AnkiDroid's permission is needed to add cards.")
+        if (granted) model.sendLookupToAnki()
+        else model.showMessage(UiText.of(R.string.anki_permission_needed))
     }
+
+    // Read out here because the LaunchedEffect block below is not a composable context.
+    val undoLabel = stringResource(R.string.undo)
 
     // Messages and errors, with an undo action whenever there is something to take back. Every
     // deletion in the redesign is undoable, because swipe-to-dismiss with no way back is a worse
     // trap than a confirmation dialog.
     LaunchedEffect(state.message, state.error, state.undo) {
-        val text = state.message ?: state.error ?: return@LaunchedEffect
+        // Resolved here rather than in the view model, which cannot call getString.
+        val pending = state.message ?: state.error ?: return@LaunchedEffect
+        val text = pending.resolve(context)
         val undoable = state.undo != null
         val result = snackbar.showSnackbar(
             message = text,
-            actionLabel = if (undoable) "Undo" else null,
+            actionLabel = if (undoable) undoLabel else null,
             duration = if (undoable) SnackbarDuration.Long else SnackbarDuration.Short,
         )
         model.consumeMessage()
@@ -152,7 +165,7 @@ fun AppShell(
                                     contentDescription = null,
                                 )
                             },
-                            label = { Text(tab.label) },
+                            label = { Text(stringResource(tab.labelRes)) },
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
                                 indicatorColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -258,9 +271,14 @@ fun AppShell(
                     onExport = onExportTsv,
                     onClearWords = model::clearVocab,
                     onClearHistory = model::clearArticleHistory,
+                    onShowLicences = { showLicences = true },
                 )
             }
         }
+    }
+
+    if (showLicences) {
+        LicenceDialog(onDismiss = { showLicences = false })
     }
 
     // The lookup card is an overlay, not a screen, so it lives above the shell rather than inside

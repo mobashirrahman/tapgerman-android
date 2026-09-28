@@ -158,8 +158,8 @@ fun ContainedMorphingLoadingIndicator(
  */
 @Composable
 fun LingoButtonGroup(
-    expandedIndex: Int? = null,
     modifier: Modifier = Modifier,
+    expandedIndex: Int? = null,
     spacing: Dp = 2.dp,
     content: @Composable LingoButtonGroupScope.() -> Unit,
 ) {
@@ -181,10 +181,11 @@ fun LingoButtonGroup(
  */
 interface LingoButtonGroupScope {
     /**
-     * Width and shape for the child at [index] of [count]. Apply to the button's own modifier,
-     * together with [groupShape] for the same index.
+     * Width for the child at [index] of [count]. Apply to the button's own modifier, together with
+     * [groupShape] for the same index. An extension on Modifier rather than a factory returning
+     * one, so it chains.
      */
-    fun groupButton(index: Int, count: Int): Modifier
+    fun Modifier.groupButton(index: Int, count: Int): Modifier
 
     /** The shape for a button that is currently pressed. */
     fun groupShape(index: Int, count: Int, pressed: Boolean): Shape
@@ -195,8 +196,8 @@ private class LingoButtonGroupScopeImpl(
     private val expandedIndex: Int?,
 ) : LingoButtonGroupScope {
 
-    override fun groupButton(index: Int, count: Int): Modifier =
-        with(rowScope) { Modifier.weight(groupWeight(index, count)) }
+    override fun Modifier.groupButton(index: Int, count: Int): Modifier =
+        with(rowScope) { this@groupButton.weight(groupWeight(index, count)) }
 
     override fun groupShape(index: Int, count: Int, pressed: Boolean): Shape {
         val outer = 20.dp

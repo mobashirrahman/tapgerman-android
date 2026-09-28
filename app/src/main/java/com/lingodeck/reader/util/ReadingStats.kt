@@ -136,7 +136,7 @@ object VocabFilterEngine {
             // PRIMARY strength gets the dictionary order, and at primary strength "Ähre" sorts
             // as "Ahre" which is the convention for German.
             VocabSort.Alphabetical -> filtered.sortedWith { a, b ->
-                collator.get().compare(a.word, b.word)
+                germanCollator().compare(a.word, b.word)
             }
         }
     }
@@ -145,10 +145,17 @@ object VocabFilterEngine {
      * `Collator` is not thread-safe and this runs on whatever thread the UI is on, so one is
      * kept per thread rather than shared.
      */
-    private val collator = object : ThreadLocal<Collator>() {
+    private val collators = object : ThreadLocal<Collator>() {
         override fun initialValue(): Collator =
             Collator.getInstance(Locale.GERMAN).apply { strength = Collator.PRIMARY }
     }
+
+    /**
+     * `ThreadLocal.get()` is a platform type, so the compiler will not let a member be called on
+     * it directly. `initialValue()` above always supplies one and nothing ever calls `set(null)`,
+     * so this is a formality that names the assumption rather than a real branch.
+     */
+    private fun germanCollator(): Collator = requireNotNull(collators.get()) { "collator not initialised" }
 
     /** Matches on the word, its lemma, a gloss or the sentence, so a memory of any of them works. */
     fun matches(item: VocabItem, query: String): Boolean {

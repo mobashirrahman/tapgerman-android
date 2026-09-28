@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- minSdk is 26, so this adaptive icon covers every device the app installs on and no
-     legacy PNG bucket is needed. -->
+<!-- minSdk is 26, so this adaptive icon covers every device the app installs on and no legacy
+     PNG density bucket is needed.
+
+     The -v26 qualifier is kept even though minSdk is already 26, and Android Lint flags it as
+     redundant. It is not: AAPT only accepts the <adaptive-icon> root element in a version
+     qualified resource, and moving the file to a plain mipmap-anydpi makes the link fail with
+     "resource mipmap/ic_launcher not found". The check is wrong here. -->
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
     <background android:drawable="@drawable/ic_launcher_background" />
     <foreground android:drawable="@drawable/ic_launcher_foreground" />

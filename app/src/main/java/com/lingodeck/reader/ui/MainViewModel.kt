@@ -7,6 +7,7 @@ import com.lingodeck.reader.anki.AnkiSaver
 import com.lingodeck.reader.anki.NoteIdentity
 import com.lingodeck.reader.anki.TsvExport
 import com.lingodeck.reader.anki.toVocabItem
+import com.lingodeck.reader.R
 import com.lingodeck.reader.data.Article
 import com.lingodeck.reader.data.ArticleFetcher
 import com.lingodeck.reader.data.DictEntry
@@ -50,9 +51,9 @@ data class LookupUi(
     val glosses: List<String> = emptyList(),
     /** The sense the learner says they met. Narrowing to it is what splits homonyms apart. */
     val chosenGloss: String? = null,
-    val error: String? = null,
+    val error: UiText? = null,
     val saved: Boolean = false,
-    val savedMessage: String? = null,
+    val savedMessage: UiText? = null,
 )
 
 /**
@@ -71,12 +72,12 @@ data class SessionWord(
 data class UiState(
     val screen: Screen = Screen.Library,
     val loading: Boolean = false,
-    val error: String? = null,
+    val error: UiText? = null,
     val article: Article? = null,
     val library: List<Article> = emptyList(),
     val vocab: List<VocabItem> = emptyList(),
     val lookup: LookupUi? = null,
-    val message: String? = null,
+    val message: UiText? = null,
     val deckName: String = "LingoDeck",
     /** Words tapped during this article, in the order they were tapped. */
     val sessionWords: List<SessionWord> = emptyList(),
@@ -138,7 +139,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun consumeMessage() = _state.update { it.copy(message = null, error = null) }
 
-    fun showMessage(text: String) = _state.update { it.copy(message = text) }
+    fun showMessage(text: UiText) = _state.update { it.copy(message = text) }
 
     // --- Navigation -----------------------------------------------------------------------
 
@@ -165,7 +166,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun loadUrl(rawUrl: String?) {
         val url = rawUrl?.let { ArticleFetcher.extractUrlFromSharedText(it) } ?: rawUrl?.trim()
         if (url.isNullOrBlank()) {
-            _state.update { it.copy(error = "Share a page link to read it here.") }
+            _state.update { it.copy(error = UiText.of(R.string.library_share_error)) }
             return
         }
         viewModelScope.launch {
@@ -185,7 +186,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 _state.update {
                     it.copy(
                         loading = false,
-                        error = error.message ?: "Could not read that page.",
+                        error = error.message?.let { UiText.Raw(it) } ?: UiText.of(R.string.library_unreadable),
                         screen = Screen.Library,
                     )
                 }
@@ -208,7 +209,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             refreshLibrary()
             // Undo restores the same article object rather than re-fetching it, so the shelf
             // comes back exactly as it was without another network round trip.
-            showMessage("Removed \"${article.title.take(28)}\"")
+            showMessage(UiText.of(R.string.article_removed, article.title.take(28)))
             _state.value = _state.value.copy(undo = Undo.RestoreArticle(removed))
         }
     }
@@ -280,11 +281,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     current.copy(lookup = current.lookup?.copy(
                         loading = false,
                         result = outcome.result,
-                        error = "No dictionary entry for \"${outcome.result.word}\".",
+                        error = UiText.of(R.string.lookup_no_entry, outcome.result.word),
                     ))
                 }
                 is KaikkiClient.LookupOutcome.Failed -> _state.update { current ->
-                    current.copy(lookup = current.lookup?.copy(loading = false, error = outcome.message))
+                    current.copy(
+                        lookup = current.lookup?.copy(loading = false, error = UiText.Raw(outcome.message)),
+                    )
                 }
             }
         }
@@ -355,7 +358,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             refreshLibrary()
             markSessionWord(saved = true)
             _state.update {
-                it.copy(lookup = it.lookup?.copy(saved = true, savedMessage = "Saved to your word list."))
+                it.copy(lookup = it.lookup?.copy(saved = true, savedMessage = UiText.of(R.string.lookup_saved_message)))
             }
         }
     }
@@ -372,10 +375,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 AnkiSaver.save(getApplication<Application>(), item, _state.value.deckName)
             }
             val message = when (outcome) {
-                is AnkiSaver.SaveOutcome.Created -> "Added to Anki."
-                is AnkiSaver.SaveOutcome.Appended -> "Appended the sentence to the existing Anki card."
-                is AnkiSaver.SaveOutcome.AlreadyPresent -> "That sentence is already on the Anki card."
-                is AnkiSaver.SaveOutcome.Failed -> outcome.message
+                is AnkiSaver.SaveOutcome.Created -> UiText.of(R.string.anki_created)
+                is AnkiSaver.SaveOutcome.Appended -> UiText.of(R.string.anki_appended)
+                is AnkiSaver.SaveOutcome.AlreadyPresent -> UiText.of(R.string.anki_already_present)
+                is AnkiSaver.SaveOutcome.Failed -> UiText.Raw(outcome.message)
             }
             markSessionWord(saved = true)
             _state.update {
@@ -391,10 +394,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 AnkiSaver.save(getApplication<Application>(), item, settings.value.deckName)
             }
             val message = when (outcome) {
-                is AnkiSaver.SaveOutcome.Created -> "Added to Anki."
-                is AnkiSaver.SaveOutcome.Appended -> "Appended to the existing Anki card."
-                is AnkiSaver.SaveOutcome.AlreadyPresent -> "That sentence is already on the Anki card."
-                is AnkiSaver.SaveOutcome.Failed -> outcome.message
+                is AnkiSaver.SaveOutcome.Created -> UiText.of(R.string.anki_created)
+                is AnkiSaver.SaveOutcome.Appended -> UiText.of(R.string.anki_appended_short)
+                is AnkiSaver.SaveOutcome.AlreadyPresent -> UiText.of(R.string.anki_already_present)
+                is AnkiSaver.SaveOutcome.Failed -> UiText.Raw(outcome.message)
             }
             // Only stamp the item as sent when Anki actually took it, so a failure does not leave
             // the word list claiming a card exists that does not.
@@ -449,7 +452,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             refreshLibrary()
             if (removed != null) {
                 _state.update { it.copy(undo = Undo.RestoreVocab(removed)) }
-                showMessage("Removed \"${removed.word}\"")
+                showMessage(UiText.of(R.string.words_removed, removed.word))
             }
         }
     }
@@ -493,7 +496,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         // The article is no longer on the shelf (the history was cleared, or the 50-article cap
         // rolled it off). Re-fetching it is the honest thing to do rather than silently doing
         // nothing on a tap.
-        showMessage("Re-reading ${item.articleTitle}…")
+        showMessage(UiText.of(R.string.words_rereading, item.articleTitle))
         loadUrl(item.sourceUrl)
     }
 

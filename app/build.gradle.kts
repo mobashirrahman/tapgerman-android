@@ -65,10 +65,28 @@ android {
 
     buildFeatures {
         compose = true
+        // For VERSION_NAME, so Settings shows the real version rather than a copy of it that
+        // can drift from the manifest.
+        buildConfig = true
     }
 
     testOptions {
         unitTests.isReturnDefaultValues = true
+    }
+
+    lint {
+        // Lint has never been run on this project, and when it finally was, it surfaced one real
+        // gap (a haptics setting with no UI behind it) and one wrong answer. The version checks
+        // are silenced on purpose: every version in the build is pinned for a stated reason in
+        // gradle/libs.versions.toml, and "something newer exists" is not information worth
+        // failing a build over. The reasoning lives in the catalog, not here.
+        //
+        // The two accepted findings that are scoped to a single file are in app/lint.xml, because
+        // the Kotlin DSL has no path-scoped ignore.
+        disable += setOf("GradleDependency", "NewerVersionAvailable", "AndroidGradlePluginVersion")
+        warningsAsErrors = false
+        abortOnError = true
+        checkDependencies = true
     }
 
     packaging {

@@ -59,6 +59,9 @@ import com.lingodeck.reader.ui.components.LingoButtonGroup
 import com.lingodeck.reader.ui.components.MorphingLoadingIndicator
 import com.lingodeck.reader.ui.theme.LingoTheme
 import com.lingodeck.reader.ui.theme.Space
+import com.lingodeck.reader.R
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 
 /**
  * The lookup card, and the plumbing that gets it on screen.
@@ -202,10 +205,16 @@ private fun LookupCard(
                     }
                 }
                 IconButton(onClick = onSpeak, modifier = Modifier.size(40.dp)) {
-                    Icon(Icons.AutoMirrored.Rounded.VolumeUp, contentDescription = "Pronounce")
+                    Icon(
+                        Icons.AutoMirrored.Rounded.VolumeUp,
+                        contentDescription = stringResource(R.string.lookup_pronounce),
+                    )
                 }
                 IconButton(onClick = onDismiss, modifier = Modifier.size(40.dp)) {
-                    Icon(Icons.Rounded.Close, contentDescription = "Close")
+                    Icon(
+                        Icons.Rounded.Close,
+                        contentDescription = stringResource(R.string.lookup_close),
+                    )
                 }
             }
 
@@ -225,15 +234,18 @@ private fun LookupCard(
                         modifier = Modifier.padding(vertical = Space.sm),
                     ) {
                         MorphingLoadingIndicator(size = 20.dp)
-                        Text("Looking up…", style = MaterialTheme.typography.bodySmall)
+                        Text(
+                            stringResource(R.string.lookup_loading),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
                     }
                 }
 
-                lookup.error?.let { ErrorSurface(message = it) }
+                lookup.error?.let { ErrorSurface(message = it.resolve(LocalContext.current)) }
 
                 if (lookup.glosses.isNotEmpty()) {
                     Text(
-                        text = "Which meaning?",
+                        text = stringResource(R.string.lookup_which_meaning),
                         style = LingoTheme.emphasized.labelLarge,
                         color = MaterialTheme.colorScheme.onSurface,
                     )
@@ -256,9 +268,9 @@ private fun LookupCard(
                         ) {
                             Text(
                                 text = if (isShowingAllSenses) {
-                                    "Show fewer"
+                                    stringResource(R.string.lookup_show_fewer)
                                 } else {
-                                    "Show all ${lookup.glosses.size}"
+                                    stringResource(R.string.lookup_show_all, lookup.glosses.size)
                                 },
                                 style = MaterialTheme.typography.labelMedium,
                             )
@@ -284,10 +296,10 @@ private fun LookupCard(
                 }
             }
 
-            lookup.savedMessage?.let {
+            lookup.savedMessage?.let { message ->
                 Spacer(Modifier.height(Space.xs))
                 Text(
-                    text = it,
+                    text = message.resolve(LocalContext.current),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary,
                     maxLines = 2,
@@ -299,14 +311,14 @@ private fun LookupCard(
 
             // ---- actions: a group, so the two read as one decision ----
             LingoButtonGroup(
-                expandedIndex = expanded,
                 modifier = Modifier.fillMaxWidth(),
+                expandedIndex = expanded,
                 content = {
                     OutlinedButton(
                         onClick = onSave,
                         enabled = !lookup.saved,
                         interactionSource = saveInteraction,
-                        modifier = groupButton(0, 2).height(46.dp),
+                        modifier = Modifier.groupButton(0, 2).height(46.dp),
                         shape = groupShape(0, 2, savePressed),
                         contentPadding = PaddingValues(horizontal = Space.sm),
                     ) {
@@ -317,7 +329,7 @@ private fun LookupCard(
                         )
                         Spacer(Modifier.width(Space.xs))
                         Text(
-                            text = if (lookup.saved) "Saved" else "Save",
+                            text = if (lookup.saved) stringResource(R.string.lookup_saved) else stringResource(R.string.lookup_save),
                             maxLines = 1,
                             style = MaterialTheme.typography.labelMedium,
                         )
@@ -325,7 +337,7 @@ private fun LookupCard(
                     Button(
                         onClick = onSendToAnki,
                         interactionSource = ankiInteraction,
-                        modifier = groupButton(1, 2).height(46.dp),
+                        modifier = Modifier.groupButton(1, 2).height(46.dp),
                         shape = groupShape(1, 2, ankiPressed),
                         contentPadding = PaddingValues(horizontal = Space.sm),
                     ) {
@@ -335,7 +347,11 @@ private fun LookupCard(
                             modifier = Modifier.size(18.dp),
                         )
                         Spacer(Modifier.width(Space.xs))
-                        Text("Anki", maxLines = 1, style = MaterialTheme.typography.labelMedium)
+                        Text(
+                            stringResource(R.string.lookup_anki),
+                            maxLines = 1,
+                            style = MaterialTheme.typography.labelMedium,
+                        )
                     }
                 },
             )

@@ -52,6 +52,9 @@ import com.lingodeck.reader.ui.theme.Space
 import com.lingodeck.reader.util.VocabFilter
 import com.lingodeck.reader.util.VocabFilterEngine
 import com.lingodeck.reader.util.VocabSort
+import com.lingodeck.reader.R
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 
 /**
  * The word list: everything kept, searchable, and one tap from the article it came from.
@@ -90,7 +93,7 @@ fun WordListScreen(
         contentWindowInsets = WindowInsets(0),
         topBar = {
             MediumTopAppBar(
-                title = { Text("Words") },
+                title = { Text(stringResource(R.string.words_title)) },
                 actions = {
                     TextButton(
                         onClick = {
@@ -101,7 +104,12 @@ fun WordListScreen(
                     ) {
                         Icon(Icons.AutoMirrored.Rounded.Sort, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(Space.xs))
-                        Text(if (sort == VocabSort.Newest) "Newest" else "A–Z")
+                        Text(
+                            stringResource(
+                                if (sort == VocabSort.Newest) R.string.words_sort_newest
+                                else R.string.words_sort_alphabetical,
+                            ),
+                        )
                     }
                 },
                 scrollBehavior = scrollBehavior,
@@ -133,12 +141,15 @@ fun WordListScreen(
                         onValueChange = onQueryChange,
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
-                        placeholder = { Text("Search words, glosses or sentences") },
+                        placeholder = { Text(stringResource(R.string.words_search_hint)) },
                         leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
                         trailingIcon = {
                             if (query.isNotEmpty()) {
                                 androidx.compose.material3.IconButton(onClick = { onQueryChange("") }) {
-                                    Icon(Icons.Filled.Close, contentDescription = "Clear search")
+                                    Icon(
+                                        Icons.Filled.Close,
+                                        contentDescription = stringResource(R.string.words_clear_search),
+                                    )
                                 }
                             }
                         },
@@ -152,7 +163,7 @@ fun WordListScreen(
                             FilterChip(
                                 selected = filter == option,
                                 onClick = { onFilterChange(option) },
-                                label = { Text(filterLabel(option, vocab)) },
+                                label = { Text(stringResource(filterLabelRes(option))) },
                                 shape = MaterialTheme.shapes.small,
                                 colors = FilterChipDefaults.filterChipColors(
                                     selectedContainerColor = LingoTheme.colors.accentContainer,
@@ -168,12 +179,11 @@ fun WordListScreen(
                 item(key = "empty") {
                     EmptyState(
                         icon = Icons.Rounded.Bookmarks,
-                        title = "No words yet",
-                        body = "Open an article, tap a word, and choose Save. " +
-                            "Everything you keep is collected here.",
+                        title = stringResource(R.string.words_empty_title),
+                        body = stringResource(R.string.words_empty_body),
                         action = {
                             androidx.compose.material3.FilledTonalButton(onClick = onBrowseLibrary) {
-                                Text("Find an article")
+                                Text(stringResource(R.string.words_empty_action))
                             }
                         },
                     )
@@ -182,18 +192,17 @@ fun WordListScreen(
                 item(key = "no-match") {
                     EmptyState(
                         icon = Icons.Rounded.Search,
-                        title = "Nothing matches",
+                        title = stringResource(R.string.words_no_match_title),
                         body = if (query.isNotBlank()) {
-                            "No saved word matches \"$query\". " +
-                                "Search also looks through glosses and the sentence each word came from."
+                            stringResource(R.string.words_no_match_query, query)
                         } else {
-                            "No words in this filter yet."
+                            stringResource(R.string.words_no_match_filter)
                         },
                     )
                 }
             } else {
                 item(key = "count") {
-                    SectionHeader(title = "Saved", count = visible.size)
+                    SectionHeader(title = stringResource(R.string.words_saved_header), count = visible.size)
                 }
 
                 items(visible, key = { it.id }) { item ->
@@ -213,12 +222,12 @@ fun WordListScreen(
                         // now joined by the export action that used to sit awkwardly beside the
                         // duplicate page heading.
                         Text(
-                            text = "Definitions: Kaikki / English Wiktionary, CC BY-SA 4.0",
+                            text = stringResource(R.string.attribution),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         TextButton(onClick = onExport) {
-                            Text("Export all as Anki TSV")
+                            Text(stringResource(R.string.words_export_all))
                         }
                     }
                 }
@@ -227,11 +236,11 @@ fun WordListScreen(
     }
 }
 
-private fun filterLabel(filter: VocabFilter, vocab: List<VocabItem>): String = when (filter) {
-    VocabFilter.All -> "All"
-    VocabFilter.NotSent -> "Not on Anki"
-    VocabFilter.Sent -> "On Anki"
-    VocabFilter.ByArticle -> "By article"
+private fun filterLabelRes(filter: VocabFilter): Int = when (filter) {
+    VocabFilter.All -> R.string.words_filter_all
+    VocabFilter.NotSent -> R.string.words_filter_not_sent
+    VocabFilter.Sent -> R.string.words_filter_sent
+    VocabFilter.ByArticle -> R.string.words_filter_by_article
 }
 
 /**
@@ -264,14 +273,14 @@ private fun WordCard(
                 androidx.compose.material3.IconButton(onClick = onSpeak, modifier = Modifier.size(36.dp)) {
                     Icon(
                         Icons.AutoMirrored.Rounded.VolumeUp,
-                        contentDescription = "Hear ${item.word}",
+                        contentDescription = stringResource(R.string.words_hear, item.word),
                         modifier = Modifier.size(20.dp),
                     )
                 }
                 androidx.compose.material3.IconButton(onClick = onDelete, modifier = Modifier.size(36.dp)) {
                     Icon(
                         Icons.Filled.Delete,
-                        contentDescription = "Remove ${item.word}",
+                        contentDescription = stringResource(R.string.words_remove, item.word),
                         modifier = Modifier.size(20.dp),
                         tint = MaterialTheme.colorScheme.error,
                     )
@@ -280,7 +289,7 @@ private fun WordCard(
 
             if (item.lemma.isNotBlank() && !item.lemma.equals(item.word, ignoreCase = true)) {
                 Text(
-                    text = "of ${item.lemma}",
+                    text = stringResource(R.string.words_of_lemma, item.lemma),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -308,7 +317,11 @@ private fun WordCard(
             }
             if (glosses.size > MAX_VISIBLE_GLOSSES) {
                 Text(
-                    text = "+${glosses.size - MAX_VISIBLE_GLOSSES} more",
+                    text = pluralStringResource(
+                        R.plurals.words_more_glosses,
+                        glosses.size - MAX_VISIBLE_GLOSSES,
+                        glosses.size - MAX_VISIBLE_GLOSSES,
+                    ),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -340,7 +353,7 @@ private fun WordCard(
                 )
                 if (item.sentToAnkiAt != null) {
                     MetaChip(
-                        text = "On Anki",
+                        text = stringResource(R.string.words_on_anki),
                         containerColor = LingoTheme.colors.accentContainer,
                         contentColor = LingoTheme.colors.onAccentContainer,
                         leadingIcon = Icons.Rounded.School,
@@ -352,7 +365,10 @@ private fun WordCard(
                     ) {
                         Icon(Icons.Rounded.School, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(Modifier.width(Space.xs))
-                        Text("Send to Anki", style = MaterialTheme.typography.labelMedium)
+                        Text(
+                            stringResource(R.string.words_send_to_anki),
+                            style = MaterialTheme.typography.labelMedium,
+                        )
                     }
                 }
             }

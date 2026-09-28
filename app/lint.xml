@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Two lint findings that are deliberately accepted, scoped to the file they apply to.
+
+  Lint has never been run on this project before the redesign. When it was, it produced 29
+  findings; 27 were acted on. These two remain, and each is here because the finding is wrong or
+  the code is deliberately out of scope — not because it is inconvenient.
+-->
+<lint>
+    <!--
+      Lint reads the -v26 on mipmap-anydpi-v26/ as redundant because minSdk is already 26. It is
+      not. AAPT only accepts the <adaptive-icon> root element in a version qualified resource:
+      moving these files to a plain mipmap-anydpi fails the resource link with
+      "resource mipmap/ic_launcher not found". Verified by doing it.
+    -->
+    <issue id="ObsoleteSdkInt">
+        <ignore path="src/main/res/mipmap-anydpi-v26" />
+    </issue>
+
+    <!--
+      Uri.parse versus the KTX String.toUri extension. Pre-existing, in a package that is
+      hash- and URL-parity-locked to the Chrome extension and deliberately untouched by the
+      redesign. It stays until that file is next changed for its own reasons.
+    -->
+    <issue id="UseKtx">
+        <ignore path="src/main/java/com/lingodeck/reader/anki/AnkiDroid.kt" />
+    </issue>
+</lint>

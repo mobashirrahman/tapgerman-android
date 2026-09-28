@@ -1,3 +1,6 @@
+<!-- Shipped on purpose: the OFL requires the licence to accompany the font, and this is
+     the only way it travels with the binary into the installed APK. Referenced from
+     Settings > About as text rather than as a resource. -->
 Copyright 2017 The Literata Project Authors (https://github.com/googlefonts/literata)
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.

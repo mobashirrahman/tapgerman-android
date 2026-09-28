@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.LightMode
@@ -41,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import com.lingodeck.reader.brand.BrandMark
@@ -53,6 +56,12 @@ import com.lingodeck.reader.ui.theme.Gutter
 import com.lingodeck.reader.ui.theme.LingoTheme
 import com.lingodeck.reader.ui.theme.Space
 import kotlin.math.roundToInt
+import com.lingodeck.reader.R
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+import com.lingodeck.reader.BuildConfig
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 
 /**
  * Settings, which the pre-redesign app did not have.
@@ -77,6 +86,7 @@ fun SettingsScreen(
     onExport: () -> Unit,
     onClearWords: () -> Unit,
     onClearHistory: () -> Unit,
+    onShowLicences: () -> Unit,
 ) {
     val listState = rememberLazyListState()
     val appBarState = rememberTopAppBarState()
@@ -89,7 +99,7 @@ fun SettingsScreen(
         contentWindowInsets = WindowInsets(0),
         topBar = {
             MediumTopAppBar(
-                title = { Text("Settings") },
+                title = { Text(stringResource(R.string.settings_title)) },
                 scrollBehavior = scrollBehavior,
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface,
@@ -114,13 +124,13 @@ fun SettingsScreen(
         ) {
             item(key = "brand") { BrandHeader() }
 
-            item(key = "appearance-header") { SectionHeader(title = "Appearance") }
+            item(key = "appearance-header") { SectionHeader(title = stringResource(R.string.settings_appearance)) }
 
             item(key = "theme") {
                 LingoCard(modifier = Modifier.fillMaxWidth()) {
                     Column(verticalArrangement = Arrangement.spacedBy(Space.md)) {
                         Text(
-                            text = "Theme",
+                            text = stringResource(R.string.settings_theme),
                             style = LingoTheme.emphasized.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface,
                         )
@@ -155,20 +165,18 @@ fun SettingsScreen(
 
             item(key = "dynamic") {
                 SettingSwitch(
-                    title = "Use wallpaper colours",
-                    body = "Material You, from the system palette. Off by default: the accent " +
-                        "marks which words are tappable and which you have saved, and handing " +
-                        "that to an arbitrary wallpaper colour makes the app's one real " +
-                        "affordance unreliable.",
+                    title = stringResource(R.string.settings_dynamic_title),
+                    body = stringResource(R.string.settings_dynamic_body),
                     checked = settings.dynamicColor,
                     onCheckedChange = onDynamicColorChange,
                 )
             }
 
-            item(key = "reading-header") { SectionHeader(title = "Reading") }
+            item(key = "reading-header") { SectionHeader(title = stringResource(R.string.settings_reading)) }
 
             item(key = "text-size") {
                 LingoCard(modifier = Modifier.fillMaxWidth()) {
+                    val textSizeLabel = stringResource(R.string.settings_text_size)
                     Column(verticalArrangement = Arrangement.spacedBy(Space.sm)) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -176,12 +184,15 @@ fun SettingsScreen(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
-                                text = "Article text size",
+                                text = textSizeLabel,
                                 style = LingoTheme.emphasized.titleMedium,
                                 color = MaterialTheme.colorScheme.onSurface,
                             )
                             Text(
-                                text = "${(20f * settings.textScale).roundToInt()} sp",
+                                text = stringResource(
+                                    R.string.settings_text_size_sp,
+                                    (20f * settings.textScale).roundToInt(),
+                                ),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -191,10 +202,11 @@ fun SettingsScreen(
                             onValueChange = onTextScaleChange,
                             valueRange = Settings.MIN_TEXT_SCALE..Settings.MAX_TEXT_SCALE,
                             steps = 4,
+                            modifier = Modifier.semantics { contentDescription = textSizeLabel },
                         )
                         // A live sample, so the effect is visible while choosing rather than after.
                         Text(
-                            text = "Das ist die höchste Zahl des Quartals.",
+                            text = stringResource(R.string.settings_text_sample),
                             style = LingoTheme.reading.at(settings.textScale).body,
                             color = LingoTheme.colors.onReadingSurface,
                         )
@@ -202,24 +214,31 @@ fun SettingsScreen(
                 }
             }
 
+            item(key = "haptics") {
+                SettingSwitch(
+                    title = stringResource(R.string.settings_haptics),
+                    body = stringResource(R.string.settings_haptics_body),
+                    checked = settings.haptics,
+                    onCheckedChange = onHapticsChange,
+                )
+            }
+
             item(key = "highlight") {
                 SettingSwitch(
-                    title = "Tint tappable words",
-                    body = "Colours every word in the article slightly, so it is visible that " +
-                        "words can be tapped. Words you have saved are tinted further and " +
-                        "underlined.",
+                    title = stringResource(R.string.settings_tint_title),
+                    body = stringResource(R.string.settings_tint_body),
                     checked = settings.highlightTappableWords,
                     onCheckedChange = onHighlightChange,
                 )
             }
 
-            item(key = "anki-header") { SectionHeader(title = "Anki") }
+            item(key = "anki-header") { SectionHeader(title = stringResource(R.string.settings_anki)) }
 
             item(key = "deck") {
                 LingoCard(modifier = Modifier.fillMaxWidth()) {
                     Column(verticalArrangement = Arrangement.spacedBy(Space.sm)) {
                         Text(
-                            text = "Deck name",
+                            text = stringResource(R.string.settings_deck),
                             style = LingoTheme.emphasized.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface,
                         )
@@ -231,8 +250,7 @@ fun SettingsScreen(
                             shape = MaterialTheme.shapes.medium,
                         )
                         Text(
-                            text = "Cards are created in this deck in AnkiDroid, which must be " +
-                                "installed and have granted LingoDeck access.",
+                            text = stringResource(R.string.settings_deck_body),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -240,21 +258,21 @@ fun SettingsScreen(
                 }
             }
 
-            item(key = "data-header") { SectionHeader(title = "Data") }
+            item(key = "data-header") { SectionHeader(title = stringResource(R.string.settings_data)) }
 
             item(key = "counts") {
                 LingoCard(modifier = Modifier.fillMaxWidth()) {
                     Column(verticalArrangement = Arrangement.spacedBy(Space.sm)) {
-                        DataRow("Articles in the library", counts.articles.toString())
-                        DataRow("Words saved", counts.words.toString())
-                        DataRow("Sent to Anki", counts.sentToAnki.toString())
+                        DataRow(stringResource(R.string.settings_data_articles), counts.articles.toString())
+                        DataRow(stringResource(R.string.settings_data_words), counts.words.toString())
+                        DataRow(stringResource(R.string.settings_data_sent), counts.sentToAnki.toString())
                     }
                 }
             }
 
             item(key = "export") {
                 TextButton(onClick = onExport, modifier = Modifier.fillMaxWidth()) {
-                    Text("Export all words as Anki TSV")
+                    Text(stringResource(R.string.settings_export))
                 }
             }
 
@@ -264,7 +282,7 @@ fun SettingsScreen(
                     modifier = Modifier.fillMaxWidth(),
                     enabled = counts.words > 0,
                 ) {
-                    Text("Clear word list", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.settings_clear_words), color = MaterialTheme.colorScheme.error)
                 }
             }
 
@@ -274,37 +292,36 @@ fun SettingsScreen(
                     modifier = Modifier.fillMaxWidth(),
                     enabled = counts.articles > 0,
                 ) {
-                    Text("Clear article history", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.settings_clear_history), color = MaterialTheme.colorScheme.error)
                 }
             }
 
-            item(key = "about-header") { SectionHeader(title = "About") }
+            item(key = "about-header") { SectionHeader(title = stringResource(R.string.settings_about)) }
 
             item(key = "about") {
                 LingoCard(modifier = Modifier.fillMaxWidth()) {
                     Column(verticalArrangement = Arrangement.spacedBy(Space.sm)) {
                         Text(
-                            text = "LingoDeck Reader",
+                            text = stringResource(R.string.app_name),
                             style = LingoTheme.emphasized.titleMedium,
                             color = MaterialTheme.colorScheme.onSurface,
                         )
                         Text(
-                            text = "An Android companion to the LingoDeck Chrome extension. " +
-                                "Words saved here and in the browser land on the same Anki card.",
+                            text = stringResource(R.string.settings_about_body),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         Text(
-                            text = "Definitions: Kaikki / English Wiktionary, CC BY-SA 4.0",
+                            text = stringResource(R.string.attribution),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                        Text(
-                            text = "Typefaces: Literata and Inter, both under the SIL Open Font " +
-                                "Licence 1.1.",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                        TextButton(
+                            onClick = onShowLicences,
+                            contentPadding = PaddingValues(horizontal = Space.sm),
+                        ) {
+                            Text(stringResource(R.string.licence_fonts))
+                        }
                     }
                 }
             }
@@ -313,10 +330,8 @@ fun SettingsScreen(
 
     if (confirmClearWords) {
         ConfirmDialog(
-            title = "Clear the word list?",
-            body = "This removes all ${counts.words} saved words from this device. " +
-                "Cards already in AnkiDroid are not touched.",
-            confirmLabel = "Clear",
+            title = stringResource(R.string.settings_clear_words_title),
+            body = pluralStringResource(R.plurals.settings_clear_words_body, counts.words, counts.words),
             onConfirm = { onClearWords(); confirmClearWords = false },
             onDismiss = { confirmClearWords = false },
         )
@@ -324,14 +339,52 @@ fun SettingsScreen(
 
     if (confirmClearHistory) {
         ConfirmDialog(
-            title = "Clear article history?",
-            body = "This removes all ${counts.articles} saved articles from this device. " +
-                "Saved words are not touched.",
-            confirmLabel = "Clear",
+            title = stringResource(R.string.settings_clear_history_title),
+            body = pluralStringResource(R.plurals.settings_clear_history_body, counts.articles, counts.articles),
             onConfirm = { onClearHistory(); confirmClearHistory = false },
             onDismiss = { confirmClearHistory = false },
         )
     }
+}
+
+/** The theme segmented button needs a string, and a `when` on an enum is clearer than a map. */
+private fun themeLabelRes(mode: ThemeMode): Int = when (mode) {
+    ThemeMode.System -> R.string.settings_theme_system
+    ThemeMode.Light -> R.string.settings_theme_light
+    ThemeMode.Dark -> R.string.settings_theme_dark
+}
+
+/**
+ * The bundled font licences.
+ *
+ * The OFL requires the licence to accompany the font. Shipping it as a raw resource is the only
+ * way it travels with the binary, and this is what makes those resources reachable: reading
+ * `R.raw.inter_ofl` and `R.raw.literata_ofl` out of the APK and showing them.
+ */
+@Composable
+fun LicenceDialog(onDismiss: () -> Unit) {
+    // LocalResources rather than LocalContext.current.resources: it is the Compose-native way and
+    // it is what keeps this correct under configuration changes and in a preview.
+    val resources = LocalResources.current
+    val text = remember(resources) {
+        listOf(R.raw.inter_ofl, R.raw.literata_ofl).joinToString("\n\n") { id ->
+            resources.openRawResource(id).bufferedReader().use { it.readText() }
+        }
+    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.licences_title)) },
+        text = {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.settings_cancel)) }
+        },
+    )
 }
 
 @Composable
@@ -344,12 +397,12 @@ private fun BrandHeader() {
             BrandMark(size = 40.dp, contentDescription = "LingoDeck")
             Column {
                 Text(
-                    text = "LingoDeck Reader",
+                    text = stringResource(R.string.app_name),
                     style = LingoTheme.emphasized.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
-                    text = "Version 0.2.0",
+                    text = stringResource(R.string.settings_version, BuildConfig.VERSION_NAME),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -382,7 +435,13 @@ private fun SettingSwitch(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            Switch(checked = checked, onCheckedChange = onCheckedChange)
+            // The title above is a separate semantics node, so without this the control is
+            // announced as just "switch" with no indication of what it switches.
+            Switch(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                modifier = Modifier.semantics { contentDescription = title },
+            )
         }
     }
 }
@@ -411,7 +470,6 @@ private fun DataRow(label: String, value: String) {
 private fun ConfirmDialog(
     title: String,
     body: String,
-    confirmLabel: String,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -421,9 +479,11 @@ private fun ConfirmDialog(
         text = { Text(body) },
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text(confirmLabel, color = MaterialTheme.colorScheme.error)
+                Text(stringResource(R.string.settings_confirm_clear), color = MaterialTheme.colorScheme.error)
             }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.settings_cancel)) }
+        },
     )
 }

@@ -83,15 +83,15 @@ fun LingoDeckTheme(
  *
  * `ValueAnimator.areAnimatorsEnabled()` is the right question rather than
  * `ANIMATOR_DURATION_SCALE`, because it accounts for the Accessibility setting that removes
- * animations outright, not just the developer slider. It needs API 26, which is this app's floor.
+ * animations outright, not just the developer slider. It is API 26, which is this app's floor,
+ * so there is no version check to make.
  *
  * Compose honours this for its own transitions. It does not for hand-written ones, and after the
  * redesign most of the motion here *is* hand-written: the word highlight, the lookup card's
  * entrance, the count on the stats row. Those consult this and stand down, rather than
  * animating at a user who asked for stillness.
  */
-private fun animatorsAreEnabled(): Boolean =
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) ValueAnimator.areAnimatorsEnabled() else true
+private fun animatorsAreEnabled(): Boolean = ValueAnimator.areAnimatorsEnabled()
 
 val LocalMotionEnabled = staticCompositionLocalOf { true }
 

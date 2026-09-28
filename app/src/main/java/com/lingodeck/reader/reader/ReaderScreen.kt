@@ -59,8 +59,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
@@ -81,6 +79,9 @@ import com.lingodeck.reader.ui.theme.Gutter
 import com.lingodeck.reader.ui.theme.LingoTheme
 import com.lingodeck.reader.ui.theme.Space
 import com.lingodeck.reader.util.ReadingStats
+import com.lingodeck.reader.R
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
 
 /**
  * The reader: German prose where every word is a tap target.
@@ -158,7 +159,10 @@ fun ReaderScreen(
                     },
                     navigationIcon = {
                         FilledTonalIconButton(onClick = onBack) {
-                            Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back to library")
+                            Icon(
+                                Icons.AutoMirrored.Rounded.ArrowBack,
+                                contentDescription = stringResource(R.string.back_to_library),
+                            )
                         }
                     },
                     actions = {
@@ -167,9 +171,9 @@ fun ReaderScreen(
                             Icon(
                                 imageVector = Icons.Rounded.FormatSize,
                                 contentDescription = if (sessionWords.isEmpty()) {
-                                    "Words looked at in this article"
+                                    stringResource(R.string.reader_progress_words)
                                 } else {
-                                    "Words looked at in this article: ${sessionWords.size}"
+                                    stringResource(R.string.reader_progress_words_count, sessionWords.size)
                                 },
                             )
                         }
@@ -279,8 +283,16 @@ private fun ArticleHeader(article: Article, onShowWords: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (article.domain.isNotBlank()) MetaChip(text = article.domain)
-            MetaChip(text = "${ReadingStats.wordCount(article)} words")
-            MetaChip(text = "${ReadingStats.readingMinutes(article)} min read")
+            MetaChip(
+                text = pluralStringResource(
+                    R.plurals.article_word_count,
+                    ReadingStats.wordCount(article),
+                    ReadingStats.wordCount(article),
+                ),
+            )
+            MetaChip(
+                text = stringResource(R.string.article_minutes_read, ReadingStats.readingMinutes(article)),
+            )
         }
 
         // The affordance stated outright, once, at the top of the article rather than buried in a
@@ -296,7 +308,7 @@ private fun ArticleHeader(article: Article, onShowWords: () -> Unit) {
                 tint = LingoTheme.colors.accent,
             )
             Text(
-                text = "Tap any word for its meaning. Hold to hear it.",
+                text = stringResource(R.string.reader_hint),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -305,7 +317,7 @@ private fun ArticleHeader(article: Article, onShowWords: () -> Unit) {
         TextButton(onClick = onShowWords, contentPadding = PaddingValues(horizontal = Space.sm)) {
             Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(Modifier.width(Space.xs))
-            Text("Words in this article")
+            Text(stringResource(R.string.reader_words_here))
         }
     }
 }
@@ -323,7 +335,7 @@ private fun ArticleFooter(article: Article) {
         // line per hundred lookups would bury the reading — but the reader is a place a licence can
         // live without being in the way.
         Text(
-            text = "Definitions: Kaikki / English Wiktionary, CC BY-SA 4.0",
+            text = stringResource(R.string.attribution),
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -350,6 +362,13 @@ private fun ArticleFooter(article: Article) {
  * 3. **Pressed** — a filled accent highlight with a haptic tick on press. A tap with no feedback is
  *    indistinguishable from a tap that missed, which is the failure that made the pre-redesign
  *    interaction feel broken even when it worked.
+ *
+ * On accessibility: the paragraph carries **no** `contentDescription`, on purpose. A `BasicText`
+ * with word annotations does not expose per-word nodes, which is a genuine limitation — but
+ * setting a contentDescription here to describe the interaction would *override* the paragraph's
+ * text in the semantics tree, so a screen reader user would hear "tap a word to see its meaning"
+ * instead of the article. Being unable to read the text at all is far worse than not having the
+ * gesture announced, and the same hint is visible, and therefore readable, once in the header.
  */
 @Composable
 private fun TappableParagraph(
@@ -403,18 +422,12 @@ private fun TappableParagraph(
     // Screen readers get the paragraph as one block of text plus a description of the
     // interaction, because a BasicText with annotations does not expose per-word nodes. Announcing
     // "tap any word" is the honest description of what a sighted reader can see.
-    val paragraphDescription = remember(text) {
-        val words = ReadingStats.countWords(text)
-        "Tap a word to see its meaning, or hold a word to hear it. $words words."
-    }
-
     androidx.compose.foundation.text.BasicText(
         text = annotated,
         style = style.copy(color = bodyColor),
         onTextLayout = { layout.value = it },
         modifier = Modifier
             .fillMaxWidth()
-            .semantics { contentDescription = paragraphDescription }
             .onGloballyPositioned { originInWindow.value = it.positionInWindow() }
             .pointerInput(text, spans) {
                 detectTapGestures(
@@ -463,14 +476,14 @@ private fun TextSizeControl(scale: Float, onScale: (Float) -> Unit) {
             enabled = scale > 0.8f,
             contentPadding = PaddingValues(horizontal = Space.sm),
         ) {
-            Text("A−", style = MaterialTheme.typography.labelMedium)
+            Text(stringResource(R.string.reader_smaller), style = MaterialTheme.typography.labelMedium)
         }
         TextButton(
             onClick = { onScale(scale + step) },
             enabled = scale < 1.3f,
             contentPadding = PaddingValues(horizontal = Space.sm),
         ) {
-            Text("A+", style = MaterialTheme.typography.labelMedium)
+            Text(stringResource(R.string.reader_larger), style = MaterialTheme.typography.labelMedium)
         }
     }
 }
@@ -491,9 +504,8 @@ private fun ArticleWordsSheet(
     if (words.isEmpty()) {
         EmptyState(
             icon = Icons.Rounded.AutoStories,
-            title = "No words yet",
-            body = "Tap any word in the article and it will be listed here, " +
-                "so you can see what you have met without leaving the page.",
+            title = stringResource(R.string.reader_session_empty_title),
+            body = stringResource(R.string.reader_session_empty_body),
         )
         return
     }
@@ -506,7 +518,7 @@ private fun ArticleWordsSheet(
         ),
         verticalArrangement = Arrangement.spacedBy(Space.sm),
     ) {
-        SectionHeader(title = "Words in this article", count = words.size)
+        SectionHeader(title = stringResource(R.string.reader_words_here), count = words.size)
         words.forEach { word ->
             Row(
                 modifier = Modifier
@@ -521,7 +533,11 @@ private fun ArticleWordsSheet(
                     modifier = Modifier.weight(1f),
                 )
                 MetaChip(
-                    text = if (word.saved) "saved" else "looked up",
+                    text = if (word.saved) {
+                        stringResource(R.string.reader_session_saved)
+                    } else {
+                        stringResource(R.string.reader_session_looked_up)
+                    },
                     containerColor = if (word.saved) {
                         LingoTheme.colors.accentContainer
                     } else {
@@ -540,7 +556,7 @@ private fun ArticleWordsSheet(
             onClick = onOpenWordList,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Text("Open word list")
+            Text(stringResource(R.string.reader_session_open_list))
         }
     }
 }

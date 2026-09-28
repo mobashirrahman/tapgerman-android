@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.core.content.FileProvider
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lingodeck.reader.R
 import com.lingodeck.reader.nav.AppShell
 import com.lingodeck.reader.ui.theme.LingoDeckTheme
 import java.io.File
@@ -97,10 +98,10 @@ class MainActivity : ComponentActivity() {
         file.writeText(model.exportTsv(), Charsets.UTF_8)
         val uri: Uri = FileProvider.getUriForFile(this, "$packageName.fileprovider", file)
         val share = Intent(Intent.ACTION_SEND).apply {
-            type = "text/tab-separated-values"
+            type = getString(R.string.share_anki_mime)
             putExtra(Intent.EXTRA_STREAM, uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        startActivity(Intent.createChooser(share, "Export Anki TSV"))
+        startActivity(Intent.createChooser(share, getString(R.string.share_anki_export)))
     }
 }

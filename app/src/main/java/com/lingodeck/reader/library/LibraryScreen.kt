@@ -73,6 +73,11 @@ import com.lingodeck.reader.ui.theme.Gutter
 import com.lingodeck.reader.ui.theme.LingoTheme
 import com.lingodeck.reader.ui.theme.Space
 import com.lingodeck.reader.util.ReadingStats
+import com.lingodeck.reader.R
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.platform.LocalContext
+import com.lingodeck.reader.ui.UiText
 
 /**
  * The library: paste a link, see what you have read, see what you have collected.
@@ -115,7 +120,7 @@ fun LibraryScreen(
                     ) {
                         BrandMark(size = 28.dp)
                         Text(
-                            text = "LingoDeck",
+                            text = stringResource(R.string.brand_name),
                             style = LingoTheme.emphasized.headlineSmall,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
@@ -124,7 +129,7 @@ fun LibraryScreen(
                 },
                 actions = {
                     FilledTonalIconButton(onClick = onOpenSettings) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = "Settings")
+                        Icon(Icons.Filled.MoreVert, contentDescription = stringResource(R.string.tab_settings))
                     }
                 },
                 scrollBehavior = scrollBehavior,
@@ -170,7 +175,7 @@ fun LibraryScreen(
 
             item(key = "recent-header") {
                 SectionHeader(
-                    title = "Recently read",
+                    title = stringResource(R.string.library_recently_read),
                     count = state.library.size,
                 )
             }
@@ -179,9 +184,8 @@ fun LibraryScreen(
                 item(key = "empty") {
                     EmptyState(
                         icon = Icons.Rounded.AutoStories,
-                        title = "Nothing read yet",
-                        body = "Share a German article from your browser, or paste its address above, " +
-                            "and it will open here ready to read.",
+                        title = stringResource(R.string.library_empty_title),
+                        body = stringResource(R.string.library_empty_body),
                     )
                 }
             } else {
@@ -199,10 +203,9 @@ fun LibraryScreen(
                 item(key = "no-words") {
                     EmptyState(
                         icon = Icons.Rounded.SearchOff,
-                        title = "No words collected",
-                        body = "Open an article and tap any word. " +
-                            "The ones you keep show up on the Words tab.",
-                        action = { TextButton(onClick = onOpenWords) { Text("Go to words") } },
+                        title = stringResource(R.string.library_no_words_title),
+                        body = stringResource(R.string.library_no_words_body),
+                        action = { TextButton(onClick = onOpenWords) { Text(stringResource(R.string.library_go_to_words)) } },
                     )
                 }
             }
@@ -220,7 +223,7 @@ fun LibraryScreen(
 @Composable
 private fun ReadLinkCard(
     loading: Boolean,
-    error: String?,
+    error: UiText?,
     onRead: (String) -> Unit,
 ) {
     var typed by remember { mutableStateOf("") }
@@ -234,13 +237,12 @@ private fun ReadLinkCard(
         Column(verticalArrangement = Arrangement.spacedBy(Space.md)) {
             Column(verticalArrangement = Arrangement.spacedBy(Space.xs)) {
                 Text(
-                    text = "Read it in German",
+                    text = stringResource(R.string.library_read_headline),
                     style = LingoTheme.emphasized.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
-                    text = "Share any article from your browser, or paste a link. " +
-                        "Tap any word to see what it means.",
+                    text = stringResource(R.string.library_read_body),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -252,12 +254,12 @@ private fun ReadLinkCard(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 enabled = !loading,
-                placeholder = { Text("https://…") },
+                placeholder = { Text(stringResource(R.string.library_url_hint)) },
                 leadingIcon = { Icon(Icons.Rounded.Link, contentDescription = null) },
                 trailingIcon = {
                     if (typed.isNotEmpty()) {
                         FilledTonalIconButton(onClick = { typed = "" }) {
-                            Icon(Icons.Filled.Close, contentDescription = "Clear")
+                            Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.library_clear_url))
                         }
                     }
                 },
@@ -292,17 +294,17 @@ private fun ReadLinkCard(
                 if (loading) {
                     MorphingLoadingIndicator(size = 20.dp, color = lingo.onAccent, thickness = 2.dp)
                     Spacer(Modifier.size(Space.sm))
-                    Text("Reading…", style = LingoTheme.emphasized.labelLarge)
+                    Text(stringResource(R.string.library_reading), style = LingoTheme.emphasized.labelLarge)
                 } else {
                     Icon(Icons.Filled.Add, contentDescription = null)
                     Spacer(Modifier.size(Space.sm))
-                    Text("Read article", style = LingoTheme.emphasized.labelLarge)
+                    Text(stringResource(R.string.library_read_action), style = LingoTheme.emphasized.labelLarge)
                 }
             }
 
             if (error != null) {
                 Spacer(Modifier.height(Space.xs))
-                ErrorSurface(message = error)
+                ErrorSurface(message = error.resolve(LocalContext.current))
             }
         }
     }
@@ -318,19 +320,19 @@ private fun StatsRow(
     Row(horizontalArrangement = Arrangement.spacedBy(Space.md)) {
         StatTile(
             value = articles.toString(),
-            label = if (articles == 1) "article read" else "articles read",
+            label = pluralStringResource(R.plurals.stat_articles, articles, articles),
             modifier = Modifier.weight(1f),
         )
         StatTile(
             value = words.toString(),
-            label = if (words == 1) "word kept" else "words kept",
+            label = pluralStringResource(R.plurals.stat_words, words, words),
             modifier = Modifier
                 .weight(1f)
                 .clickable(onClick = onOpenWords),
         )
         StatTile(
             value = sentToAnki.toString(),
-            label = "on Anki",
+            label = stringResource(R.string.stat_sent_to_anki),
             modifier = Modifier.weight(1f),
         )
     }
@@ -376,10 +378,10 @@ private fun ArticleCard(
                     if (article.domain.isNotBlank()) {
                         MetaChip(text = article.domain)
                     }
-                    MetaChip(text = "${ReadingStats.readingMinutes(article)} min")
+                    MetaChip(text = stringResource(R.string.article_minutes, ReadingStats.readingMinutes(article)))
                     if (savedCount > 0) {
                         MetaChip(
-                            text = "$savedCount ${if (savedCount == 1) "word" else "words"}",
+                            text = pluralStringResource(R.plurals.article_words_saved, savedCount, savedCount),
                             containerColor = LingoTheme.colors.accentContainer,
                             contentColor = LingoTheme.colors.onAccentContainer,
                         )
@@ -411,15 +413,18 @@ private fun ArticleCard(
 
             Box {
                 FilledTonalIconButton(onClick = { menuOpen = true }) {
-                    Icon(Icons.Filled.MoreVert, contentDescription = "More options for ${article.title}")
+                    Icon(
+                        Icons.Filled.MoreVert,
+                        contentDescription = stringResource(R.string.library_more_options, article.title),
+                    )
                 }
                 DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                     DropdownMenuItem(
-                        text = { Text("Read") },
+                        text = { Text(stringResource(R.string.library_read_menu)) },
                         onClick = { menuOpen = false; onClick() },
                     )
                     DropdownMenuItem(
-                        text = { Text("Remove from library") },
+                        text = { Text(stringResource(R.string.library_remove_menu)) },
                         onClick = { menuOpen = false; onRemove() },
                     )
                 }
