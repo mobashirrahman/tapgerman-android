@@ -1,7 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Two themes, and not much in either.
+
+  The pre-redesign app had a single Light-only platform theme with
+  `android:windowLightStatusBar` hardcoded to true and no `values-night/` at all, so the system
+  status bar drew dark icons on top of the dark Compose surface whenever the user was in dark
+  mode. That class is gone.
+
+  Every colour, typeface and shape in the app now comes from `ui/theme`, so these themes exist
+  only to (a) provide the launch window before Compose draws its first frame and (b) make that
+  window match the app. System bar appearance is not set here at all: `enableEdgeToEdge()` owns
+  it, and it resolves the light/dark icon colour per configuration rather than from a value that
+  has to be duplicated into `values-night`.
+-->
 <resources>
-    <style name="Theme.LingoDeckReader" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:windowLightStatusBar">true</item>
+
+    <!-- The launch theme. `Theme.SplashScreen` is androidx.core:core-splashscreen, which
+         supplies the API 31+ implementation and backports it to API 26..30. -->
+    <style name="Theme.LingoDeckReader" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.LingoDeckReader.Content</item>
+    </style>
+
+    <!-- What the app actually runs in, once installSplashScreen() has handed over. -->
+    <style name="Theme.LingoDeckReader.Content" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
     </style>
 </resources>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The mark: a page of text with one word marked.
+
+  The product's whole idea is that you tap a word in a German article and find out what it
+  means, so the identity is that gesture rather than a speech bubble. A page plate, two plain
+  lines of text, and one line drawn taller in the electric accent so it reads as highlighted
+  rather than merely differently coloured.
+
+  Geometry sits inside the 66dp safe zone of the 108dp viewport (21..87), which means the
+  launcher can round, square or squircle this mask without cropping the mark, and the same
+  artwork is legible as the splash icon.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- The page -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M40,24 h28 a14,14 0 0 1 14,14 v32 a14,14 0 0 1 -14,14 h-28 a14,14 0 0 1 -14,-14 v-32 a14,14 0 0 1 14,-14 z" />
+
+    <!-- Line one -->
+    <path
+        android:fillColor="#FF1A1822"
+        android:pathData="M40,34 h30 a4,4 0 0 1 4,4 v0 a4,4 0 0 1 -4,4 h-30 a4,4 0 0 1 -4,-4 v0 a4,4 0 0 1 4,-4 z" />
+
+    <!-- The highlighted word: taller than the lines around it, which is what makes it read
+         as marked up rather than just differently coloured -->
+    <path
+        android:fillColor="#FFD2FF6B"
+        android:pathData="M42,50 h18 a6,6 0 0 1 6,6 v1 a6,6 0 0 1 -6,6 h-18 a6,6 0 0 1 -6,-6 v-1 a6,6 0 0 1 6,-6 z" />
+
+    <!-- Line two -->
+    <path
+        android:fillColor="#FF1A1822"
+        android:pathData="M40,69 h26 a4,4 0 0 1 4,4 v0 a4,4 0 0 1 -4,4 h-26 a4,4 0 0 1 -4,-4 v0 a4,4 0 0 1 4,-4 z" />
+</vector>

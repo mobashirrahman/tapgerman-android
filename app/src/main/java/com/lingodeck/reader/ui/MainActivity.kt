@@ -1,11 +1,14 @@
 package com.lingodeck.reader.ui
 
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
@@ -51,6 +54,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.lingodeck.reader.anki.AnkiDroid
 import com.lingodeck.reader.data.Article
 import com.lingodeck.reader.ui.theme.LingoDeckTheme
@@ -61,12 +65,37 @@ class MainActivity : ComponentActivity() {
 
     private val model: MainViewModel by viewModels()
 
+    /**
+     * Whether the launch window is still being held.
+     *
+     * Held for exactly one composition, which is the whole job: without it, Android 12+ shows the
+     * splash, tears it down, and briefly paints the window background before Compose's first
+     * frame lands. It is deliberately *not* held for the duration of the first article fetch,
+     * because the reader has a designed loading state and holding the splash would hide it.
+     */
+    private var holdSplash = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Before super: the launch theme is still on screen and this is the only chance to hand
+        // over to the content theme. Backports to API 26..30 through core-splashscreen.
+        val splash = installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        // Draw behind the system bars instead of letterboxing around them, and let the library
+        // resolve dark or light bar icons per configuration. The old theme hardcoded
+        // windowLightStatusBar=true, so in dark mode the status bar drew black icons on top of a
+        // near-black surface.
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT),
+        )
+
+        splash.setKeepOnScreenCondition { holdSplash }
+
         handleIntent(intent)
         setContent {
             LingoDeckTheme {
-                App(model = model)
+                App(model = model, onFirstFrame = { holdSplash = false })
             }
         }
     }
@@ -88,10 +117,14 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun App(model: MainViewModel) {
+private fun App(model: MainViewModel, onFirstFrame: () -> Unit = {}) {
     val state by model.state.collectAsState()
+
+    // Release the launch window as soon as there is something on screen to look at.
+    LaunchedEffect(Unit) { onFirstFrame() }
     val context = LocalContext.current
     val snackbar = remember { SnackbarHostState() }
 

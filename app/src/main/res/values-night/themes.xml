@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The dark half of the launch window.
+
+  `splash_background` and `window_background` are overridden in values-night/colors.xml, so the
+  app opens on the same near-black it uses everywhere else rather than flashing white between
+  the splash and the first composed frame. That was the visible symptom of the old setup, which
+  had no `values-night/` at all.
+-->
+<resources>
+    <style name="Theme.LingoDeckReader.Content" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
+    </style>
+</resources>

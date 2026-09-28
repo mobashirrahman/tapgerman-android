@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Launch window only. Shown for the few hundred milliseconds before Compose has a
+         frame, on the brand gradient, so the app opens on its own colours instead of the
+         platform default white. -->
+    <color name="splash_background">#FFFCFAFF</color>
+    <color name="window_background">#FFFCFAFF</color>
+</resources>
