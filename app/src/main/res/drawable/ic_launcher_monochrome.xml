@@ -4,8 +4,8 @@
 
   A themed icon is painted one colour by the system, so anything relying on contrast between two of
   its own colours disappears. Only the shape survives, which is why the foreground's marked bar is
-  drawn taller rather than merely recoloured: in a themed icon that height difference is the whole
-  idea. Geometry is identical to ic_launcher_foreground.xml.
+  drawn distinctly taller and wider rather than merely recoloured: in a themed icon those
+  proportions are the whole idea. Geometry is identical to ic_launcher_foreground.xml.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
@@ -13,18 +13,15 @@
     android:viewportWidth="108"
     android:viewportHeight="108"
     android:tint="?android:attr/colorControlNormal">
-    <!-- Line one -->
     <path
         android:fillColor="#FFFFFFFF"
-        android:pathData="M35,31.5 h34.5 a4.5,4.5 0 0 1 4.5,4.5 v0 a4.5,4.5 0 0 1 -4.5,4.5 h-34.5 a4.5,4.5 0 0 1 -4.5,-4.5 v0 a4.5,4.5 0 0 1 4.5,-4.5 z" />
+        android:pathData="M36,31 h20 a4.5,4.5 0 0 1 4.5,4.5 v0.5 a4.5,4.5 0 0 1 -4.5,4.5 h-20 a4.5,4.5 0 0 1 -4.5,-4.5 v-0.5 a4.5,4.5 0 0 1 4.5,-4.5 z" />
 
-    <!-- The marked line, still taller than the others -->
     <path
         android:fillColor="#FFFFFFFF"
-        android:pathData="M36.5,47.5 h23 a6,6 0 0 1 6,6 v0.5 a6,6 0 0 1 -6,6 h-23 a6,6 0 0 1 -6,-6 v-0.5 a6,6 0 0 1 6,-6 z" />
+        android:pathData="M39,45.5 h27.5 a7.5,7.5 0 0 1 7.5,7.5 v0.5 a7.5,7.5 0 0 1 -7.5,7.5 h-27.5 a7.5,7.5 0 0 1 -7.5,-7.5 v-0.5 a7.5,7.5 0 0 1 7.5,-7.5 z" />
 
-    <!-- Line two -->
     <path
         android:fillColor="#FFFFFFFF"
-        android:pathData="M35,66.5 h29.5 a4.5,4.5 0 0 1 4.5,4.5 v0 a4.5,4.5 0 0 1 -4.5,4.5 h-29.5 a4.5,4.5 0 0 1 -4.5,-4.5 v0 a4.5,4.5 0 0 1 4.5,-4.5 z" />
+        android:pathData="M36,65.5 h24 a4.5,4.5 0 0 1 4.5,4.5 v0.5 a4.5,4.5 0 0 1 -4.5,4.5 h-24 a4.5,4.5 0 0 1 -4.5,-4.5 v-0.5 a4.5,4.5 0 0 1 4.5,-4.5 z" />
 </vector>

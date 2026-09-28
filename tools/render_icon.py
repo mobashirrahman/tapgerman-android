@@ -27,6 +27,9 @@ CHECKER = (128, 128, 128)
 # Half the adaptive-icon mask: 72/2. Anything outside this is not guaranteed to be visible.
 MASK_R = 36.0
 
+# The platform's own key line, inside MASK_R. Content outside this may be cropped.
+KEY_LINE_R = 33.0
+
 
 # --- PNG ---------------------------------------------------------------------------
 
@@ -218,6 +221,35 @@ def squircle_inside(x, y, r):
     return abs(x / r) ** 4 + abs(y / r) ** 4 <= 1.0
 
 
+def check_safe_zone(path="ic_launcher_foreground.xml", limit=KEY_LINE_R):
+    """
+    Assert every shape sits inside the platform's key line.
+
+    Android's adaptive-icon mask is the centre 72x72 of the 108x108 canvas, so content past radius
+    36 can be cropped by a circular launcher mask, and the platform's own key line is radius 33.
+    Asserting it here is the point of having written the renderer: the first version of this mark
+    reached radius 38.9 and was visibly clipped, and that was only catchable by looking.
+
+    Returns the worst radius found, or raises.
+    """
+    import math
+
+    worst = 0.0
+    for layer in parse_vector(path):
+        for (x, y, w, h, r) in rrect_subpaths(layer["d"]):
+            # A rounded rect's extreme points are its four corners and the midpoint of each side.
+            for px, py in [(x, y + h / 2), (x + w, y + h / 2),
+                           (x + w / 2, y), (x + w / 2, y + h),
+                           (x, y), (x, y + h), (x + w, y), (x + w, y + h)]:
+                worst = max(worst, math.hypot(px - 54.0, py - 54.0))
+    if worst > limit:
+        raise SystemExit(
+            f"{path}: a shape reaches radius {worst:.1f}, outside the {limit:.0f} key line. "
+            f"Scale the mark about the centre before shipping it."
+        )
+    return worst
+
+
 if __name__ == "__main__":
     out = os.path.join(os.path.dirname(__file__), "..", "build", "icon-preview")
     os.makedirs(out, exist_ok=True)
@@ -229,6 +261,10 @@ if __name__ == "__main__":
         (96, "squircle", "icon-96-squircle.png"),
         (48, "squircle", "icon-48-squircle.png"),
     ]
+    radius = check_safe_zone()
+    print(f"safe zone: worst point at radius {radius:.1f}, limit {KEY_LINE_R:.0f} "
+          f"(mask {MASK_R:.0f})")
+
     for size, mask, name in jobs:
         path = render(
             size,

@@ -4,6 +4,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    // Screenshot tests. The plugin itself is inert until a test asks for a capture, so declaring
+    // it costs nothing on a normal build.
+    alias(libs.plugins.roborazzi)
 }
 
 // Release signing is driven by an untracked keystore.properties so credentials
@@ -72,6 +75,13 @@ android {
 
     testOptions {
         unitTests.isReturnDefaultValues = true
+        // Robolectric has to resolve real resources to lay a Compose screen out, and the
+        // hardware renderer is what makes text render rather than coming out as boxes.
+        unitTests.isIncludeAndroidResources = true
+        unitTests.all {
+            it.systemProperty("robolectric.pixelCopyRenderMode", "hardware")
+            it.systemProperty("roborazzi.test.record", System.getProperty("roborazzi.test.record") ?: "false")
+        }
     }
 
     lint {
@@ -122,4 +132,16 @@ dependencies {
     testImplementation(libs.json)
     testImplementation(libs.junit)
     testImplementation(libs.kotlin.test)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.junit)
+    testImplementation(libs.compose.ui.test.junit4)
+    testImplementation(platform(libs.compose.bom))
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.compose)
+    testImplementation(libs.roborazzi.junit.rule)
+    debugImplementation(libs.compose.ui.test.manifest)
+}
+
+roborazzi {
+    outputDir.set(file("src/test/screenshots"))
 }

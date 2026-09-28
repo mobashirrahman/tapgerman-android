@@ -71,10 +71,12 @@ internal val LingoLightAccent = LingoColors(
     onAccent = Color(0xFF1F2A00),
     accentContainer = Color(0xFFE8FFC4),
     onAccentContainer = Color(0xFF2A3A00),
-    // Reading text is #16141C; these are that colour walked toward the accent, a tenth and a
-    // quarter of the way. Both stay above 4.5:1 against the reading surface.
-    wordHint = Color(0xFF4B4576),
-    wordSaved = Color(0xFF5C7A12),
+    // Reading text is #16141C. The first version of wordHint was #4B4576, and a screenshot of the
+    // reader showed the consequence: the whole paragraph read as violet text rather than as prose
+    // with a hint, which is styling, not an affordance. This is a much smaller step — noticeable
+    // once you look for it, invisible while you read. Both stay above 4.5:1 on the reading surface.
+    wordHint = Color(0xFF2E2A45),
+    wordSaved = Color(0xFF5F8010),
     hairline = Color(0x14000000),
     readingSurface = Color(0xFFFDFCFF),
     onReadingSurface = Color(0xFF16141C),
@@ -89,8 +91,8 @@ internal val LingoDarkAccent = LingoColors(
     accentContainer = Color(0xFF3B4E00),
     onAccentContainer = Color(0xFFE8FFC4),
     // Reading text is #E8E4EE; the same two steps, in the other direction, for a dark surface.
-    wordHint = Color(0xFFA79CD8),
-    wordSaved = Color(0xFFBCD963),
+    wordHint = Color(0xFFB6AFCC),
+    wordSaved = Color(0xFFB6D45C),
     hairline = Color(0x1FFFFFFF),
     readingSurface = Color(0xFF101016),
     onReadingSurface = Color(0xFFE8E4EE),

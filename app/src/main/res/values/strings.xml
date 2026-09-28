@@ -97,7 +97,7 @@
 
     <!-- Word list -->
     <string name="words_title">Words</string>
-    <string name="words_search_hint">Search words, glosses or sentences</string>
+    <string name="words_search_hint">Search words and glosses</string>
     <string name="words_clear_search">Clear search</string>
     <string name="words_sort_newest">Newest</string>
     <string name="words_sort_alphabetical">A–Z</string>

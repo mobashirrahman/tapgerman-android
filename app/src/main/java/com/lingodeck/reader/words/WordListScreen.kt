@@ -95,7 +95,9 @@ fun WordListScreen(
             MediumTopAppBar(
                 title = { Text(stringResource(R.string.words_title)) },
                 actions = {
-                    TextButton(
+                    // Only when there is something to sort. On an empty list it was a live-looking
+                    // control that did nothing.
+                    if (vocab.isNotEmpty()) TextButton(
                         onClick = {
                             onSortChange(
                                 if (sort == VocabSort.Newest) VocabSort.Alphabetical else VocabSort.Newest,
@@ -282,7 +284,10 @@ private fun WordCard(
                         Icons.Filled.Delete,
                         contentDescription = stringResource(R.string.words_remove, item.word),
                         modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colorScheme.error,
+                        // Not error-red: a saturated red icon on every card is visual noise, and
+                        // the shape is an unambiguous delete affordance on its own. The removal is
+                        // undoable from the snackbar either way.
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }

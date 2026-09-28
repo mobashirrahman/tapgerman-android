@@ -5,38 +5,34 @@
   The product's whole idea is that you tap a word in a German article and find out what it means,
   so the identity is that gesture rather than a speech bubble or a book.
 
-  An earlier draft put a white rounded plate on the gradient with the bars inside it. Rendering it
-  showed the problem straight away: a shape inside a shape inside a launcher mask is three levels of
-  nesting, and at 48dp it collapsed into a generic list icon. Dropping the plate leaves the text
-  block directly on the gradient, which is bolder and higher contrast.
+  Three bars share a left edge. The middle one is the marked word: taller, wider, and in the
+  electric accent, so it is the only element in the mark that is fully saturated. Both the height
+  and the width carry that, and both were needed. A version with equal widths read as a hamburger
+  menu in a screenshot of the app header, and making the accent taller alone was not enough
+  either: what finally broke the resemblance was giving the plain lines ragged, shorter right ends,
+  so no two bars in the mark are the same length. A list has uniform rows. This does not.
 
-  Three bars share a left edge and have ragged right ends, so the block reads as lines of text
-  rather than a stack of equal pills. The middle bar is taller *and* accented: height carries the
-  signal as well as hue, because hue alone stops reading at 48dp.
-
-  The sizing was measured rather than guessed. Android's adaptive-icon mask is the centre 72x72 of
-  the 108x108 canvas, so anything past radius 36 can be cropped, and the platform's key line is
-  radius 33. The geometry is scaled about the centre until its furthest point sits at 32.5.
-  tools/render_icon.py rasterises these vectors against circle, squircle and full-bleed masks at
-  512, 192, 96 and 48px; rendering is what caught the first version overflowing the circle.
+  Sizing was measured, not guessed. Android's adaptive-icon mask is the centre 72x72 of the
+  108x108 canvas, so anything past radius 36 can be cropped, and the platform's key line is radius
+  33. The geometry is a uniform scale about the centre, chosen so the furthest point sits inside
+  32.5. tools/render_icon.py rasterises these vectors against circle, squircle and full-bleed
+  masks at 512, 192, 96 and 48px, and asserts that radius, so neither the original overspill nor a
+  later retune can slip through on the arithmetic alone.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Line one -->
     <path
         android:fillColor="#F2F0FF"
-        android:pathData="M35,31.5 h34.5 a4.5,4.5 0 0 1 4.5,4.5 v0 a4.5,4.5 0 0 1 -4.5,4.5 h-34.5 a4.5,4.5 0 0 1 -4.5,-4.5 v0 a4.5,4.5 0 0 1 4.5,-4.5 z" />
+        android:pathData="M36,31 h20 a4.5,4.5 0 0 1 4.5,4.5 v0.5 a4.5,4.5 0 0 1 -4.5,4.5 h-20 a4.5,4.5 0 0 1 -4.5,-4.5 v-0.5 a4.5,4.5 0 0 1 4.5,-4.5 z" />
 
-    <!-- The marked word: same left edge, taller, in the accent -->
     <path
         android:fillColor="#C9F53C"
-        android:pathData="M36.5,47.5 h23 a6,6 0 0 1 6,6 v0.5 a6,6 0 0 1 -6,6 h-23 a6,6 0 0 1 -6,-6 v-0.5 a6,6 0 0 1 6,-6 z" />
+        android:pathData="M39,45.5 h27.5 a7.5,7.5 0 0 1 7.5,7.5 v0.5 a7.5,7.5 0 0 1 -7.5,7.5 h-27.5 a7.5,7.5 0 0 1 -7.5,-7.5 v-0.5 a7.5,7.5 0 0 1 7.5,-7.5 z" />
 
-    <!-- Line two -->
     <path
         android:fillColor="#F2F0FF"
-        android:pathData="M35,66.5 h29.5 a4.5,4.5 0 0 1 4.5,4.5 v0 a4.5,4.5 0 0 1 -4.5,4.5 h-29.5 a4.5,4.5 0 0 1 -4.5,-4.5 v0 a4.5,4.5 0 0 1 4.5,-4.5 z" />
+        android:pathData="M36,65.5 h24 a4.5,4.5 0 0 1 4.5,4.5 v0.5 a4.5,4.5 0 0 1 -4.5,4.5 h-24 a4.5,4.5 0 0 1 -4.5,-4.5 v-0.5 a4.5,4.5 0 0 1 4.5,-4.5 z" />
 </vector>

@@ -201,7 +201,10 @@ fun SettingsScreen(
                             value = settings.textScale,
                             onValueChange = onTextScaleChange,
                             valueRange = Settings.MIN_TEXT_SCALE..Settings.MAX_TEXT_SCALE,
-                            steps = 4,
+                            // Continuous rather than stepped: the step marks were five prominent
+                            // dots across the card, and a text size is a dial, not a multiple
+                            // choice. The current size is already spelled out beside the label.
+                            steps = 0,
                             modifier = Modifier.semantics { contentDescription = textSizeLabel },
                         )
                         // A live sample, so the effect is visible while choosing rather than after.

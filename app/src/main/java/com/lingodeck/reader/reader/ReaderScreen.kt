@@ -22,7 +22,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.automirrored.rounded.OpenInNew
+import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.rounded.AutoStories
 import androidx.compose.material.icons.rounded.FormatSize
@@ -302,7 +302,7 @@ private fun ArticleHeader(article: Article, onShowWords: () -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(Space.sm),
         ) {
             Icon(
-                Icons.AutoMirrored.Rounded.OpenInNew,
+                Icons.Rounded.TouchApp,
                 contentDescription = null,
                 modifier = Modifier.size(14.dp),
                 tint = LingoTheme.colors.accent,

@@ -97,11 +97,21 @@ fun SectionHeader(
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Text(
-            text = if (count != null) "$title  $count" else title,
+            text = title,
             style = LingoTheme.emphasized.titleMedium,
             color = MaterialTheme.colorScheme.onSurface,
         )
-        trailing?.invoke()
+        // The count sits opposite the title rather than appended to it. Appended, it read as a
+        // stray number floating after the label rather than as the size of what follows.
+        if (count != null) {
+            Text(
+                text = count.toString(),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        } else {
+            trailing?.invoke()
+        }
     }
 }
 

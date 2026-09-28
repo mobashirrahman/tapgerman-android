@@ -77,14 +77,18 @@ val Inter = FontFamily(
 )
 
 /**
- * Keeps a line box from reserving leading above the tallest glyph.
+ * Even leading, with no trimming.
  *
- * German is full of tall diacritics and capital umlauts, and with `Trim.None` a capital Ä
- * regularly collides with the line above it at the reader's leading.
+ * This started as `Trim.Both` on the reasoning that a capital Ä would otherwise collide with the
+ * line above. The screenshots showed the trimming is worse than the problem it solves: it trims
+ * each line box to the tallest glyph *on that line*, so a line opening with a capital and an
+ * ascender gets visibly tighter leading than the line before it, and a German paragraph ends up
+ * with random gaps in it. `Trim.None` keeps an even baseline grid, and at the reader's 32sp
+ * leading for 20sp text there is ample room for a diacritic anyway.
  */
-private val TightLeading = LineHeightStyle(
+private val EvenLeading = LineHeightStyle(
     alignment = LineHeightStyle.Alignment.Center,
-    trim = LineHeightStyle.Trim.Both,
+    trim = LineHeightStyle.Trim.None,
 )
 
 /**
@@ -110,7 +114,7 @@ private fun Typography.style(
     lineHeight = leading,
     letterSpacing = tracking,
     fontStyle = if (italic) FontStyle.Italic else FontStyle.Normal,
-    lineHeightStyle = TightLeading,
+    lineHeightStyle = EvenLeading,
 )
 
 /**
@@ -230,7 +234,7 @@ val LingoReadingType = ReadingType(
         fontSize = 30.sp,
         lineHeight = 38.sp,
         letterSpacing = (-0.4).sp,
-        lineHeightStyle = TightLeading,
+        lineHeightStyle = EvenLeading,
     ),
     byline = LingoTypography.labelMedium.copy(fontSize = 12.sp),
     body = readingBase.bodyLarge.copy(
@@ -239,7 +243,7 @@ val LingoReadingType = ReadingType(
         fontSize = 20.sp,
         lineHeight = 32.sp,
         letterSpacing = 0.sp,
-        lineHeightStyle = TightLeading,
+        lineHeightStyle = EvenLeading,
     ),
     quote = readingBase.bodyLarge.copy(
         fontFamily = Literata,
@@ -248,13 +252,13 @@ val LingoReadingType = ReadingType(
         fontSize = 16.sp,
         lineHeight = 26.sp,
         letterSpacing = 0.sp,
-        lineHeightStyle = TightLeading,
+        lineHeightStyle = EvenLeading,
     ),
     gloss = readingBase.bodyLarge.copy(
         fontFamily = Literata,
         fontSize = 16.sp,
         lineHeight = 24.sp,
-        lineHeightStyle = TightLeading,
+        lineHeightStyle = EvenLeading,
     ),
     word = readingBase.headlineSmall.copy(
         fontFamily = Literata,

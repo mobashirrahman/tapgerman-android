@@ -34,9 +34,9 @@ import com.lingodeck.reader.ui.theme.LingoTheme
  */
 private data class Bar(val x: Float, val y: Float, val w: Float, val h: Float, val r: Float)
 
-private val LineOne = Bar(x = 30.5f, y = 31.5f, w = 43.5f, h = 9.0f, r = 4.5f)
-private val MarkedWord = Bar(x = 30.5f, y = 47.5f, w = 35.0f, h = 12.5f, r = 6.0f)
-private val LineTwo = Bar(x = 30.5f, y = 66.5f, w = 38.5f, h = 9.0f, r = 4.5f)
+private val LineOne = Bar(x = 31.5f, y = 31.0f, w = 29.0f, h = 9.5f, r = 4.75f)
+private val MarkedWord = Bar(x = 31.5f, y = 45.5f, w = 42.5f, h = 15.5f, r = 7.75f)
+private val LineTwo = Bar(x = 31.5f, y = 65.5f, w = 33.0f, h = 9.5f, r = 4.75f)
 
 /** The plate behind the bars, matching the icon's squircle rather than a circle. */
 private const val PlateRadius = 26f
