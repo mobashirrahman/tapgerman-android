@@ -17,7 +17,21 @@ data class Article(
     val byline: String,
     val paragraphs: List<String>,
     val retrievedAt: Long = System.currentTimeMillis(),
-)
+    /**
+     * Where the reader got to last time, so the library can show how far through it was and the
+     * reader can offer to resume. Additive and optional: an article stored before this field
+     * existed reads back as 0.
+     */
+    val lastParagraph: Int = 0,
+) {
+    /** The host, for the domain chip. Blank rather than throwing on a malformed share. */
+    val domain: String
+        get() = runCatching { java.net.URI(url).host.removePrefix("www.") }.getOrDefault("")
+
+    /** Characters of body text, which is what a reading-time estimate needs. */
+    val textLength: Int
+        get() = paragraphs.sumOf { it.length }
+}
 
 data class Example(
     val text: String,
@@ -75,4 +89,20 @@ data class VocabItem(
     val sourceUrl: String,
     val source: String,
     val languageCode: String = "de",
-)
+    // The fields below are all additive, all read back with a null or zero default, and none of
+    // them feed the Anki note. `id` in particular is the note's StableId, so it is derived in
+    // anki/VocabMapping.kt and must never be touched here.
+    //
+    // Where in the source article the word was tapped, so the word list can reopen the article
+    // at that exact word. Null for items saved before this existed, and the UI degrades to
+    // "open the article" rather than "open the word" when it is null.
+    val paragraphIndex: Int? = null,
+    val wordStart: Int? = null,
+    val wordEnd: Int? = null,
+    /** When this word was sent to AnkiDroid, which is what the "sent" filter and stat count. */
+    val sentToAnkiAt: Long? = null,
+) {
+    /** Whether the stored offsets are usable for jumping straight to this word. */
+    val canReopenInArticle: Boolean
+        get() = paragraphIndex != null && wordStart != null && wordEnd != null
+}

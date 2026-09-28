@@ -36,6 +36,7 @@ class Store(private val directory: File) {
                 byline = o.optString("byline"),
                 paragraphs = paragraphs,
                 retrievedAt = o.optLong("retrievedAt"),
+                lastParagraph = o.optInt("lastParagraph", 0),
             )
         }.sortedByDescending { it.retrievedAt }
     }
@@ -52,12 +53,38 @@ class Store(private val directory: File) {
                     put("title", item.title)
                     put("byline", item.byline)
                     put("retrievedAt", item.retrievedAt)
+                    put("lastParagraph", item.lastParagraph)
                     put("paragraphs", JSONArray(item.paragraphs))
                 },
             )
         }
         writeArray(articlesFile, array)
     }
+
+    /** Removes one article from the shelf. Saved words that came from it are left alone. */
+    @Synchronized
+    fun deleteArticle(url: String) {
+        writeArray(
+            articlesFile,
+            JSONArray().apply {
+                for (item in listArticles().filterNot { it.url == url }) {
+                    put(
+                        JSONObject().apply {
+                            put("url", item.url)
+                            put("title", item.title)
+                            put("byline", item.byline)
+                            put("retrievedAt", item.retrievedAt)
+                            put("lastParagraph", item.lastParagraph)
+                            put("paragraphs", JSONArray(item.paragraphs))
+                        },
+                    )
+                }
+            },
+        )
+    }
+
+    @Synchronized
+    fun clearArticles() = writeArray(articlesFile, JSONArray())
 
     @Synchronized
     fun listVocab(): List<VocabItem> {
@@ -81,6 +108,10 @@ class Store(private val directory: File) {
                 sourceUrl = o.optString("sourceUrl"),
                 source = o.optString("source"),
                 languageCode = o.optString("languageCode").ifEmpty { "de" },
+                paragraphIndex = if (o.has("paragraphIndex")) o.optInt("paragraphIndex") else null,
+                wordStart = if (o.has("wordStart")) o.optInt("wordStart") else null,
+                wordEnd = if (o.has("wordEnd")) o.optInt("wordEnd") else null,
+                sentToAnkiAt = if (o.has("sentToAnkiAt")) o.optLong("sentToAnkiAt") else null,
             )
         }.sortedByDescending { it.createdAt }
     }
@@ -88,6 +119,21 @@ class Store(private val directory: File) {
     @Synchronized
     fun deleteVocab(id: String) {
         writeVocab(listVocab().filterNot { it.id == id })
+    }
+
+    @Synchronized
+    fun clearVocab() = writeVocab(emptyList())
+
+    /**
+     * Puts a removed item back.
+     *
+     * Swipe-to-dismiss on the word list has to be undoable, and the id is the Anki StableId, so
+     * restoring the exact object is the only safe way to do it: a re-derived id could differ and
+     * silently point the word list at a note that does not exist.
+     */
+    @Synchronized
+    fun restoreVocab(item: VocabItem) {
+        writeVocab(listVocab().filterNot { it.id == item.id } + item)
     }
 
     @Synchronized
@@ -114,6 +160,10 @@ class Store(private val directory: File) {
                     put("sourceUrl", entry.sourceUrl)
                     put("source", entry.source)
                     put("languageCode", entry.languageCode)
+                    put("paragraphIndex", entry.paragraphIndex ?: JSONObject.NULL)
+                    put("wordStart", entry.wordStart ?: JSONObject.NULL)
+                    put("wordEnd", entry.wordEnd ?: JSONObject.NULL)
+                    put("sentToAnkiAt", entry.sentToAnkiAt ?: JSONObject.NULL)
                 },
             )
         }

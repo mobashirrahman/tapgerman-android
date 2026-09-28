@@ -1,4 +1,4 @@
-package com.lingodeck.reader.ui
+package com.lingodeck.reader.reader
 
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect

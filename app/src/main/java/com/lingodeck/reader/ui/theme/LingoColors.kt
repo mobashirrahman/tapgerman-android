@@ -34,9 +34,26 @@ data class LingoColors(
     val accentContainer: Color,
     /** Content on [accentContainer]. */
     val onAccentContainer: Color,
-    /** The faint underline under a tappable word that has not been saved. */
+    /**
+     * The colour of a tappable word that has not been saved.
+     *
+     * This is a *text* colour, not an underline colour, and that is a deliberate consequence of a
+     * Compose limitation: `SpanStyle` in 1.11 has no `textDecorationColor`, so an underline always
+     * takes its span's text colour. Underlining every word in a paragraph would therefore have to
+     * be drawn at full strength, which on 20sp serif is a wall of noise rather than a hint.
+     *
+     * So the tappable state is carried by colour instead, nudged about a tenth of the way from the
+     * reading text toward the accent. It is quiet enough to read straight through and distinct
+     * enough to notice once, which is all an affordance has to do.
+     */
     val wordHint: Color,
-    /** The underline under a word that is already in the word list. */
+    /**
+     * The colour of a word that is already in the word list.
+     *
+     * One step further toward the accent, and underlined. Saved words are few, so a full-strength
+     * underline on them costs nothing visually and is the one piece of reader decoration that is
+     * information rather than hint: a second read of an article shows what you collected.
+     */
     val wordSaved: Color,
     /** A hairline that is visible without being loud, for inset dividers. */
     val hairline: Color,
@@ -54,8 +71,10 @@ internal val LingoLightAccent = LingoColors(
     onAccent = Color(0xFF1F2A00),
     accentContainer = Color(0xFFE8FFC4),
     onAccentContainer = Color(0xFF2A3A00),
-    wordHint = Color(0xFF7A6FD6),
-    wordSaved = Color(0xFF6B8F0F),
+    // Reading text is #16141C; these are that colour walked toward the accent, a tenth and a
+    // quarter of the way. Both stay above 4.5:1 against the reading surface.
+    wordHint = Color(0xFF4B4576),
+    wordSaved = Color(0xFF5C7A12),
     hairline = Color(0x14000000),
     readingSurface = Color(0xFFFDFCFF),
     onReadingSurface = Color(0xFF16141C),
@@ -69,8 +88,9 @@ internal val LingoDarkAccent = LingoColors(
     onAccent = Color(0xFF233100),
     accentContainer = Color(0xFF3B4E00),
     onAccentContainer = Color(0xFFE8FFC4),
-    wordHint = Color(0xFF7E71C9),
-    wordSaved = Color(0xFFA9CC4A),
+    // Reading text is #E8E4EE; the same two steps, in the other direction, for a dark surface.
+    wordHint = Color(0xFFA79CD8),
+    wordSaved = Color(0xFFBCD963),
     hairline = Color(0x1FFFFFFF),
     readingSurface = Color(0xFF101016),
     onReadingSurface = Color(0xFFE8E4EE),
