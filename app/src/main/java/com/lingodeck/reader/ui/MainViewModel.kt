@@ -16,6 +16,7 @@ import com.lingodeck.reader.data.LookupCardBuilder
 import com.lingodeck.reader.data.Pronouncer
 import com.lingodeck.reader.data.VocabItem
 import com.lingodeck.reader.dict.KaikkiClient
+import com.lingodeck.reader.dict.LemmaResolver
 import com.lingodeck.reader.data.TranslationError
 import com.lingodeck.reader.data.TranslationFailure
 import com.lingodeck.reader.data.TranslationProvider
@@ -50,7 +51,6 @@ data class LookupUi(
     val anchorY: Float = 0f,
     val loading: Boolean = true,
     val result: DictResult? = null,
-    val lemmaEntries: List<DictEntry> = emptyList(),
     /** Every gloss the sense picker offers, in display order. */
     val glosses: List<String> = emptyList(),
     /** The sense the learner says they met. Narrowing to it is what splits homonyms apart. */
@@ -281,21 +281,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val outcome = withContext(Dispatchers.IO) { KaikkiClient.lookup(word, "de") }
             when (outcome) {
                 is KaikkiClient.LookupOutcome.Found -> {
-                    val lemma = outcome.result.entries
-                        .mapNotNull { it.formOf.takeIf { form -> form.isNotEmpty() } }
-                        .firstOrNull()
+                    val lemma = LemmaResolver.lemmaFor(outcome.result)
                     val lemmaEntries = if (lemma != null) {
                         withContext(Dispatchers.IO) { KaikkiClient.lookupLemma(lemma, "de") }
                     } else {
                         emptyList()
                     }
-                    val result = if (lemma != null) outcome.result.copy(lemma = lemma) else outcome.result
+                    // The lemma's entries have to be folded back into `result` itself. Carrying
+                    // them alongside it — as this once did — left every renderer reading the
+                    // surface form, so tapping a conjugated verb showed "inflection of sagen:
+                    // singular" and never the meaning.
+                    val result = LemmaResolver.resolve(outcome.result, lemmaEntries)
                     val glosses = LookupCardBuilder.glosses(result)
                     _state.update { current ->
                         current.copy(lookup = current.lookup?.copy(
                             loading = false,
                             result = result,
-                            lemmaEntries = lemmaEntries,
                             glosses = glosses,
                             chosenGloss = glosses.firstOrNull(),
                         ))

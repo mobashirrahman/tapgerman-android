@@ -462,13 +462,9 @@ internal fun TranslationSettingsCard(
     onClear: () -> Unit,
 ) {
     LingoCard(modifier = Modifier.fillMaxWidth()) {
+        // No title of its own: the section header above already says this, and every other card
+        // here is named for its first control rather than for the group it sits in.
         Column(verticalArrangement = Arrangement.spacedBy(Space.md)) {
-            Text(
-                text = stringResource(R.string.settings_translation),
-                style = LingoTheme.emphasized.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-
             TranslationProvider.entries.forEach { provider ->
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
