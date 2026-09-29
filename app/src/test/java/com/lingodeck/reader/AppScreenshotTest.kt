@@ -9,12 +9,18 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.lingodeck.reader.data.Article
+import com.lingodeck.reader.data.DictEntry
+import com.lingodeck.reader.data.DictResult
 import com.lingodeck.reader.data.ThemeMode
 import com.lingodeck.reader.data.VocabItem
 import com.lingodeck.reader.library.LibraryScreen
+import com.lingodeck.reader.reader.LookupCard
 import com.lingodeck.reader.reader.ReaderScreen
 import com.lingodeck.reader.settings.SettingsScreen
 import com.lingodeck.reader.store.Settings
+import com.lingodeck.reader.data.Example
+import com.lingodeck.reader.data.Sense
+import com.lingodeck.reader.ui.LookupUi
 import com.lingodeck.reader.ui.SessionWord
 import com.lingodeck.reader.ui.UiState
 import com.lingodeck.reader.ui.theme.LingoDeckTheme
@@ -83,6 +89,12 @@ class AppScreenshotTest {
     @Test
     fun readerLight() = screen("reader-light") { Reader() }
 
+    // The card as it appears for a verb: grammatical tags, a worked example with its translation,
+    // and the article sentence with the tapped word marked. All of that is real Kaikki payload,
+    // which is the point — this is the thing the previous card threw away.
+    @Test
+    fun lookupCardForAVerb() = screen("lookup-card-verb") { Lookup(Fixtures.verbLookup) }
+
     @Test
     fun readerDark() = screen("reader-dark", ThemeMode.Dark) { Reader() }
 
@@ -94,6 +106,9 @@ class AppScreenshotTest {
 
     @Test
     fun wordsEmpty() = screen("words-empty") { Words(emptyList()) }
+
+    @Test
+    fun lookupCardForANoun() = screen("lookup-card-noun") { Lookup(Fixtures.nounLookup) }
 
     @Test
     fun settingsLight() = screen("settings-light") { SettingsScreenView() }
@@ -148,6 +163,7 @@ private fun Reader() = ReaderScreen(
     ),
     savedWords = setOf("entlastung"),
     pendingJump = null,
+    openLookup = null,
     contentPadding = NoPadding,
     onBack = {},
     onTapWord = { _, _, _, _ -> },
@@ -156,6 +172,27 @@ private fun Reader() = ReaderScreen(
     onConsumeJump = {},
     onTextScale = {},
 )
+
+/**
+ * The lookup card, shown in a Box rather than as a Popup.
+ *
+ * A real lookup is a `Popup`, which is a separate window and cannot be composed inside a test's
+ * content, so the card composable is rendered directly on a surface of the same colour. Everything
+ * inside the card is what the Popup would draw; only the floating-window part is absent.
+ */
+@Composable
+private fun Lookup(state: LookupUi) {
+    LookupCard(
+        lookup = state,
+        onDismiss = {},
+        onSave = {},
+        onSendToAnki = {},
+        onChooseGloss = {},
+        onSpeak = {},
+        onToggleAllSenses = {},
+        isShowingAllSenses = false,
+    )
+}
 
 @Composable
 private fun Words(items: List<VocabItem>) = WordListScreen(
@@ -250,6 +287,102 @@ private object Fixtures {
             sourceUrl = "https://www.zeit.de/wirtschaft/steuern-2026-a-1",
             source = "",
         ),
+    )
+
+    /** A verb, from the real kaikki.org payload for "sagen". */
+    val verbLookup = LookupUi(
+        word = "sagte",
+        sentence = "Er sagte, dass es am Montag regnet.",
+        paragraphIndex = 0,
+        start = 3,
+        end = 8,
+        loading = false,
+        result = DictResult(
+            word = "sagen",
+            language = "German",
+            languageCode = "de",
+            lemma = "sagen",
+            entries = listOf(
+                DictEntry(
+                    word = "sagen",
+                    partOfSpeech = "verb",
+                    head = "sagen",
+                    ipa = "ˈzaːɡn̩",
+                    audioUrl = "",
+                    formOf = "",
+                    definitions = listOf(
+                        Sense(
+                            gloss = "to say (to pronounce; communicate verbally)",
+                            tags = listOf("table-tags", "transitive", "weak", "form-of"),
+                            examples = listOf(
+                                Example(
+                                    "Ich habe nicht verstanden, was sie gesagt hat.",
+                                    "I didn't understand what she said.",
+                                ),
+                            ),
+                        ),
+                        Sense(
+                            gloss = "to tell (to inform someone verbally)",
+                            tags = listOf("ditransitive", "weak", "table-tags"),
+                            examples = listOf(
+                                Example(
+                                    "Sie hat mir gesagt, dass sie später kommt.",
+                                    "She told me that she would be late.",
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+        glosses = listOf(
+            "to say (to pronounce; communicate verbally)",
+            "to tell (to inform someone verbally)",
+        ),
+        chosenGloss = "to say (to pronounce; communicate verbally)",
+    )
+
+    /** A noun, from the real kaikki.org payload for "Griechenland". */
+    val nounLookup = LookupUi(
+        word = "Griechenland",
+        sentence = "Die Euro-Zone hat Griechenland in diesem Sommer viel abverlangt.",
+        paragraphIndex = 0,
+        start = 19,
+        end = 31,
+        loading = false,
+        result = DictResult(
+            word = "Griechenland",
+            language = "German",
+            languageCode = "de",
+            lemma = "Griechenland",
+            entries = listOf(
+                DictEntry(
+                    word = "Griechenland",
+                    partOfSpeech = "name",
+                    head = "Griechenland",
+                    ipa = "ˈɡʁiːçn̩lant",
+                    audioUrl = "",
+                    formOf = "",
+                    definitions = listOf(
+                        Sense(
+                            gloss = "Greece (a country in Southeastern Europe)",
+                            tags = listOf("neuter", "proper-noun", "table-tags"),
+                            examples = emptyList(),
+                        ),
+                        Sense(
+                            gloss = "Ancient Greece",
+                            tags = listOf("neuter", "proper-noun", "table-tags"),
+                            examples = emptyList(),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+        glosses = listOf(
+            "Greece (a country in Southeastern Europe)",
+            "Ancient Greece",
+        ),
+        chosenGloss = "Greece (a country in Southeastern Europe)",
     )
 
     val library = UiState(

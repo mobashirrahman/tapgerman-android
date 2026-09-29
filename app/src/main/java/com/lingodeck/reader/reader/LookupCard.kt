@@ -46,8 +46,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
@@ -133,8 +139,16 @@ fun LookupCardHost(
  * - **The actions are a button group**, so Save and Send to Anki read as one decision rather than
  *   as two unrelated buttons that happened to be adjacent.
  */
+/**
+ * The card itself, with no popup around it.
+ *
+ * Internal rather than private so the screenshot test can render the card on a plain surface: a
+ * real lookup is a `Popup`, which is a separate window and cannot be composed inside a test's
+ * content, so the test needs the card without the window. Not public API — the popup positioning
+ * and the dismissal behaviour are what callers should go through [LookupCardHost].
+ */
 @Composable
-private fun LookupCard(
+internal fun LookupCard(
     lookup: LookupUi,
     onDismiss: () -> Unit,
     onSave: () -> Unit,
@@ -159,6 +173,10 @@ private fun LookupCard(
         )
     }
 
+    // Grammatical tags and worked examples, aligned with `lookup.glosses` by position.
+    val details = remember(lookup.result, lookup.glosses) { senseDetails(lookup) }
+    val lingo = LingoTheme.colors
+
     // Which of the two actions is being held. Taken from the buttons' own interaction sources
     // rather than from an `onClick`, because a press that turns into a cancellation (a finger
     // dragged off the button) must stop the squeeze, and `onClick` would not report that.
@@ -172,10 +190,21 @@ private fun LookupCard(
         else -> null
     }
 
+    // The card's height is a fraction of the window rather than a fixed dp. A fixed height is
+    // wrong at both ends: on a short phone it leaves the card hanging well above the fold, and on
+    // a tablet or in landscape it wastes half the screen. Sixty percent leaves enough of the
+    // article visible behind it to keep the reader oriented, which is the whole reason this is a
+    // popup and not a bottom sheet.
+    val windowHeight = with(LocalDensity.current) {
+        LocalWindowInfo.current.containerSize.height.toDp()
+    }
+    val maxHeight = (windowHeight * CARD_MAX_HEIGHT_FRACTION)
+        .coerceIn(CARD_MIN_HEIGHT, CARD_MAX_HEIGHT)
+
     ElevatedCard(
         modifier = Modifier
             .widthIn(max = CARD_MAX_WIDTH)
-            .heightIn(max = CARD_MAX_HEIGHT)
+            .heightIn(max = maxHeight)
             .scale(entrance.value),
         shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.elevatedCardColors(
@@ -223,10 +252,18 @@ private fun LookupCard(
             // ---- body: the only part allowed to scroll ----
             Column(
                 modifier = Modifier
-                    .weight(1f, fill = true)
+                    // `fill = false` so the card is as tall as its content and only reaches the
+                    // height cap when there is genuinely that much to show. With `fill = true`
+                    // a two-sense noun with no examples still stretched to 60% of the window and
+                    // left a band of dead space under the buttons.
+                    .weight(1f, fill = false)
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(Space.sm),
             ) {
+                // No: the region is already bounded by the card. What it needs is room at the
+                // bottom so the last line of a scrolled list does not run flush into the action
+                // bar and read as a rendering fault rather than as more content below.
+                Spacer(Modifier.height(Space.xs))
                 if (lookup.loading) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -254,9 +291,13 @@ private fun LookupCard(
                     } else {
                         lookup.glosses.take(MAX_VISIBLE_SENSES)
                     }
-                    visible.forEach { gloss ->
+                    visible.forEachIndexed { index, gloss ->
                         SenseRow(
                             gloss = gloss,
+                            // Tags ride on the row so the metadata arrives with the meaning
+                            // rather than as a separate block the reader has to correlate.
+                            tags = details.getOrNull(index)?.tags.orEmpty(),
+                            tagsLabel = details.getOrNull(index)?.tagsLabel.orEmpty(),
                             selected = lookup.chosenGloss == gloss,
                             onSelect = { onChooseGloss(gloss) },
                         )
@@ -278,6 +319,24 @@ private fun LookupCard(
                     }
                 }
 
+                // Worked examples for the sense that is currently chosen, each a German sentence
+                // with its English translation. This is the part that makes the entry teach
+                // something: a gloss tells you what a word means, an example tells you how it is
+                // used, and the translation is the bridge between the two for someone reading
+                // the article to learn the language rather than to translate it.
+                val chosen = details.firstOrNull { it.gloss == lookup.chosenGloss }
+                    ?: details.firstOrNull()
+                chosen?.examples?.take(MAX_VISIBLE_EXAMPLES)?.forEach { example ->
+                    ExampleBlock(
+                        german = example.text,
+                        english = example.translation,
+                        // The lemma, not the surface form: Wiktionary's examples are conjugations
+                        // of the lemma, so "sagte" never appears inside "hat gesagt". Falls back
+                        // to the surface form for a word with no lemma.
+                        headword = lookup.result?.lemma?.takeIf { it.isNotBlank() } ?: lookup.word,
+                    )
+                }
+
                 // The sentence the word came from, set in the reading serif and on a tonal
                 // surface so it reads as a quotation rather than as more UI.
                 if (lookup.sentence.isNotBlank()) {
@@ -287,7 +346,14 @@ private fun LookupCard(
                         color = MaterialTheme.colorScheme.surfaceContainerHighest,
                     ) {
                         Text(
-                            text = lookup.sentence,
+                            // The tapped word is marked inside the quotation. The card sits beside
+                            // the word on screen, but the sentence is a different region of the
+                            // page, and without this the two are only connected by the reader
+                            // remembering which word they touched.
+                            text = lookup.sentence.markWord(
+                                word = lookup.word,
+                                color = lingo.wordSaved,
+                            ),
                             style = LingoTheme.reading.quote,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(Space.md),
@@ -377,7 +443,13 @@ private fun lookupMeta(lookup: LookupUi): String {
  * between is the gloss, not the control next to it.
  */
 @Composable
-private fun SenseRow(gloss: String, selected: Boolean, onSelect: () -> Unit) {
+private fun SenseRow(
+    gloss: String,
+    tags: List<String>,
+    tagsLabel: String,
+    selected: Boolean,
+    onSelect: () -> Unit,
+) {
     Surface(
         shape = MaterialTheme.shapes.medium,
         color = if (selected) {
@@ -395,22 +467,137 @@ private fun SenseRow(gloss: String, selected: Boolean, onSelect: () -> Unit) {
         ) {
             RadioButton(selected = selected, onClick = null, modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(Space.sm))
-            Text(
-                text = gloss,
-                style = LingoTheme.reading.gloss,
-                color = MaterialTheme.colorScheme.onSurface,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.padding(end = Space.sm),
-            )
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(
+                    text = gloss,
+                    style = LingoTheme.reading.gloss,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                if (tags.isNotEmpty()) {
+                    // "feminine · transitive · weak". Only the selected row shows them: three
+                    // rows of tags at once is a wall, and the point is to inform the choice
+                    // rather than to front-load every sense's metadata.
+                    if (selected) {
+                        Text(
+                            text = tagsLabel,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
         }
     }
 }
 
+/**
+ * One worked example: the German sentence, then its English translation.
+ *
+ * The translation is shown under the German rather than beside it because the two are rarely the
+ * same length, and a side-by-side pair on a 320dp card produces a narrow, hard-to-read column of
+ * two interleaved languages.
+ */
+@Composable
+private fun ExampleBlock(german: String, english: String, headword: String) {
+    val lingo = LingoTheme.colors
+    Surface(
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+    ) {
+        Column(
+            modifier = Modifier.padding(Space.md),
+            verticalArrangement = Arrangement.spacedBy(Space.xs),
+        ) {
+            Text(
+                text = german.markStem(headword, lingo.wordSaved),
+                style = LingoTheme.reading.quote,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            if (english.isNotBlank()) {
+                Text(
+                    text = english,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Underlines every whole-word occurrence of [word] in [text], case-insensitively.
+ *
+ * Used for the sentence taken from the article, where the reader tapped a specific occurrence and
+ * the point is to show that this is the one. Word boundaries matter here: without them, tapping
+ * "Tag" would light up every "Tag" inside "Tagesordnung".
+ *
+ * Best-effort by design: if the word is not in the string at all, the text comes back unchanged
+ * and nothing is underlined, rather than anything being rewritten.
+ */
+private fun String.markWord(word: String, color: Color): AnnotatedString =
+    mark(Regex("(?i)(?<![\\p{L}])" + Regex.escape(word.trim()) + "(?=\\p{L}|$)"), color)
+
+/**
+ * Finds [word] in a dictionary example, which will usually have conjugated it.
+ *
+ * Wiktionary's examples conjugate the headword, so the headword is often simply absent: "sagen"
+ * does not appear in "Ich habe nicht verstanden, was sie gesagt hat", and a whole-word match would
+ * never fire, leaving the example looking like an unrelated sentence.
+ *
+ * Rather than encode German morphology — an endings table has to be maintained, and gets it wrong
+ * on the cases that matter most — this scans the word's own prefixes from longest to shortest and
+ * takes the first that occurs. "sagen" fails, "sage" fails, "sag" matches inside "gesagt".
+ * "gehen" gives "geh" inside "gegangen". A noun usually matches outright on the first try, because
+ * examples inflect verbs far more than they decline nouns.
+ *
+ * The floor of [MIN_STEM] characters stops this degrading into a highlight on every "a"-containing
+ * word in the sentence, and each prefix is matched case-insensitively as a plain substring because
+ * the fragment is a fragment by construction and a word-boundary test would reject the exact case
+ * this exists for.
+ */
+private fun String.markStem(word: String, color: Color): AnnotatedString {
+    val trimmed = word.trim()
+    if (trimmed.length < MIN_STEM) return markWord(trimmed, color)
+    for (length in trimmed.length downTo MIN_STEM) {
+        val prefix = trimmed.take(length)
+        if (contains(prefix, ignoreCase = true)) {
+            return mark(Regex(Regex.escape(prefix), RegexOption.IGNORE_CASE), color)
+        }
+    }
+    return AnnotatedString(this)
+}
+
+/** Below this, a prefix stops being specific enough to be worth highlighting. */
+private const val MIN_STEM = 4
+
+/** Wraps every match of [pattern] in an underline, leaving the rest of the text untouched. */
+private fun String.mark(pattern: Regex, color: Color): AnnotatedString {
+    val matches = pattern.findAll(this).toList()
+    if (matches.isEmpty()) return AnnotatedString(this)
+    return buildAnnotatedString {
+        var cursor = 0
+        for (m in matches) {
+            append(this@mark.substring(cursor, m.range.first))
+            withStyle(SpanStyle(textDecoration = TextDecoration.Underline, color = color)) {
+                append(m.value)
+            }
+            cursor = m.range.last + 1
+        }
+        append(this@mark.substring(cursor))
+    }
+}
+
 private val CARD_MAX_WIDTH = 320.dp
-private val CARD_MAX_HEIGHT = 420.dp
+
+/** Of the window. See the use site. */
+private const val CARD_MAX_HEIGHT_FRACTION = 0.6f
+private val CARD_MAX_HEIGHT = 560.dp
+private val CARD_MIN_HEIGHT = 300.dp
 private val CARD_PADDING = Space.lg
 private val CARD_GAP = Space.sm
 
 /** Glosses shown at once. A word with more senses than this gets a "Show all". */
 private const val MAX_VISIBLE_SENSES = 4
+
+/** Worked examples shown at once. Kaikki sends at most two per sense to begin with. */
+private const val MAX_VISIBLE_EXAMPLES = 2

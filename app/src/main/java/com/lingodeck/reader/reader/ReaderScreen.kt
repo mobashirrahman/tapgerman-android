@@ -70,6 +70,7 @@ import androidx.compose.ui.unit.dp
 import com.lingodeck.reader.data.Article
 import com.lingodeck.reader.store.Settings
 import com.lingodeck.reader.text.GermanTokenizer
+import com.lingodeck.reader.ui.LookupUi
 import com.lingodeck.reader.ui.PendingJump
 import com.lingodeck.reader.ui.SessionWord
 import com.lingodeck.reader.ui.components.EmptyState
@@ -99,6 +100,7 @@ fun ReaderScreen(
     sessionWords: List<SessionWord>,
     savedWords: Set<String>,
     pendingJump: PendingJump?,
+    openLookup: LookupUi?,
     contentPadding: PaddingValues,
     onBack: () -> Unit,
     onTapWord: (Int, Int, Int, Offset) -> Unit,
@@ -227,6 +229,15 @@ fun ReaderScreen(
                     bodyColor = lingo.onReadingSurface,
                     showHint = settings.highlightTappableWords,
                     savedWords = savedWords,
+                    // Held for as long as this word's card is open, not just for the duration of
+                    // the tap. The card is a popup beside the word, and for a reader looking at a
+                    // whole sentence there is nothing else in it that says *which* word it is
+                    // for. Clearing the highlight the instant the tap resolved left the two
+                    // visually unconnected, which is the one thing a definition popup cannot
+                    // afford to be.
+                    activeRange = openLookup
+                        ?.takeIf { it.paragraphIndex == index }
+                        ?.let { it.start until it.end },
                     hintColor = lingo.wordHint,
                     savedColor = lingo.wordSaved,
                     pressedBackground = lingo.accent,
@@ -377,6 +388,7 @@ private fun TappableParagraph(
     bodyColor: Color,
     showHint: Boolean,
     savedWords: Set<String>,
+    activeRange: IntRange?,
     hintColor: Color,
     savedColor: Color,
     pressedBackground: Color,
@@ -387,15 +399,17 @@ private fun TappableParagraph(
 ) {
     val spans = remember(text) { GermanTokenizer.words(text) }
     val haptic = LocalHapticFeedback.current
+    // Transient, while the finger is down. `activeRange` covers the longer window.
     var pressed by remember(text) { mutableStateOf<IntRange?>(null) }
+    val lit: IntRange? = pressed ?: activeRange
 
-    val annotated = remember(text, spans, pressed, showHint, savedWords, hintColor, savedColor) {
+    val annotated = remember(text, spans, lit, showHint, savedWords, hintColor, savedColor) {
         buildAnnotatedString {
             var cursor = 0
             for (span in spans) {
                 if (span.start > cursor) append(text.substring(cursor, span.start))
 
-                val isPressed = pressed?.let { span.start <= it.last && span.end > it.first } == true
+                val isPressed = lit?.let { span.start <= it.last && span.end > it.first } == true
                 val isSaved = span.text.lowercase() in savedWords
 
                 val spanStyle = when {
@@ -447,7 +461,6 @@ private fun TappableParagraph(
                             // a beginning. Cleared on release, just before the card takes over.
                             pressed = range
                             if (haptics) haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                            pressed = null
                             onClick(range.first, range.last + 1, originInWindow.value + offset)
                         }
                     },

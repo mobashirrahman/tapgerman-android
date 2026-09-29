@@ -224,6 +224,7 @@ fun AppShell(
                                 .map { it.word.lowercase() }
                                 .toSet(),
                             pendingJump = state.pendingJump,
+                            openLookup = state.lookup,
                             contentPadding = padding,
                             onBack = model::closeArticle,
                             onTapWord = { index, start, end, anchor ->
