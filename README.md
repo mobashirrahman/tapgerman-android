@@ -192,10 +192,41 @@ regenerated `goldens.json` and `AnkiTemplates.kt` together so the two can never 
 
 - The article URL and body are fetched on demand and stored only in app-private storage. The shelf is
   capped at 50 articles and the word list at 1000 entries.
-- Only a tapped word is sent to Kaikki. Nothing is sent anywhere else, and there is no account, no
-  analytics, and no sync.
+- Only a tapped word is sent to Kaikki. There is no account, no analytics, and no sync.
+- **Sentence translation is the one thing that sends article text to a third party, and it is off
+  by default.** See below.
 - Anki export is a local file handed to the system share sheet.
 - Settings are the only thing in DataStore; they never leave the device.
+
+### Sentence translation
+
+Definitions come with the dictionary's own worked examples, already translated by Wiktionary. The
+sentence you actually tapped is different: it is your text, and no dictionary has translated it.
+
+So the app can ask a translation service. **This is opt-in and off until you set it up** in
+Settings → Sentence translation:
+
+| Provider | Key | Where the sentence goes |
+| --- | --- | --- |
+| Off | — | nowhere; the reader still shows the dictionary's translated examples |
+| Google Cloud Translation | yours, entered in Settings | Google |
+| LibreTranslate | none | whichever server you name, including one on your own network |
+
+The two things worth being clear about:
+
+- **What is sent is the one sentence around the word you tapped.** Not the article, not the
+  paragraph, not the URL beyond what is needed to fetch it. Turning on
+  *Translate as soon as I tap a word* sends that sentence on every tap instead of waiting for you
+  to ask, which is faster and costs a translation call per tap.
+- **The result is cached on the device** for up to 400 sentences, so a sentence you have already
+  translated is never sent a second time. That is a cost saving, but it is also a privacy measure:
+  re-reading an article should not re-publish its sentences to a provider. Clear the cache from
+  the same Settings section.
+
+An API key entered in Settings stays on the device — it is not compiled into the app and not
+synced — but be aware that a key shipped inside any distributed APK is extractable. A key you typed
+in yourself is not in the APK. If that matters, run LibreTranslate yourself and use its address
+instead; then no sentence leaves your network at all.
 
 ## Layout
 
@@ -213,6 +244,8 @@ app/src/main/java/com/lingodeck/reader/
   anki/AnkiSaver.kt           create-or-grow save flow
   anki/TsvExport.kt           Anki-importable TSV  (port of popup.js)
   data/                       Article model, fetching, readability, lookup card building
+  data/Translation.kt         Translator interface, Google Cloud + LibreTranslate clients
+  store/TranslationCache.kt   on-disk sentence translation cache, bounded  (unit tested)
   store/Store.kt              JSON persistence
   store/SettingsStore.kt      DataStore preferences
   ui/MainActivity.kt          the Activity: window, splash, share target

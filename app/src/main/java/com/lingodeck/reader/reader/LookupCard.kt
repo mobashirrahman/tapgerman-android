@@ -26,10 +26,13 @@ import androidx.compose.material.icons.rounded.BookmarkAdd
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.School
+import androidx.compose.material.icons.outlined.Translate
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -87,6 +90,7 @@ fun LookupCardHost(
     onToggleAllSenses: () -> Unit,
     isShowingAllSenses: Boolean,
     onRecord: () -> Unit,
+    onTranslate: () -> Unit,
 ) {
     // `Dp.value` is dp, not pixels, so the gap goes through the density to reach
     // [AnchoredPositionProvider], which works in raw pixels like the rest of PopupPositionProvider.
@@ -117,6 +121,7 @@ fun LookupCardHost(
             onSpeak = onSpeak,
             onToggleAllSenses = onToggleAllSenses,
             isShowingAllSenses = isShowingAllSenses,
+            onTranslate = onTranslate,
         )
     }
 }
@@ -157,6 +162,7 @@ internal fun LookupCard(
     onSpeak: () -> Unit,
     onToggleAllSenses: () -> Unit,
     isShowingAllSenses: Boolean,
+    onTranslate: () -> Unit,
 ) {
     // Entrance. Honours the system's animation setting: with animations off the card is simply
     // there, which is what someone who has turned them off is asking for. Read outside the
@@ -319,6 +325,42 @@ internal fun LookupCard(
                     }
                 }
 
+                // The sentence the word came from, set in the reading serif and on a tonal
+                // surface so it reads as a quotation rather than as more UI.
+                //
+                // Above the worked examples, not below. This is the text the reader was actually
+                // reading when they tapped, and it is what they asked the card about; the
+                // dictionary's own example is an illustration of the sense, which is secondary.
+                // It also puts the translated sentence above the fold — with a worked example in
+                // between, the English the reader came for was pushed off the bottom of a card
+                // that had to scroll.
+                if (lookup.sentence.isNotBlank()) {
+                    Spacer(Modifier.height(Space.xs))
+                    Surface(
+                        shape = MaterialTheme.shapes.medium,
+                        color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                    ) {
+                        Column(Modifier.padding(Space.md)) {
+                            Text(
+                                // The tapped word is marked inside the quotation. The card sits
+                                // beside the word on screen, but the sentence is a different
+                                // region of the page, and without this the two are only connected
+                                // by the reader remembering which word they touched.
+                                text = lookup.sentence.markWord(
+                                    word = lookup.word,
+                                    color = lingo.wordSaved,
+                                ),
+                                style = LingoTheme.reading.quote,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            SentenceTranslation(
+                                lookup = lookup,
+                                onTranslate = onTranslate,
+                            )
+                        }
+                    }
+                }
+
                 // Worked examples for the sense that is currently chosen, each a German sentence
                 // with its English translation. This is the part that makes the entry teach
                 // something: a gloss tells you what a word means, an example tells you how it is
@@ -337,29 +379,6 @@ internal fun LookupCard(
                     )
                 }
 
-                // The sentence the word came from, set in the reading serif and on a tonal
-                // surface so it reads as a quotation rather than as more UI.
-                if (lookup.sentence.isNotBlank()) {
-                    Spacer(Modifier.height(Space.xs))
-                    Surface(
-                        shape = MaterialTheme.shapes.medium,
-                        color = MaterialTheme.colorScheme.surfaceContainerHighest,
-                    ) {
-                        Text(
-                            // The tapped word is marked inside the quotation. The card sits beside
-                            // the word on screen, but the sentence is a different region of the
-                            // page, and without this the two are only connected by the reader
-                            // remembering which word they touched.
-                            text = lookup.sentence.markWord(
-                                word = lookup.word,
-                                color = lingo.wordSaved,
-                            ),
-                            style = LingoTheme.reading.quote,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(Space.md),
-                        )
-                    }
-                }
             }
 
             lookup.savedMessage?.let { message ->
@@ -486,6 +505,87 @@ private fun SenseRow(
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ * The translation of the article sentence, and the control that fetches it.
+ *
+ * Sits inside the quotation surface rather than on the action row, because it belongs to that
+ * sentence: it is a rendering of it, and a button three elements lower down reads as translating
+ * the word instead.
+ *
+ * Shown whether or not a provider is configured, because the alternative is a feature that does
+ * not exist until it has been found and set up. Tapping it with nothing configured says which
+ * provider to choose, which is the only place that sentence is ever needed.
+ */
+@Composable
+private fun SentenceTranslation(
+    lookup: LookupUi,
+    onTranslate: () -> Unit,
+) {
+    val translation = lookup.sentenceTranslation
+    if (translation != null) {
+        Spacer(Modifier.height(Space.sm))
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+        Spacer(Modifier.height(Space.sm))
+        // Marked, because two paragraphs of the same serif with a hairline between them are not
+        // distinguishable at a glance, and a bilingual reader should not have to work out which
+        // one they can read. "EN" is the convention every dictionary already uses, including the
+        // one that supplied the sense list above.
+        Text(
+            text = "EN",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.primary,
+        )
+        Spacer(Modifier.height(Space.xs))
+        Text(
+            text = translation,
+            // The reading serif, matching the German above it: this is a reading of a sentence,
+            // not a string of status text.
+            style = LingoTheme.reading.quote,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        return
+    }
+
+    lookup.translationError?.let { error ->
+        Spacer(Modifier.height(Space.sm))
+        Text(
+            text = error.resolve(LocalContext.current),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.error,
+        )
+        return
+    }
+
+    Spacer(Modifier.height(Space.xs))
+    if (lookup.translating) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(14.dp),
+                strokeWidth = 2.dp,
+            )
+            Spacer(Modifier.width(Space.sm))
+            Text(
+                text = "Translating\u2026",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    } else {
+        TextButton(
+            onClick = onTranslate,
+            contentPadding = PaddingValues(horizontal = Space.xs, vertical = 0.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Translate,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+            )
+            Spacer(Modifier.width(Space.xs))
+            Text("Translate this sentence", style = MaterialTheme.typography.labelMedium)
         }
     }
 }

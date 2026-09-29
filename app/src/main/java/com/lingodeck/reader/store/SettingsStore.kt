@@ -8,7 +8,11 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.lingodeck.reader.data.LibreTranslateTranslator
 import com.lingodeck.reader.data.ThemeMode
+import com.lingodeck.reader.data.TranslationProvider
+import com.lingodeck.reader.data.Translator
+import com.lingodeck.reader.data.translatorFor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
@@ -45,6 +49,12 @@ class SettingsStore(context: Context) {
                 deckName = prefs[KEY_DECK]?.takeIf { it.isNotBlank() } ?: DEFAULT_DECK,
                 haptics = prefs[KEY_HAPTICS] ?: true,
                 highlightTappableWords = prefs[KEY_HIGHLIGHT] ?: true,
+                translationProvider = prefs[KEY_TRANSLATION_PROVIDER]?.let { stored ->
+                    TranslationProvider.entries.firstOrNull { it.name == stored }
+                } ?: TranslationProvider.None,
+                translationApiKey = prefs[KEY_TRANSLATION_KEY].orEmpty(),
+                translationEndpoint = prefs[KEY_TRANSLATION_ENDPOINT].orEmpty(),
+                autoTranslate = prefs[KEY_AUTO_TRANSLATE] ?: false,
             )
         }
 
@@ -62,6 +72,16 @@ class SettingsStore(context: Context) {
 
     suspend fun setHighlightTappableWords(enabled: Boolean) = edit { it[KEY_HIGHLIGHT] = enabled }
 
+    suspend fun setTranslationProvider(provider: TranslationProvider) =
+        edit { it[KEY_TRANSLATION_PROVIDER] = provider.name }
+
+    suspend fun setTranslationApiKey(key: String) = edit { it[KEY_TRANSLATION_KEY] = key.trim() }
+
+    suspend fun setTranslationEndpoint(endpoint: String) =
+        edit { it[KEY_TRANSLATION_ENDPOINT] = endpoint.trim() }
+
+    suspend fun setAutoTranslate(enabled: Boolean) = edit { it[KEY_AUTO_TRANSLATE] = enabled }
+
     private suspend fun edit(block: (androidx.datastore.preferences.core.MutablePreferences) -> Unit) {
         try {
             dataStore.edit(block)
@@ -77,6 +97,10 @@ class SettingsStore(context: Context) {
         val KEY_DECK = stringPreferencesKey("anki_deck")
         val KEY_HAPTICS = booleanPreferencesKey("haptics")
         val KEY_HIGHLIGHT = booleanPreferencesKey("highlight_words")
+        val KEY_TRANSLATION_PROVIDER = stringPreferencesKey("translation_provider")
+        val KEY_TRANSLATION_KEY = stringPreferencesKey("translation_api_key")
+        val KEY_TRANSLATION_ENDPOINT = stringPreferencesKey("translation_endpoint")
+        val KEY_AUTO_TRANSLATE = booleanPreferencesKey("auto_translate")
 
         fun emptyPreferences(): Preferences = androidx.datastore.preferences.core.emptyPreferences()
 
@@ -97,7 +121,26 @@ data class Settings(
     val deckName: String = "LingoDeck",
     val haptics: Boolean = true,
     val highlightTappableWords: Boolean = true,
+    val translationProvider: TranslationProvider = TranslationProvider.None,
+    val translationApiKey: String = "",
+    val translationEndpoint: String = "",
+    val autoTranslate: Boolean = false,
 ) {
+    /**
+     * The translator these settings describe, or null when the provider is unusable.
+     *
+     * Null rather than a translator that fails on every call, so the lookup card can simply not
+     * offer the action instead of offering it and then explaining why it cannot work.
+     */
+    fun translator(): Translator? = translatorFor(
+        provider = translationProvider,
+        apiKey = translationApiKey,
+        endpoint = LibreTranslateTranslator.normalize(translationEndpoint),
+    )
+
+    /** Whether a sentence translation is possible at all with the current settings. */
+    val canTranslate: Boolean get() = translator() != null
+
     companion object {
         const val DEFAULT_DECK = "LingoDeck"
         const val MIN_TEXT_SCALE = 0.8f

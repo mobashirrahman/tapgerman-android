@@ -269,6 +269,11 @@ fun AppShell(
                     onDeckNameChange = model::setDeckName,
                     onHapticsChange = model::setHaptics,
                     onHighlightChange = model::setHighlightTappableWords,
+                    onTranslationProviderChange = model::setTranslationProvider,
+                    onTranslationKeyChange = model::setTranslationApiKey,
+                    onTranslationEndpointChange = model::setTranslationEndpoint,
+                    onAutoTranslateChange = model::setAutoTranslate,
+                    onClearTranslations = model::clearTranslationCache,
                     onExport = onExportTsv,
                     onClearWords = model::clearVocab,
                     onClearHistory = model::clearArticleHistory,
@@ -298,6 +303,7 @@ fun AppShell(
             onToggleAllSenses = { model.toggleAllSenses(lookup.word) },
             isShowingAllSenses = expandedSenses.contains(lookup.word),
             onRecord = { model.recordSessionWord(lookup.word, lookup.chosenGloss) },
+            onTranslate = model::translateSentence,
         )
     }
 }

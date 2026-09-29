@@ -12,11 +12,13 @@ import com.lingodeck.reader.data.Article
 import com.lingodeck.reader.data.DictEntry
 import com.lingodeck.reader.data.DictResult
 import com.lingodeck.reader.data.ThemeMode
+import com.lingodeck.reader.data.TranslationProvider
 import com.lingodeck.reader.data.VocabItem
 import com.lingodeck.reader.library.LibraryScreen
 import com.lingodeck.reader.reader.LookupCard
 import com.lingodeck.reader.reader.ReaderScreen
 import com.lingodeck.reader.settings.SettingsScreen
+import com.lingodeck.reader.settings.TranslationSettingsCard
 import com.lingodeck.reader.store.Settings
 import com.lingodeck.reader.data.Example
 import com.lingodeck.reader.data.Sense
@@ -110,8 +112,33 @@ class AppScreenshotTest {
     @Test
     fun lookupCardForANoun() = screen("lookup-card-noun") { Lookup(Fixtures.nounLookup) }
 
+    // The same card after the sentence has been translated: German on top, English underneath,
+    // separated by a hairline. The two are one quotation, and this is what that looks like.
+    @Test
+    fun lookupCardWithTranslation() = screen("lookup-card-translated") {
+        Lookup(Fixtures.verbLookup.copy(sentenceTranslation = "He said that it would rain on Monday."))
+    }
+
     @Test
     fun settingsLight() = screen("settings-light") { SettingsScreenView() }
+
+    // Its own baseline because the section sits below the fold: the Settings screenshot stops at
+    // the text size control, so without this the translation controls would be untested visually.
+    @Test
+    fun translationSettings() = screen("settings-translation") {
+        TranslationSettingsCard(
+            settings = Settings(
+                translationProvider = TranslationProvider.GoogleCloud,
+                translationApiKey = "configured",
+                autoTranslate = true,
+            ),
+            onProviderChange = {},
+            onKeyChange = {},
+            onEndpointChange = {},
+            onAutoTranslateChange = {},
+            onClear = {},
+        )
+    }
 
     @Test
     fun settingsDark() = screen("settings-dark", ThemeMode.Dark) { SettingsScreenView() }
@@ -191,6 +218,7 @@ private fun Lookup(state: LookupUi) {
         onSpeak = {},
         onToggleAllSenses = {},
         isShowingAllSenses = false,
+        onTranslate = {},
     )
 }
 
@@ -214,7 +242,15 @@ private fun Words(items: List<VocabItem>) = WordListScreen(
 
 @Composable
 private fun SettingsScreenView() = SettingsScreen(
-    settings = Settings(deckName = "LingoDeck", textScale = 1.1f),
+    settings = Settings(
+        deckName = "LingoDeck",
+        textScale = 1.1f,
+        // With a provider chosen, so the key field and the auto-translate switch are exercised
+        // rather than the off state alone.
+        translationProvider = TranslationProvider.GoogleCloud,
+        translationApiKey = "configured",
+        autoTranslate = true,
+    ),
     counts = SettingsCounts(articles = 2, words = 2, sentToAnki = 1),
     contentPadding = NoPadding,
     onThemeChange = {},
@@ -223,6 +259,11 @@ private fun SettingsScreenView() = SettingsScreen(
     onDeckNameChange = {},
     onHapticsChange = {},
     onHighlightChange = {},
+    onTranslationProviderChange = {},
+    onTranslationKeyChange = {},
+    onTranslationEndpointChange = {},
+    onAutoTranslateChange = {},
+    onClearTranslations = {},
     onExport = {},
     onClearWords = {},
     onClearHistory = {},

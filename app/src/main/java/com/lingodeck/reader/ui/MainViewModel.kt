@@ -16,9 +16,13 @@ import com.lingodeck.reader.data.LookupCardBuilder
 import com.lingodeck.reader.data.Pronouncer
 import com.lingodeck.reader.data.VocabItem
 import com.lingodeck.reader.dict.KaikkiClient
+import com.lingodeck.reader.data.TranslationError
+import com.lingodeck.reader.data.TranslationFailure
+import com.lingodeck.reader.data.TranslationProvider
 import com.lingodeck.reader.store.Settings
 import com.lingodeck.reader.store.SettingsStore
 import com.lingodeck.reader.store.Store
+import com.lingodeck.reader.store.TranslationCache
 import com.lingodeck.reader.text.GermanTokenizer
 import com.lingodeck.reader.util.VocabFilter
 import com.lingodeck.reader.util.VocabSort
@@ -54,6 +58,16 @@ data class LookupUi(
     val error: UiText? = null,
     val saved: Boolean = false,
     val savedMessage: UiText? = null,
+    /**
+     * The article sentence in the learner's language, or null until asked for.
+     *
+     * Separate from the dictionary's own translated examples, which arrive with the lookup and are
+     * shown already. This is the one piece of text that is neither the word nor Kaikki's sentence
+     * about the word, and it is the piece that has to leave the device to be translated at all.
+     */
+    val sentenceTranslation: String? = null,
+    val translating: Boolean = false,
+    val translationError: UiText? = null,
 )
 
 /**
@@ -95,10 +109,15 @@ data class PendingJump(
     val end: Int,
 )
 
+/** The article language the reader fetches, and the language sentences are translated into. */
+private const val SOURCE_LANGUAGE = "de"
+private const val TARGET_LANGUAGE = "en"
+
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val store = Store(application.filesDir)
     private val settingsStore = SettingsStore(application)
     private val pronouncer = Pronouncer(application)
+    private val translationCache = TranslationCache(application.filesDir)
 
     private val _state = MutableStateFlow(UiState())
     val state: StateFlow<UiState> = _state.asStateFlow()
@@ -253,6 +272,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             )
         }
 
+        // Opt-in automatic translation. Off by default because it is the one thing in the app
+        // that sends text the user did not explicitly select to a third party, and it costs money
+        // per call; the manual button below is there for the other case.
+        if (settings.value.autoTranslate) translateSentence()
+
         viewModelScope.launch {
             val outcome = withContext(Dispatchers.IO) { KaikkiClient.lookup(word, "de") }
             when (outcome) {
@@ -290,6 +314,95 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     )
                 }
             }
+        }
+    }
+
+    /**
+     * Translates the sentence the learner tapped, and shows the result under it.
+     *
+     * Cache first, always. A sentence already translated once is never sent again, which is both
+     * cheaper and one fewer copy of the article's prose in a third party's logs — and the user has
+     * no way to see that either, so it has to be handled here rather than left to the provider.
+     */
+    fun translateSentence() {
+        val lookup = _state.value.lookup ?: return
+        val sentence = lookup.sentence
+        if (sentence.isBlank() || lookup.translating) return
+
+        val current = settings.value
+        val translator = current.translator() ?: run {
+            _state.update {
+                it.copy(lookup = it.lookup?.copy(
+                    translationError = uiText(
+                        when (current.translationProvider) {
+                            TranslationProvider.GoogleCloud ->
+                                "Add a Google Cloud API key in Settings to translate sentences"
+                            TranslationProvider.LibreTranslate ->
+                                "Point Settings at a LibreTranslate server to translate sentences"
+                            TranslationProvider.None ->
+                                "Choose a translation provider in Settings to translate sentences"
+                        },
+                    ),
+                ))
+            }
+            return
+        }
+
+        _state.update {
+            it.copy(lookup = it.lookup?.copy(translating = true, translationError = null))
+        }
+
+        viewModelScope.launch {
+            val cached = translationCache.get(sentence, SOURCE_LANGUAGE, TARGET_LANGUAGE)
+            val outcome = cached?.let { Result.success(it) }
+                ?: translator.translate(sentence, SOURCE_LANGUAGE, TARGET_LANGUAGE)
+            outcome.onSuccess { text ->
+                translationCache.put(sentence, SOURCE_LANGUAGE, TARGET_LANGUAGE, text)
+            }
+            _state.update { afterCall ->
+                afterCall.copy(lookup = afterCall.lookup?.copy(
+                    translating = false,
+                    sentenceTranslation = outcome.getOrNull(),
+                    translationError = outcome.exceptionOrNull()?.asTranslationError(),
+                ))
+            }
+        }
+    }
+
+    private fun Throwable.asTranslationError(): UiText =
+        when (val error = (this as? TranslationFailure)?.error) {
+            null -> uiText("Could not translate the sentence")
+            is TranslationError.TooLong ->
+                uiText("That sentence is ${error.length} characters, too long to send in one piece")
+            is TranslationError.Rejected ->
+                uiText("Translation failed (${error.status}): ${error.detail}")
+            is TranslationError.Unreachable ->
+                uiText("Could not reach the translation service: ${error.detail}")
+            is TranslationError.NotConfigured ->
+                uiText("Set up ${error.provider.name} in Settings to translate sentences")
+        }
+
+    fun setTranslationProvider(provider: TranslationProvider) = viewModelScope.launch {
+        settingsStore.setTranslationProvider(provider)
+    }
+
+    fun setTranslationApiKey(key: String) = viewModelScope.launch {
+        settingsStore.setTranslationApiKey(key)
+    }
+
+    fun setTranslationEndpoint(endpoint: String) = viewModelScope.launch {
+        settingsStore.setTranslationEndpoint(endpoint)
+    }
+
+    fun setAutoTranslate(enabled: Boolean) = viewModelScope.launch {
+        settingsStore.setAutoTranslate(enabled)
+    }
+
+    /** Clears cached sentence translations, for the Settings screen. */
+    fun clearTranslationCache() {
+        viewModelScope.launch {
+            translationCache.clear()
+            _state.update { it.copy(message = uiText("Sentence translations cleared")) }
         }
     }
 

@@ -25,13 +25,17 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
+import androidx.compose.foundation.selection.selectable
+import com.lingodeck.reader.data.TranslationProvider
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
@@ -60,6 +64,7 @@ import com.lingodeck.reader.R
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.lingodeck.reader.BuildConfig
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 
@@ -83,6 +88,11 @@ fun SettingsScreen(
     onDeckNameChange: (String) -> Unit,
     onHapticsChange: (Boolean) -> Unit,
     onHighlightChange: (Boolean) -> Unit,
+    onTranslationProviderChange: (TranslationProvider) -> Unit,
+    onTranslationKeyChange: (String) -> Unit,
+    onTranslationEndpointChange: (String) -> Unit,
+    onAutoTranslateChange: (Boolean) -> Unit,
+    onClearTranslations: () -> Unit,
     onExport: () -> Unit,
     onClearWords: () -> Unit,
     onClearHistory: () -> Unit,
@@ -232,6 +242,21 @@ fun SettingsScreen(
                     body = stringResource(R.string.settings_tint_body),
                     checked = settings.highlightTappableWords,
                     onCheckedChange = onHighlightChange,
+                )
+            }
+
+            item(key = "translation-header") {
+                SectionHeader(title = stringResource(R.string.settings_translation))
+            }
+
+            item(key = "translation") {
+                TranslationSettingsCard(
+                    settings = settings,
+                    onProviderChange = onTranslationProviderChange,
+                    onKeyChange = onTranslationKeyChange,
+                    onEndpointChange = onTranslationEndpointChange,
+                    onAutoTranslateChange = onAutoTranslateChange,
+                    onClear = onClearTranslations,
                 )
             }
 
@@ -414,6 +439,118 @@ private fun BrandHeader() {
     }
 }
 
+/**
+ * Where sentence translations come from.
+ *
+ * The provider list is radio buttons rather than a dropdown because there are three of them and
+ * the choice is consequential: it decides whose servers see the text, which is worth reading
+ * rather than inferring from a closed control.
+ *
+ * The key field is write-only in effect — it is never rendered back, because an API key shown on
+ * screen is one that ends up in a screenshot, and a Settings screen is the easiest place in an
+ * app to take one.
+ */
+// Not private: the screenshot test renders this section on its own, because it sits below the
+// fold of the Settings screen and would otherwise never appear in a baseline.
+@Composable
+internal fun TranslationSettingsCard(
+    settings: Settings,
+    onProviderChange: (TranslationProvider) -> Unit,
+    onKeyChange: (String) -> Unit,
+    onEndpointChange: (String) -> Unit,
+    onAutoTranslateChange: (Boolean) -> Unit,
+    onClear: () -> Unit,
+) {
+    LingoCard(modifier = Modifier.fillMaxWidth()) {
+        Column(verticalArrangement = Arrangement.spacedBy(Space.md)) {
+            Text(
+                text = stringResource(R.string.settings_translation),
+                style = LingoTheme.emphasized.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+
+            TranslationProvider.entries.forEach { provider ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(Space.sm),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .selectable(
+                            selected = settings.translationProvider == provider,
+                            onClick = { onProviderChange(provider) },
+                            role = Role.RadioButton,
+                        )
+                        .padding(vertical = Space.xs),
+                ) {
+                    RadioButton(
+                        selected = settings.translationProvider == provider,
+                        // Null: the whole row is the target, so announcing this as a button
+                        // would double up on the row's own radio semantics.
+                        onClick = null,
+                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = provider.label(),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                        Text(
+                            text = provider.blurb(),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
+
+            when (settings.translationProvider) {
+                TranslationProvider.GoogleCloud -> OutlinedTextField(
+                    value = settings.translationApiKey,
+                    onValueChange = onKeyChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    label = { Text(stringResource(R.string.settings_translation_key)) },
+                    supportingText = {
+                        Text(stringResource(R.string.settings_translation_key_body))
+                    },
+                )
+
+                TranslationProvider.LibreTranslate -> OutlinedTextField(
+                    value = settings.translationEndpoint,
+                    onValueChange = onEndpointChange,
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    label = { Text(stringResource(R.string.settings_translation_endpoint)) },
+                    supportingText = {
+                        Text(stringResource(R.string.settings_translation_endpoint_body))
+                    },
+                )
+
+                TranslationProvider.None -> Unit
+            }
+
+            SettingSwitch(
+                title = stringResource(R.string.settings_translation_auto),
+                body = stringResource(R.string.settings_translation_auto_body),
+                checked = settings.autoTranslate,
+                onCheckedChange = onAutoTranslateChange,
+            )
+
+            Text(
+                text = stringResource(R.string.settings_translation_privacy),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+
+            if (settings.canTranslate) {
+                TextButton(onClick = onClear) {
+                    Text(stringResource(R.string.settings_translation_clear))
+                }
+            }
+        }
+    }
+}
+
 @Composable
 private fun SettingSwitch(
     title: String,
@@ -490,3 +627,25 @@ private fun ConfirmDialog(
         },
     )
 }
+
+/**
+ * Provider labels and blurbs, kept beside the radio list so adding a provider is one enum entry
+ * and one pair of string resources rather than a new branch in the settings composable.
+ */
+@Composable
+private fun TranslationProvider.label(): String = stringResource(
+    when (this) {
+        TranslationProvider.None -> R.string.settings_translation_none
+        TranslationProvider.GoogleCloud -> R.string.settings_translation_google
+        TranslationProvider.LibreTranslate -> R.string.settings_translation_libre
+    },
+)
+
+@Composable
+private fun TranslationProvider.blurb(): String = stringResource(
+    when (this) {
+        TranslationProvider.None -> R.string.settings_translation_none_body
+        TranslationProvider.GoogleCloud -> R.string.settings_translation_google_body
+        TranslationProvider.LibreTranslate -> R.string.settings_translation_libre_body
+    },
+)
