@@ -139,4 +139,47 @@ internal object KaikkiFixtures {
         """
         {"word":"sagen","pos":"verb","senses":[{"glosses":["to say (to pronounce; communicate verbally)"],"tags":["transitive","weak"],"examples":[{"text":"Ich habe nicht verstanden, was sie gesagt hat.","english":"I didn't understand what she said."}]},{"glosses":["to tell (to inform (someone) verbally)"],"tags":["ditransitive","weak"]},{"glosses":["to tell (to inform (someone) verbally)","to tell (to inform an authority)"],"tags":["childish","ditransitive","weak"]}],"sounds":[{"ipa":"ˈzaːɡn"}]}
         """.trimIndent()
+
+    /**
+     * The declension table of `Haus`, as Kaikki sends it.
+     *
+     * Real payload, kept whole. The plural rows are all tagged `definite` and the singulars are
+     * not, which is not a quirk of the fixture but how Wiktionary marks a table that needs an
+     * article in its dative plural — so trimming rows here would remove the only plural data there
+     * is.
+     */
+    val HAUS_FORMS: String =
+        """
+        {"form": "Haus", "tags": ["nominative", "singular"], "source": "declension"}
+        {"form": "Häuser", "tags": ["definite", "nominative", "plural"], "source": "declension"}
+        {"form": "Hauses", "tags": ["genitive", "singular"], "source": "declension"}
+        {"form": "Häuser", "tags": ["definite", "genitive", "plural"], "source": "declension"}
+        {"form": "Haus", "tags": ["dative", "singular"], "source": "declension"}
+        {"form": "Hause", "tags": ["dative", "singular"], "source": "declension"}
+        {"form": "Häusern", "tags": ["dative", "definite", "plural"], "source": "declension"}
+        {"form": "Haus", "tags": ["accusative", "singular"], "source": "declension"}
+        {"form": "Häuser", "tags": ["accusative", "definite", "plural"], "source": "declension"}
+        """.trimIndent()
+
+    /**
+     * The declension table of `Kind`, as Kaikki sends it.
+     *
+     * Real payload, kept whole. The plural rows are all tagged `definite` and the singulars are
+     * not, which is not a quirk of the fixture but how Wiktionary marks a table that needs an
+     * article in its dative plural — so trimming rows here would remove the only plural data there
+     * is.
+     */
+    val KIND_FORMS: String =
+        """
+        {"form": "Kind", "tags": ["nominative", "singular"], "source": "declension"}
+        {"form": "Kinder", "tags": ["definite", "nominative", "plural"], "source": "declension"}
+        {"form": "Kindes", "tags": ["genitive", "singular"], "source": "declension"}
+        {"form": "Kinds", "tags": ["genitive", "singular"], "source": "declension"}
+        {"form": "Kinder", "tags": ["definite", "genitive", "plural"], "source": "declension"}
+        {"form": "Kind", "tags": ["dative", "singular"], "source": "declension"}
+        {"form": "Kinde", "tags": ["dative", "singular"], "source": "declension"}
+        {"form": "Kindern", "tags": ["dative", "definite", "plural"], "source": "declension"}
+        {"form": "Kind", "tags": ["accusative", "singular"], "source": "declension"}
+        {"form": "Kinder", "tags": ["accusative", "definite", "plural"], "source": "declension"}
+        """.trimIndent()
 }

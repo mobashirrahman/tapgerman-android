@@ -194,4 +194,7 @@
     <string name="lookup_preterite">Präteritum</string>
     <string name="lookup_subjunctive_i">Konj. I</string>
     <string name="lookup_subjunctive_ii">Konj. II</string>
+    <string name="lookup_declension">Declension</string>
+    <string name="lookup_singular">Sg.</string>
+    <string name="lookup_plural">Pl.</string>
 </resources>

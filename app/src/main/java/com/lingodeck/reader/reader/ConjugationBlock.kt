@@ -1,6 +1,5 @@
 package com.lingodeck.reader.reader
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,26 +9,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ExpandMore
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.lingodeck.reader.R
 import com.lingodeck.reader.dict.ConjugationTable
+import com.lingodeck.reader.ui.components.CollapsibleGrammarSection
 import com.lingodeck.reader.ui.theme.LingoTheme
 import com.lingodeck.reader.ui.theme.Space
 
@@ -47,51 +37,18 @@ import com.lingodeck.reader.ui.theme.Space
 @Composable
 internal fun ConjugationBlock(table: ConjugationTable) {
     if (table.isEmpty) return
-    var expanded by remember { mutableStateOf(false) }
 
-    Column(Modifier.fillMaxWidth()) {
-        TextButton(
-            onClick = { expanded = !expanded },
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(
-                horizontal = Space.xs,
-                vertical = Space.hair,
-            ),
-        ) {
-            Text(
-                text = stringResource(R.string.lookup_conjugation),
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Spacer(Modifier.width(Space.xs))
-            Icon(
-                imageVector = Icons.Rounded.ExpandMore,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(18.dp)
-                    // Rotated rather than swapped for a different icon, so the arrow is one shape
-                    // that visibly turns instead of two glyphs that appear to be unrelated.
-                    .graphicsLayer { rotationZ = if (expanded) 180f else 0f },
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-
-        // The headline forms, always visible: what it looks like now, what it looked like, and the
-        // form that builds the perfect tense.
-        Text(
-            text = listOfNotNull(
-                table.present.getOrNull(2)?.form?.takeIf { it.isNotEmpty() },
-                table.preterite.getOrNull(2)?.form?.takeIf { it.isNotEmpty() },
-                table.pastParticiple,
-            ).joinToString(" · "),
-            style = LingoTheme.reading.quote,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = Space.xs),
-        )
-
-        AnimatedVisibility(visible = expanded) {
-            ConjugationGrid(table)
-        }
+    CollapsibleGrammarSection(
+        title = stringResource(R.string.lookup_conjugation),
+        // The three forms a reader reaches for: what it looks like now, what it looked like, and the
+        // form the perfect tense is built from.
+        preview = listOfNotNull(
+            table.present.getOrNull(2)?.form?.takeIf { it.isNotEmpty() },
+            table.preterite.getOrNull(2)?.form?.takeIf { it.isNotEmpty() },
+            table.pastParticiple,
+        ).joinToString(" · "),
+    ) {
+        ConjugationGrid(table)
     }
 }
 

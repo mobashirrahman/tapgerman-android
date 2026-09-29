@@ -18,6 +18,7 @@ import com.lingodeck.reader.data.ThemeMode
 import com.lingodeck.reader.data.VocabItem
 import com.lingodeck.reader.library.LibraryScreen
 import com.lingodeck.reader.reader.ConjugationGrid
+import com.lingodeck.reader.reader.DeclensionGrid
 import com.lingodeck.reader.reader.LookupCard
 import com.lingodeck.reader.reader.ReaderScreen
 import com.lingodeck.reader.settings.SettingsScreen
@@ -149,6 +150,22 @@ class AppScreenshotTest {
         )
         Column(Modifier.padding(16.dp)) {
             ConjugationGrid(table)
+        }
+    }
+
+    // A noun's collapsed declension line, in card context, beside the verb's.
+    @Test
+    fun lookupCardWithDeclension() = screen("lookup-card-declension") { Lookup(Fixtures.hausLookup) }
+
+    // The noun case table on its own, for the same reason the conjugation grid has one: the card
+    // baseline only ever shows it collapsed.
+    @Test
+    fun declensionGrid() = screen("declension-grid") {
+        val table = requireNotNull(
+            com.lingodeck.reader.dict.Declension.tableFor(Fixtures.hausForms),
+        )
+        Column(Modifier.padding(16.dp)) {
+            DeclensionGrid(table)
         }
     }
 
@@ -370,6 +387,55 @@ private object Fixtures {
      * particular verb, and hanging `gehen`'s forms off `sagen` would make a screenshot that looks
      * right and is about nothing.
      */
+    /** `Haus`'s real declension rows, parsed the way the app parses them. */
+    val hausForms: List<InflectedForm> =
+        com.lingodeck.reader.dict.KaikkiFixtures.HAUS_FORMS.lineSequence()
+            .filter { it.isNotBlank() }
+            .map { line ->
+                val o = org.json.JSONObject(line)
+                InflectedForm(
+                    form = o.getString("form"),
+                    tags = o.getJSONArray("tags").let { t -> (0 until t.length()).map { t.getString(it) } },
+                    source = o.optString("source").takeIf { it.isNotEmpty() },
+                )
+            }
+            .toList()
+
+    /** `Haus` carrying its real case table, so the declension section appears on a card. */
+    val hausLookup = LookupUi(
+        word = "Haus",
+        sentence = "Die Koalition hat sich am Donnerstag geeinigt.",
+        paragraphIndex = 0,
+        start = 3,
+        end = 7,
+        loading = false,
+        result = DictResult(
+            word = "Haus",
+            language = "German",
+            languageCode = "de",
+            entries = listOf(
+                DictEntry(
+                    word = "Haus",
+                    partOfSpeech = "noun",
+                    head = "Haus n",
+                    ipa = "[haʊ̯s]",
+                    audioUrl = "",
+                    formOf = "",
+                    definitions = listOf(
+                        Sense(
+                            gloss = "house, building",
+                            tags = listOf("neuter", "strong"),
+                            examples = emptyList(),
+                        ),
+                    ),
+                    forms = hausForms,
+                ),
+            ),
+        ),
+        glosses = listOf("house, building"),
+        chosenGloss = "house, building",
+    )
+
     val gehenLookup = LookupUi(
         word = "gehen",
         sentence = "Er sagte, dass es am Montag regnet.",

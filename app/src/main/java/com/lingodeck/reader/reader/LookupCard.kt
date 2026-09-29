@@ -60,6 +60,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.lingodeck.reader.data.LookupCardBuilder
 import com.lingodeck.reader.dict.Conjugation
+import com.lingodeck.reader.dict.Declension
 import com.lingodeck.reader.ui.LookupUi
 import com.lingodeck.reader.ui.components.ErrorSurface
 import com.lingodeck.reader.ui.components.LingoButtonGroup
@@ -377,9 +378,11 @@ internal fun LookupCard(
                 // Built from the chosen sense's entry, because that is the entry whose glosses are on
                 // screen, and it is the only place a conjugation can come from: the tags ride on the
                 // entry, not on the sense.
-                chosen?.let { sense -> Conjugation.tableFor(sense.forms) }?.let { table ->
-                    Spacer(Modifier.height(Space.sm))
-                    ConjugationBlock(table)
+                chosen?.let { sense ->
+                    // A verb conjugates and a noun declines, never both, and the payload says which
+                    // by carrying the rows. Whichever table exists is the one to show.
+                    Conjugation.tableFor(sense.forms)?.let { ConjugationBlock(it) }
+                        ?: Declension.tableFor(sense.forms)?.let { DeclensionBlock(it) }
                 }
             }
 
