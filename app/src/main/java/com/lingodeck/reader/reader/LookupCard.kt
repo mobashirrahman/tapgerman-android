@@ -89,6 +89,8 @@ fun LookupCardHost(
     onToggleAllSenses: () -> Unit,
     isShowingAllSenses: Boolean,
     onRecord: () -> Unit,
+    /** Looks up a related word. Opens a new card in place of this one. */
+    onLookupWord: (String) -> Unit = {},
 ) {
     // `Dp.value` is dp, not pixels, so the gap goes through the density to reach
     // [AnchoredPositionProvider], which works in raw pixels like the rest of PopupPositionProvider.
@@ -119,6 +121,7 @@ fun LookupCardHost(
             onSpeak = onSpeak,
             onToggleAllSenses = onToggleAllSenses,
             isShowingAllSenses = isShowingAllSenses,
+            onLookupWord = onLookupWord,
         )
     }
 }
@@ -159,6 +162,7 @@ internal fun LookupCard(
     onSpeak: () -> Unit,
     onToggleAllSenses: () -> Unit,
     isShowingAllSenses: Boolean,
+    onLookupWord: (String) -> Unit = {},
 ) {
     // Entrance. Honours the system's animation setting: with animations off the card is simply
     // there, which is what someone who has turned them off is asking for. Read outside the
@@ -383,6 +387,17 @@ internal fun LookupCard(
                     // by carrying the rows. Whichever table exists is the one to show.
                     Conjugation.tableFor(sense.forms)?.let { ConjugationBlock(it) }
                         ?: Declension.tableFor(sense.forms)?.let { DeclensionBlock(it) }
+                }
+
+                chosen?.let { sense ->
+                    if (!sense.etymology.isEmpty || !sense.related.isEmpty) {
+                        Spacer(Modifier.height(Space.sm))
+                        WordRelationsBlock(
+                            etymology = sense.etymology,
+                            related = sense.related,
+                            onLookupWord = onLookupWord,
+                        )
+                    }
                 }
             }
 

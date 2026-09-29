@@ -18,7 +18,9 @@ import com.lingodeck.reader.data.ThemeMode
 import com.lingodeck.reader.data.VocabItem
 import com.lingodeck.reader.library.LibraryScreen
 import com.lingodeck.reader.reader.ConjugationGrid
+import com.lingodeck.reader.dict.WordRelations
 import com.lingodeck.reader.reader.DeclensionGrid
+import com.lingodeck.reader.reader.WordRelationsBlock
 import com.lingodeck.reader.reader.LookupCard
 import com.lingodeck.reader.reader.ReaderScreen
 import com.lingodeck.reader.settings.SettingsScreen
@@ -150,6 +152,49 @@ class AppScreenshotTest {
         )
         Column(Modifier.padding(16.dp)) {
             ConjugationGrid(table)
+        }
+    }
+
+    // Descent and the words a verb sits next to. `gehen` is the one with two roots and two
+    // antonyms, so it exercises every branch of the relations block at once.
+    @Test
+    fun lookupCardWithRelations() = screen("lookup-card-relations") {
+        Lookup(
+            Fixtures.gehenLookup.copy(
+                result = Fixtures.gehenLookup.result?.copy(
+                    entries = listOf(
+                        requireNotNull(Fixtures.gehenLookup.result?.entries?.first()).copy(
+                            etymology = WordRelations.parseEtymology(
+                                com.lingodeck.reader.dict.KaikkiFixtures.GEHEN_ETYMOLOGY,
+                            ),
+                            related = WordRelations.relatedWords(
+                                antonyms = listOf("kommen", "rennen"),
+                                related = listOf("gehts", "fahren"),
+                                derived = listOf("abgehen", "angehen", "aufgehen", "eingehen"),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        )
+    }
+
+    // The relations block on its own. The card baseline can only show the first line of a six-stage
+    // descent before the fold, so without this the chips have never been looked at.
+    @Test
+    fun wordRelationsBlock() = screen("word-relations") {
+        Column(Modifier.padding(16.dp)) {
+            WordRelationsBlock(
+                etymology = WordRelations.parseEtymology(
+                    com.lingodeck.reader.dict.KaikkiFixtures.GEHEN_ETYMOLOGY,
+                ),
+                related = WordRelations.relatedWords(
+                    antonyms = listOf("kommen", "rennen"),
+                    related = listOf("gehts", "fahren"),
+                    derived = listOf("abgehen", "angehen", "aufgehen", "eingehen"),
+                ),
+                onLookupWord = {},
+            )
         }
     }
 

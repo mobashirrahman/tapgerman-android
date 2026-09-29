@@ -274,6 +274,7 @@ fun AppShell(
                         else permissionLauncher.launch(AnkiDroid.PERMISSION)
                     },
                     onSpeak = model::speakLookupWord,
+                    onLookupWord = model::openStandaloneLookup,
                 )
 
                 Screen.Settings -> SettingsScreen(
@@ -323,6 +324,9 @@ fun AppShell(
             onToggleAllSenses = { model.toggleAllSenses(lookup.word) },
             isShowingAllSenses = expandedSenses.contains(lookup.word),
             onRecord = { model.recordSessionWord(lookup.word, lookup.chosenGloss) },
+            // A related word is looked up the way a reader would look one up from the dictionary,
+            // replacing the card: the point of an antonym chip is to go and read the antonym.
+            onLookupWord = model::openStandaloneLookup,
         )
     }
 }

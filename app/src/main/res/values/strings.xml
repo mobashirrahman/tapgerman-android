@@ -197,4 +197,12 @@
     <string name="lookup_declension">Declension</string>
     <string name="lookup_singular">Sg.</string>
     <string name="lookup_plural">Pl.</string>
+    <string name="lookup_etymology">Etymology</string>
+    <string name="lookup_antonyms">Antonyms</string>
+    <string name="lookup_related">Related</string>
+    <string name="lookup_derived">Derived</string>
+    <plurals name="lookup_more_roots">
+        <item quantity="one">+%1$d more root</item>
+        <item quantity="other">+%1$d more roots</item>
+    </plurals>
 </resources>

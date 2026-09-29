@@ -75,6 +75,7 @@ fun DictionaryScreen(
     onSave: () -> Unit,
     onSendToAnki: () -> Unit,
     onSpeak: () -> Unit,
+    onLookupWord: (String) -> Unit = {},
 ) {
     val appBarState = rememberTopAppBarState()
     // Seeded from the loaded word, and keyed on it, so the field shows what the card below it is

@@ -60,6 +60,45 @@ data class InflectedForm(
     val source: String? = null,
 )
 
+/**
+ * One step of a word's history: a language stage and the form the word took in it.
+ *
+ * German Wiktionary sends this as a prose block, one stage per line —
+ * `Old High German hūs` — and [Etymology] pulls those lines back apart.
+ */
+data class EtymologyStage(val language: String, val form: String)
+
+/**
+ * A word's descent, as one or more chains of stages.
+ *
+ * A "tree" is not always a line: `gehen` has two independent ancestors, one through *ǵʰeh₁-der
+ * and one through *ǵʰengʰ-der, because German has two roots for going. They are separate chains
+ * rather than one merged graph, which is all this shape can hold and all the payload really offers.
+ */
+data class Etymology(val chains: List<List<EtymologyStage>>) {
+    val isEmpty: Boolean get() = chains.isEmpty()
+
+    /** The first chain, which is the line of descent a reader almost always wants. */
+    val primary: List<EtymologyStage> get() = chains.firstOrNull().orEmpty()
+}
+
+/**
+ * Words Wiktionary lists against this one, grouped by the relationship.
+ *
+ * Both lists are long in the raw payload — 407 derived terms for `Haus`, 241 hyponyms — so the
+ * counts here are what the *card* shows and the parser has already trimmed. The relationship is
+ * kept because "comes from" and "means the opposite of" teach different things, and a flat list of
+ * related words throws that away.
+ */
+data class RelatedWords(
+    val antonyms: List<String> = emptyList(),
+    val related: List<String> = emptyList(),
+    val derived: List<String> = emptyList(),
+) {
+    val isEmpty: Boolean
+        get() = antonyms.isEmpty() && related.isEmpty() && derived.isEmpty()
+}
+
 data class DictEntry(
     val word: String,
     val partOfSpeech: String,
@@ -77,6 +116,10 @@ data class DictEntry(
      * the adjective declension that shares the headword.
      */
     val forms: List<InflectedForm> = emptyList(),
+    /** The word's descent, when the entry has an etymology section. */
+    val etymology: Etymology = Etymology(emptyList()),
+    /** Antonyms, see-also and a short list of derived terms. */
+    val related: RelatedWords = RelatedWords(),
 )
 
 data class DictResult(

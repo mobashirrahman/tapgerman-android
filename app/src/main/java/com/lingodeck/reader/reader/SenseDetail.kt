@@ -1,6 +1,8 @@
 package com.lingodeck.reader.reader
 
 import com.lingodeck.reader.data.Example
+import com.lingodeck.reader.data.Etymology
+import com.lingodeck.reader.data.RelatedWords
 import com.lingodeck.reader.data.InflectedForm
 import com.lingodeck.reader.data.LookupCardBuilder
 import com.lingodeck.reader.ui.LookupUi
@@ -38,6 +40,9 @@ data class SenseDetail(
      * Empty for everything that is not a verb.
      */
     val forms: List<InflectedForm> = emptyList(),
+    /** The word's descent and the words it sits next to, when the entry has them. */
+    val etymology: Etymology = Etymology(emptyList()),
+    val related: RelatedWords = RelatedWords(),
 ) {
     /** Whether there is anything worth drawing beyond the gloss line itself. */
     val hasDetail: Boolean get() = tags.isNotEmpty() || examples.isNotEmpty()
@@ -109,6 +114,18 @@ fun senseDetails(lookup: LookupUi): List<SenseDetail> {
                 .firstOrNull { entry -> entry.forms.isNotEmpty() }
                 ?.forms
                 .orEmpty(),
+            // The first entry that has them, for the same reason: an entry is the unit these hang
+            // off, and a gloss repeated across two of them is one etymology, not two.
+            etymology = entries
+                .filter { entry -> entry.definitions.any { it.gloss == gloss } }
+                .firstOrNull { entry -> !entry.etymology.isEmpty }
+                ?.etymology
+                ?: Etymology(emptyList()),
+            related = entries
+                .filter { entry -> entry.definitions.any { it.gloss == gloss } }
+                .firstOrNull { entry -> !entry.related.isEmpty }
+                ?.related
+                ?: RelatedWords(),
         )
     }
 }

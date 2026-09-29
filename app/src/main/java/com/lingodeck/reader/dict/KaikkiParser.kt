@@ -108,6 +108,11 @@ object KaikkiParser {
                 )
             }
 
+        // `{word, sense}` objects, repeated across senses in the payload.
+        fun wordList(key: String): List<String> =
+            record.objectList(key)
+                .mapNotNull { it.optString("word").takeIf(String::isNotEmpty) }
+
         val sounds = record.objectList("sounds")
         val head = record.objectList("head_templates").firstOrNull { it.truthy("expansion") }
         val formOf = senses.asSequence()
@@ -123,6 +128,12 @@ object KaikkiParser {
             formOf = formOf?.optString("word") ?: "",
             definitions = definitions,
             forms = tableForms,
+            etymology = WordRelations.parseEtymology(record.optString("etymology_text")),
+            related = WordRelations.relatedWords(
+                antonyms = wordList("antonyms"),
+                related = wordList("related"),
+                derived = wordList("derived"),
+            ),
         )
     }
 }

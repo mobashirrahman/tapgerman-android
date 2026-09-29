@@ -182,4 +182,25 @@ internal object KaikkiFixtures {
         {"form": "Kind", "tags": ["accusative", "singular"], "source": "declension"}
         {"form": "Kinder", "tags": ["accusative", "definite", "plural"], "source": "declension"}
         """.trimIndent()
+
+    /**
+     * `Haus`'s `etymology_text`, verbatim.
+     *
+     * Kept whole rather than trimmed to the tree, because the last lines are the ones the parser
+     * must *not* read as stages — the sentence beginning "From Middle High German" and the
+     * "Cognate with" list. A fixture cut down to the answer would pass a parser that gets this
+     * wrong.
+     */
+    val HAUS_ETYMOLOGY: String = "Etymology tree\nProto-Indo-European *(s)kewH-der.?\nProto-Germanic *hūsą\nProto-West Germanic *hūs\nOld High German hūs\nMiddle High German hūs\nGerman Haus\nFrom Middle High German hūs, from Old High German hūs, from Proto-West Germanic *hūs, from Proto-Germanic *hūsą.\nCognate with Old Frisian hūs, Low German Hus, Huus, Dutch huis, Icelandic hús, Faroese hús, Danish hus, Norwegian hus, Swedish hus, English house. Doublet of House."
+
+    /**
+     * `gehen`'s `etymology_text`, verbatim.
+     *
+     * Kept whole rather than trimmed to the tree, because the last lines are the ones the parser
+     * must *not* read as stages — the sentence beginning "From Middle High German" and the
+     * "Cognate with" list. A fixture cut down to the answer would pass a parser that gets this
+     * wrong.
+     */
+    val GEHEN_ETYMOLOGY: String = "Etymology tree\nProto-Indo-European *ǵʰeh₁-der.\nProto-Germanic *gāną\nProto-West Germanic *gān\nOld High German gān\nProto-Indo-European *ǵʰengʰ-der.\nProto-Germanic *ganganą\nProto-West Germanic *gangan\nOld High German gangan\nMiddle High German gān\nGerman gehen\nFrom Middle High German gān, gēn, from Old High German gān, gēn, from Proto-West Germanic *gān, from Proto-Germanic *gāną, from Proto-Indo-European *ǵʰeh₁- (“to leave”).\nCognate with Dutch gaan, Low German gaan, gahn, English go, Swedish and Danish gå, Yiddish גיין (geyn).\nThe form gēn instead of gān is of Bavarian origin, but many dialects of Central and Low German have -e- (from earlier -ei-) or ei in the 2nd and 3rd person singular present, in keeping with the Proto-Germanic irregular conjugation. The -h- was introduced into the spelling by analogy with sehen, in which it had become mute but was retained in spelling.\nForms such as gingen, gegangen etc. derive from Old High German gangan, from Proto-West Germanic *gangan, from Proto-Germanic *ganganą, from Proto-Indo-European *ǵʰengʰ- (“to walk”)."
+
 }
