@@ -234,7 +234,7 @@ fun AppShell(
                             onTapWord = { index, start, end, anchor ->
                                 model.openLookup(index, start, end, anchor.x, anchor.y)
                             },
-                            onLongPressWord = model::speakWord,
+                            onLongPressWord = model::speakWordImmediately,
                             onProgress = model::recordProgress,
                             onConsumeJump = model::consumeJump,
                             onTextScale = model::setTextScale,
@@ -255,7 +255,7 @@ fun AppShell(
                     onSortChange = model::setVocabSort,
                     onDelete = model::deleteVocab,
                     onSendToAnki = model::sendStoredToAnki,
-                    onSpeak = model::speakWord,
+                    onSpeak = { item -> model.speakWord(item.word, item.audioUrl) },
                     onReopenInArticle = model::reopenInArticle,
                     onExport = onExportTsv,
                     onBrowseLibrary = model::openLibrary,
@@ -290,6 +290,7 @@ fun AppShell(
                     onDeckNameChange = model::setDeckName,
                     onHapticsChange = model::setHaptics,
                     onHighlightChange = model::setHighlightTappableWords,
+                    onRecordingsChange = model::setDictionaryRecordings,
                     onExport = onExportTsv,
                     onClearWords = model::clearVocab,
                     onClearHistory = model::clearArticleHistory,

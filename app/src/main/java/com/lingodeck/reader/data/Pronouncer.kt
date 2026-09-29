@@ -19,6 +19,20 @@ class Pronouncer(context: Context) : TextToSpeech.OnInitListener {
     @Volatile
     private var ready = false
 
+    /**
+     * A word asked for before the engine finished starting.
+     *
+     * The engine initialises asynchronously, and the first tap on a word is very often the first
+     * tap in the process — so without this the first word a reader speaks is silently swallowed.
+     * That was tolerable while this was the only way to pronounce a word; it is not now that it is
+     * the fallback, because the fallback has to be dependable to be worth falling back to.
+     *
+     * One word is enough. Two taps faster than the engine can start is two words nobody can hear
+     * anyway, and a queue would put out words the reader has already moved on from.
+     */
+    @Volatile
+    private var pending: String? = null
+
     override fun onInit(status: Int) {
         if (status != TextToSpeech.SUCCESS) return
         val engine = tts ?: return
@@ -28,11 +42,20 @@ class Pronouncer(context: Context) : TextToSpeech.OnInitListener {
             engine.language = Locale.GERMAN
         }
         ready = true
+        pending?.let { word ->
+            pending = null
+            speak(word)
+        }
     }
 
     fun speak(text: String) {
         val trimmed = text.trim()
-        if (!ready || trimmed.isEmpty()) return
+        if (trimmed.isEmpty()) return
+        if (!ready) {
+            // Held until onInit rather than dropped, so the first word in a session is not lost.
+            pending = trimmed
+            return
+        }
         tts?.speak(trimmed, TextToSpeech.QUEUE_FLUSH, null, SPEECH_ID)
     }
 
@@ -44,6 +67,7 @@ class Pronouncer(context: Context) : TextToSpeech.OnInitListener {
         tts?.shutdown()
         tts = null
         ready = false
+        pending = null
     }
 
     private companion object {

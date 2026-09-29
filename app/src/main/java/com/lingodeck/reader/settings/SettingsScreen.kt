@@ -84,6 +84,7 @@ fun SettingsScreen(
     onDeckNameChange: (String) -> Unit,
     onHapticsChange: (Boolean) -> Unit,
     onHighlightChange: (Boolean) -> Unit,
+    onRecordingsChange: (Boolean) -> Unit,
     onExport: () -> Unit,
     onClearWords: () -> Unit,
     onClearHistory: () -> Unit,
@@ -233,6 +234,15 @@ fun SettingsScreen(
                     body = stringResource(R.string.settings_tint_body),
                     checked = settings.highlightTappableWords,
                     onCheckedChange = onHighlightChange,
+                )
+            }
+
+            item(key = "recordings") {
+                SettingSwitch(
+                    title = stringResource(R.string.settings_recordings),
+                    body = stringResource(R.string.settings_recordings_body),
+                    checked = settings.dictionaryRecordings,
+                    onCheckedChange = onRecordingsChange,
                 )
             }
 

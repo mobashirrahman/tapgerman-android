@@ -80,7 +80,7 @@ fun WordListScreen(
     onSortChange: (VocabSort) -> Unit,
     onDelete: (String) -> Unit,
     onSendToAnki: (VocabItem) -> Unit,
-    onSpeak: (String) -> Unit,
+    onSpeak: (VocabItem) -> Unit,
     onReopenInArticle: (VocabItem) -> Unit,
     onExport: () -> Unit,
     onBrowseLibrary: () -> Unit,
@@ -253,7 +253,7 @@ fun WordListScreen(
                         item = item,
                         onDelete = { onDelete(item.id) },
                         onSendToAnki = { onSendToAnki(item) },
-                        onSpeak = { onSpeak(item.lemma.ifBlank { item.word }) },
+                        onSpeak = { onSpeak(item) },
                         onReopen = { onReopenInArticle(item) },
                     )
                 }

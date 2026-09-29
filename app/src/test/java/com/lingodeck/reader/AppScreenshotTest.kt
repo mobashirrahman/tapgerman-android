@@ -258,6 +258,7 @@ private fun SettingsScreenView() = SettingsScreen(
     onDeckNameChange = {},
     onHapticsChange = {},
     onHighlightChange = {},
+    onRecordingsChange = {},
     onExport = {},
     onClearWords = {},
     onClearHistory = {},

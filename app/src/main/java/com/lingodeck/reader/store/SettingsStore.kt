@@ -45,6 +45,7 @@ class SettingsStore(context: Context) {
                 deckName = prefs[KEY_DECK]?.takeIf { it.isNotBlank() } ?: DEFAULT_DECK,
                 haptics = prefs[KEY_HAPTICS] ?: true,
                 highlightTappableWords = prefs[KEY_HIGHLIGHT] ?: true,
+                dictionaryRecordings = prefs[KEY_RECORDINGS] ?: true,
             )
         }
 
@@ -62,6 +63,8 @@ class SettingsStore(context: Context) {
 
     suspend fun setHighlightTappableWords(enabled: Boolean) = edit { it[KEY_HIGHLIGHT] = enabled }
 
+    suspend fun setDictionaryRecordings(enabled: Boolean) = edit { it[KEY_RECORDINGS] = enabled }
+
     private suspend fun edit(block: (androidx.datastore.preferences.core.MutablePreferences) -> Unit) {
         try {
             dataStore.edit(block)
@@ -77,6 +80,7 @@ class SettingsStore(context: Context) {
         val KEY_DECK = stringPreferencesKey("anki_deck")
         val KEY_HAPTICS = booleanPreferencesKey("haptics")
         val KEY_HIGHLIGHT = booleanPreferencesKey("highlight_words")
+        val KEY_RECORDINGS = booleanPreferencesKey("dictionary_recordings")
 
         fun emptyPreferences(): Preferences = androidx.datastore.preferences.core.emptyPreferences()
 
@@ -97,6 +101,15 @@ data class Settings(
     val deckName: String = "LingoDeck",
     val haptics: Boolean = true,
     val highlightTappableWords: Boolean = true,
+    /**
+     * Prefer the dictionary's own recording of a word over the device's synthesised voice.
+     *
+     * On by default, and the recording is the better voice — it is a German speaker saying the
+     * word the way it is said. It costs a small download the first time a word is spoken, which is
+     * what the switch is for: someone on a metered connection who would rather have the offline
+     * voice every time.
+     */
+    val dictionaryRecordings: Boolean = true,
 ) {
     companion object {
         const val DEFAULT_DECK = "LingoDeck"

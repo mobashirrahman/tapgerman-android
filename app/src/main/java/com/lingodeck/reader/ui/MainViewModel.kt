@@ -13,8 +13,9 @@ import com.lingodeck.reader.data.ArticleFetcher
 import com.lingodeck.reader.data.DictEntry
 import com.lingodeck.reader.data.DictResult
 import com.lingodeck.reader.data.LookupCardBuilder
-import com.lingodeck.reader.data.Pronouncer
 import com.lingodeck.reader.data.VocabItem
+import com.lingodeck.reader.audio.AudioCache
+import com.lingodeck.reader.audio.WordSpeaker
 import com.lingodeck.reader.dict.KaikkiClient
 import com.lingodeck.reader.dict.LemmaResolver
 import com.lingodeck.reader.store.Settings
@@ -32,6 +33,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 
 /** The destinations. [Reader] and [Dictionary] are pushed levels, not tabs. */
 enum class Screen { Library, Reader, Words, Dictionary, Settings }
@@ -125,7 +127,12 @@ data class PendingJump(
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val store = Store(application.filesDir)
     private val settingsStore = SettingsStore(application)
-    private val pronouncer = Pronouncer(application)
+    private val speaker = WordSpeaker(
+        context = application,
+        scope = viewModelScope,
+        cache = AudioCache(File(application.filesDir, "audio")),
+        recordingsEnabled = { settings.value.dictionaryRecordings },
+    )
 
     private val _state = MutableStateFlow(UiState())
     val state: StateFlow<UiState> = _state.asStateFlow()
@@ -152,7 +159,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     override fun onCleared() {
-        pronouncer.close()
+        speaker.release()
     }
 
     fun refreshLibrary() {
@@ -389,11 +396,30 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      */
     fun speakLookupWord() {
         val lookup = _state.value.lookup ?: return
-        pronouncer.speak(lookup.word)
+        // The lemma's recording, not the surface form's: German audio is catalogued per headword,
+        // and a reader who taps "sagte" wants to hear how the word is said, not one inflection.
+        val audioUrl = lookup.result?.entries
+            ?.firstOrNull { it.audioUrl.isNotBlank() }
+            ?.audioUrl
+            .orEmpty()
+        speaker.speak(lookup.word, audioUrl)
     }
 
-    /** Speaks a stored word, from the word list rather than from a lookup. */
-    fun speakWord(word: String) = pronouncer.speak(word)
+    /**
+     * Speaks a word with no recording, for a gesture that must answer instantly.
+     *
+     * Long-pressing in the reader is that gesture: it happens mid-sentence, the word has usually
+     * not been looked up so no recording is in hand, and a fetch would put a pause where a tap
+     * expects a sound.
+     */
+    fun speakWordImmediately(word: String) = speaker.speak(word, immediate = true)
+
+    /** Speaks a stored word, from the word list, which does carry its recording. */
+    fun speakWord(word: String, audioUrl: String = "") = speaker.speak(word, audioUrl)
+
+    fun setDictionaryRecordings(enabled: Boolean) = viewModelScope.launch {
+        settingsStore.setDictionaryRecordings(enabled)
+    }
 
     /** The learner's sense choice. Saves narrow the card to exactly this gloss. */
     fun chooseGloss(gloss: String) = _state.update { it.copy(lookup = it.lookup?.copy(chosenGloss = gloss)) }
