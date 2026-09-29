@@ -180,19 +180,4 @@
     <!-- Share sheet -->
     <string name="share_anki_export">Export Anki TSV</string>
     <string name="share_anki_mime">text/tab-separated-values</string>
-    <string name="settings_translation">Sentence translation</string>
-    <string name="settings_translation_none">Off</string>
-    <string name="settings_translation_none_body">Only the examples in the dictionary are shown, already translated. Nothing you tap is ever sent anywhere.</string>
-    <string name="settings_translation_google">Google Cloud Translation</string>
-    <string name="settings_translation_google_body">Sends the sentence you tapped to Google. Needs an API key, and costs money per sentence after the free allowance.</string>
-    <string name="settings_translation_libre">LibreTranslate</string>
-    <string name="settings_translation_libre_body">No key needed. Point it at a server you control and nothing leaves your network.</string>
-    <string name="settings_translation_key">API key</string>
-    <string name="settings_translation_key_body">From Google Cloud Console, with the Cloud Translation API enabled. Stored on this device only; it is never part of the app and never synced.</string>
-    <string name="settings_translation_endpoint">Server address</string>
-    <string name="settings_translation_endpoint_body">For example https://translate.example.com/translate. A bare domain is filled in with https:// for you.</string>
-    <string name="settings_translation_auto">Translate as soon as I tap a word</string>
-    <string name="settings_translation_auto_body">Off, so a sentence is only sent when you ask for it. On, every word you tap sends its sentence automatically, which is faster and costs a translation call per tap.</string>
-    <string name="settings_translation_privacy">The sentence shown in the quotation is the one from your article. Tapping translate sends that sentence, and only that sentence, to the provider you picked. The rest of the article never leaves your phone, and the word you tapped is sent to the dictionary either way.</string>
-    <string name="settings_translation_clear">Clear cached translations</string>
 </resources>
