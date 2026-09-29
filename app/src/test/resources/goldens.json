@@ -15,7 +15,7 @@
       "partOfSpeech": "Noun",
       "ipa": "/ˈhaʊ̯zɐ/",
       "languageCode": "de",
-      "source": "tagesschau.de via LingoDeck Reader"
+      "source": "tagesschau.de via GlossLine Reader"
     },
     "noLemma": {
       "word": "Häuser",
@@ -31,7 +31,7 @@
       "partOfSpeech": "Noun",
       "ipa": "/ˈhaʊ̯zɐ/",
       "languageCode": "de",
-      "source": "tagesschau.de via LingoDeck Reader"
+      "source": "tagesschau.de via GlossLine Reader"
     },
     "quote": {
       "word": "Schloss\"",
@@ -46,7 +46,7 @@
       "partOfSpeech": "Noun",
       "ipa": "/ˈhaʊ̯zɐ/",
       "languageCode": "de",
-      "source": "tagesschau.de via LingoDeck Reader"
+      "source": "tagesschau.de via GlossLine Reader"
     },
     "homonym": {
       "word": "Schloss",
@@ -61,7 +61,7 @@
       "partOfSpeech": "Noun",
       "ipa": "/ˈhaʊ̯zɐ/",
       "languageCode": "de",
-      "source": "tagesschau.de via LingoDeck Reader"
+      "source": "tagesschau.de via GlossLine Reader"
     },
     "empty": {
       "word": "Wort",
@@ -74,7 +74,7 @@
       "partOfSpeech": "",
       "ipa": "",
       "languageCode": "de",
-      "source": "tagesschau.de via LingoDeck Reader"
+      "source": "tagesschau.de via GlossLine Reader"
     }
   },
   "normalizeLookupWord": [
@@ -144,11 +144,11 @@
     ]
   ],
   "buildAnkiStableId": {
-    "plain": "lingodeck-v1-34laphjabcxzg",
-    "noLemma": "lingodeck-v1-24iskmth80dnc",
-    "quote": "lingodeck-v1-285lft2x159a7",
-    "homonym": "lingodeck-v1-2ty15kxljbrtw",
-    "empty": "lingodeck-v1-1ln0eu3wbd225"
+    "plain": "glossline-v1-34laphjabcxzg",
+    "noLemma": "glossline-v1-24iskmth80dnc",
+    "quote": "glossline-v1-285lft2x159a7",
+    "homonym": "glossline-v1-2ty15kxljbrtw",
+    "empty": "glossline-v1-1ln0eu3wbd225"
   },
   "buildSenseTag": {
     "plain": "sense::16acl65ac2syj",
@@ -241,10 +241,10 @@
   ],
   "buildAnkiNote": {
     "plain": {
-      "deckName": "LingoDeck",
-      "modelName": "LingoDeck Context v2",
+      "deckName": "GlossLine",
+      "modelName": "GlossLine Context v2",
       "fields": {
-        "StableId": "lingodeck-v1-34laphjabcxzg",
+        "StableId": "glossline-v1-34laphjabcxzg",
         "Surface": "Häuser",
         "Lemma": "Haus",
         "Reading": "/ˈhaʊ̯zɐ/",
@@ -253,24 +253,24 @@
         "Sentence": "Das <span class=\"target\">Haus</span> ist groß.",
         "Translation": "",
         "Grammar": "noun",
-        "Source": "tagesschau.de via LingoDeck Reader"
+        "Source": "tagesschau.de via GlossLine Reader"
       },
       "options": {
         "allowDuplicate": false,
         "duplicateScope": "deck"
       },
       "tags": [
-        "lingodeck",
+        "glossline",
         "language::de",
         "sense::16acl65ac2syj",
         "pos::noun"
       ]
     },
     "noLemma": {
-      "deckName": "LingoDeck",
-      "modelName": "LingoDeck Context v2",
+      "deckName": "GlossLine",
+      "modelName": "GlossLine Context v2",
       "fields": {
-        "StableId": "lingodeck-v1-24iskmth80dnc",
+        "StableId": "glossline-v1-24iskmth80dnc",
         "Surface": "Häuser",
         "Lemma": "",
         "Reading": "/ˈhaʊ̯zɐ/",
@@ -279,24 +279,24 @@
         "Sentence": "Das Haus ist groß.",
         "Translation": "",
         "Grammar": "noun",
-        "Source": "tagesschau.de via LingoDeck Reader"
+        "Source": "tagesschau.de via GlossLine Reader"
       },
       "options": {
         "allowDuplicate": false,
         "duplicateScope": "deck"
       },
       "tags": [
-        "lingodeck",
+        "glossline",
         "language::de",
         "sense::16acl65ac2syj",
         "pos::noun"
       ]
     },
     "quote": {
-      "deckName": "LingoDeck",
-      "modelName": "LingoDeck Context v2",
+      "deckName": "GlossLine",
+      "modelName": "GlossLine Context v2",
       "fields": {
-        "StableId": "lingodeck-v1-285lft2x159a7",
+        "StableId": "glossline-v1-285lft2x159a7",
         "Surface": "Schloss&quot;",
         "Lemma": "",
         "Reading": "/ˈhaʊ̯zɐ/",
@@ -305,24 +305,24 @@
         "Sentence": "Das Schloss &quot;leuchtet&quot;.",
         "Translation": "A &quot;b&quot;\\c",
         "Grammar": "noun",
-        "Source": "tagesschau.de via LingoDeck Reader"
+        "Source": "tagesschau.de via GlossLine Reader"
       },
       "options": {
         "allowDuplicate": false,
         "duplicateScope": "deck"
       },
       "tags": [
-        "lingodeck",
+        "glossline",
         "language::de",
         "sense::q2onpiew3hwh",
         "pos::noun"
       ]
     },
     "homonym": {
-      "deckName": "LingoDeck",
-      "modelName": "LingoDeck Context v2",
+      "deckName": "GlossLine",
+      "modelName": "GlossLine Context v2",
       "fields": {
-        "StableId": "lingodeck-v1-2ty15kxljbrtw",
+        "StableId": "glossline-v1-2ty15kxljbrtw",
         "Surface": "Schloss",
         "Lemma": "",
         "Reading": "/ˈhaʊ̯zɐ/",
@@ -331,24 +331,24 @@
         "Sentence": "Das <span class=\"target\">Schloss</span> klemmt.",
         "Translation": "",
         "Grammar": "noun",
-        "Source": "tagesschau.de via LingoDeck Reader"
+        "Source": "tagesschau.de via GlossLine Reader"
       },
       "options": {
         "allowDuplicate": false,
         "duplicateScope": "deck"
       },
       "tags": [
-        "lingodeck",
+        "glossline",
         "language::de",
         "sense::34tkq0at7k44i",
         "pos::noun"
       ]
     },
     "empty": {
-      "deckName": "LingoDeck",
-      "modelName": "LingoDeck Context v2",
+      "deckName": "GlossLine",
+      "modelName": "GlossLine Context v2",
       "fields": {
-        "StableId": "lingodeck-v1-1ln0eu3wbd225",
+        "StableId": "glossline-v1-1ln0eu3wbd225",
         "Surface": "Wort",
         "Lemma": "",
         "Reading": "",
@@ -357,24 +357,24 @@
         "Sentence": "Ein <span class=\"target\">Wort</span> genügt.",
         "Translation": "",
         "Grammar": "",
-        "Source": "tagesschau.de via LingoDeck Reader"
+        "Source": "tagesschau.de via GlossLine Reader"
       },
       "options": {
         "allowDuplicate": false,
         "duplicateScope": "deck"
       },
       "tags": [
-        "lingodeck",
+        "glossline",
         "language::de",
         "sense::14983tyfkkleh"
       ]
     }
   },
   "buildAnkiNoteAudio": {
-    "deckName": "LingoDeck",
-    "modelName": "LingoDeck Context v2",
+    "deckName": "GlossLine",
+    "modelName": "GlossLine Context v2",
     "fields": {
-      "StableId": "lingodeck-v1-34laphjabcxzg",
+      "StableId": "glossline-v1-34laphjabcxzg",
       "Surface": "Häuser",
       "Lemma": "Haus",
       "Reading": "/ˈhaʊ̯zɐ/",
@@ -383,21 +383,21 @@
       "Sentence": "Das <span class=\"target\">Haus</span> ist groß.",
       "Translation": "",
       "Grammar": "noun",
-      "Source": "tagesschau.de via LingoDeck Reader"
+      "Source": "tagesschau.de via GlossLine Reader"
     },
     "options": {
       "allowDuplicate": false,
       "duplicateScope": "deck"
     },
     "tags": [
-      "lingodeck",
+      "glossline",
       "language::de",
       "sense::16acl65ac2syj",
       "pos::noun"
     ]
   },
   "constants": {
-    "ANKI_MODEL": "LingoDeck Context v2",
+    "ANKI_MODEL": "GlossLine Context v2",
     "ANKI_CARD_TEMPLATE": "Recognition",
     "ANKI_FIELDS": [
       "StableId",

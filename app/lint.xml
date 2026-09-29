@@ -21,8 +21,12 @@
       Uri.parse versus the KTX String.toUri extension. Pre-existing, in a package that is
       hash- and URL-parity-locked to the Chrome extension and deliberately untouched by the
       redesign. It stays until that file is next changed for its own reasons.
+
+      Note that the suppression is keyed on this path. Renaming the application package moved the
+      file and silently un-suppressed the finding, which is how a zero-lint build becomes a
+      one-lint build with no code change at all.
     -->
     <issue id="UseKtx">
-        <ignore path="src/main/java/com/lingodeck/reader/anki/AnkiDroid.kt" />
+        <ignore path="src/main/java/com/glossline/reader/anki/AnkiDroid.kt" />
     </issue>
 </lint>

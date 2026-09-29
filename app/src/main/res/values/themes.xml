@@ -17,14 +17,14 @@
 
     <!-- The launch theme. `Theme.SplashScreen` is androidx.core:core-splashscreen, which
          supplies the API 31+ implementation and backports it to API 26..30. -->
-    <style name="Theme.LingoDeckReader" parent="Theme.SplashScreen">
+    <style name="Theme.GlossLineReader" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/splash_background</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
-        <item name="postSplashScreenTheme">@style/Theme.LingoDeckReader.Content</item>
+        <item name="postSplashScreenTheme">@style/Theme.GlossLineReader.Content</item>
     </style>
 
     <!-- What the app actually runs in, once installSplashScreen() has handed over. -->
-    <style name="Theme.LingoDeckReader.Content" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="Theme.GlossLineReader.Content" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">@color/window_background</item>
     </style>
 </resources>

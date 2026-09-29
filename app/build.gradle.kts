@@ -18,15 +18,15 @@ val keystoreProperties = Properties().apply {
 }
 
 android {
-    namespace = "com.lingodeck.reader"
+    namespace = "com.glossline.reader"
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.lingodeck.reader"
+        applicationId = "com.glossline.reader"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 2
-        versionName = "0.2.0"
+        versionCode = 3
+        versionName = "0.3.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

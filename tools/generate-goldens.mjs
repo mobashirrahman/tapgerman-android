@@ -1,9 +1,10 @@
-// Generates src/test/resources/goldens.json by executing the *real* LingoDeck web-extension
+// Generates src/test/resources/goldens.json by executing the *real* GlossLine web-extension
 // modules. The Android unit tests then assert byte-identical output, so a Kotlin refactor can
 // never silently drift from the card identity and dictionary URLs that the Chrome extension uses.
 //
 // Run: node tools/generate-goldens.mjs
-// Requires the lingodeck repository as a sibling: ../lingodeck
+// Requires the GlossLine extension as a sibling checkout. The directory is still named
+// lingodeck on disk; the project inside it was renamed.
 
 import { writeFileSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -26,7 +27,7 @@ const card = (over = {}) => ({
   partOfSpeech: "Noun",
   ipa: "/ˈhaʊ̯zɐ/",
   languageCode: "de",
-  source: "tagesschau.de via LingoDeck Reader",
+  source: "tagesschau.de via GlossLine Reader",
   ...over
 });
 
@@ -117,9 +118,9 @@ const goldens = {
     ["Das <b>Haus</b> & Co.", "Haus", [], anki.highlightSurface("Das <b>Haus</b> & Co.", "Haus")]
   ],
   buildAnkiNote: Object.fromEntries(
-    Object.entries(cards).map(([k, v]) => [k, anki.buildAnkiNote(v, "LingoDeck", "")])
+    Object.entries(cards).map(([k, v]) => [k, anki.buildAnkiNote(v, "GlossLine", "")])
   ),
-  buildAnkiNoteAudio: anki.buildAnkiNote(cards.plain, "LingoDeck", "[sound:x.mp3]"),
+  buildAnkiNoteAudio: anki.buildAnkiNote(cards.plain, "GlossLine", "[sound:x.mp3]"),
   constants: {
     ANKI_MODEL: anki.ANKI_MODEL,
     ANKI_CARD_TEMPLATE: anki.ANKI_CARD_TEMPLATE,

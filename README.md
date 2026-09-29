@@ -1,21 +1,36 @@
-# LingoDeck Reader
+# GlossLine
 
-An Android companion to [LingoDeck](https://github.com/mobashirrahman/lingodeck): the same
-word-level language learning loop the Chrome extension does for subtitles, applied to German
-newspaper and web articles.
+An Android companion to the [GlossLine](https://github.com/mobashirrahman/glossline) Chrome
+extension: the same word-level learning loop it does for subtitles, applied to German newspaper
+and web articles.
 
 Share an article from Chrome. Read it in German. Tap any word to see what it means. Keep the word
 together with the sentence it came from. Send it to AnkiDroid.
 
 No full-page machine translation. The article stays in German.
 
+A *gloss* is the linguistic term for an explanatory note attached to a word, which is what tapping
+a word produces. The mark is a highlighted line of text.
+
+| | |
+|---|---|
+| ![The library, with an address to paste and a list of what you have read](screenshots/library.png) | ![A word looked up in the dictionary, with its senses, grammatical tags and a translated usage example](screenshots/lookup.png) |
+| **Library** — share or paste an article. | **A word** — senses, tags, the example in context, and the tables underneath. |
+
 ## The loop
 
 1. Find a German article in your browser.
-2. **Share → LingoDeck Reader** (or paste the address on the library screen).
+2. **Share → GlossLine** (or paste the address on the library screen, or type a word on **Words →
+   Dictionary** to look one up without reading anything first).
 3. Read the article in German. Every word is a tap target.
-4. Tap a word → lemma, part of speech, IPA, English glosses, and the exact sentence it came from.
-   If the word is an inflected form ("höchste"), the glosses come from its lemma ("hoch").
+4. Tap a word → lemma, part of speech, IPA, English glosses, the exact sentence it came from, the
+   grammatical tags Kaikki carries (`neuter · strong`, `transitive · class 7`) and worked examples
+   with their own translations. If the word is an inflected form ("höchste", "sagte"), the glosses
+   come from its lemma ("hoch", "sagen") — otherwise every conjugated verb in a German article
+   would resolve to a restatement of its own inflection.
+   Verbs get a **conjugation** table and nouns a **declension** table, both folded away behind a
+   line of the forms you actually want ("geht · ging · gegangen"). Etymology and antonyms are there
+   too, and the related words are chips you can tap to go straight to them.
 5. Pick which meaning you actually met — **Save** keeps it locally, **Anki** creates or grows an
    AnkiDroid card. The card carries only the sense you picked, so *Schloss* the castle and
    *Schloss* the lock stay on separate cards.
@@ -122,7 +137,7 @@ by looking.
 
 ## AnkiDroid
 
-Cards use the note type **`LingoDeck Context v2`** with the same ten fields, templates and CSS as
+Cards use the note type **`GlossLine Context v2`** with the same ten fields, templates and CSS as
 the Chrome extension, so a card saved on the phone looks exactly like one saved from the browser.
 
 The app talks to `content://com.ichi2.anki.flashcards` directly (AnkiDroid's published
@@ -150,6 +165,13 @@ front of the reader a hundred times over, but it is a condition of using the def
 never more than one scroll away from where they are shown.
 
 ## Parity with the Chrome extension
+
+The extension was renamed LingoDeck → GlossLine, and this app followed it: application id
+`com.glossline.reader`, note type `GlossLine Context v2`, `glossline-v1-` StableId prefix,
+`glossline` Anki tag. **This is a breaking change for existing collections** — the identity
+strings are part of the note identity, so a word saved before the rename and the same word saved
+after land on two different notes. That was the extension's call too, and both sides were changed
+together so they still merge with each other.
 
 The interesting requirement here is that a word saved on the phone and the same word saved from
 the browser must land on one Anki note. So the parts that decide card identity are not reimplemented
@@ -237,6 +259,9 @@ tools/                        fixture generators, icon renderer
 ## Limitations
 
 - German → English only for now. The dictionary and tokenizer are language-parameterised; the UI is not.
+- Pronunciation is played from Wiktionary's own recordings of native speakers when they exist, and
+  falls back to the device's synthesised voice. The Anki card still carries no audio: AnkiDroid's
+  ContentProvider has no media API, so the file cannot be attached from here.
 - Paywalled or heavily client-rendered pages extract poorly. The reader tells you and you can fall
   back to the browser.
 - The AnkiDroid permission is requested mid-flow, on the first **Send to Anki**. It is the one
@@ -248,5 +273,5 @@ tools/                        fixture generators, icon renderer
 ## License
 
 MIT. Dictionary content comes from Kaikki / English Wiktionary under CC BY-SA 4.0; see the
-[third-party notices](https://github.com/mobashirrahman/lingodeck/blob/main/THIRD_PARTY_NOTICES.md)
+[third-party notices](https://github.com/mobashirrahman/glossline/blob/main/THIRD_PARTY_NOTICES.md)
 in the main repository. Bundled fonts are under the SIL Open Font Licence 1.1.

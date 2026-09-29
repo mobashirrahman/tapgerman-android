@@ -11,8 +11,8 @@
   that has to happen before the other half is possible.
 -->
 <resources>
-    <string name="app_name">LingoDeck Reader</string>
-    <string name="brand_name">LingoDeck</string>
+    <string name="app_name">GlossLine</string>
+    <string name="brand_name">GlossLine</string>
 
     <!-- Navigation -->
     <string name="tab_library">Library</string>
@@ -145,7 +145,7 @@
     <string name="settings_tint_body">Colours every word in the article slightly, so it is visible that words can be tapped. Words you have saved are tinted further and underlined.</string>
     <string name="settings_anki">Anki</string>
     <string name="settings_deck">Deck name</string>
-    <string name="settings_deck_body">Cards are created in this deck in AnkiDroid, which must be installed and have granted LingoDeck access.</string>
+    <string name="settings_deck_body">Cards are created in this deck in AnkiDroid, which must be installed and have granted GlossLine access.</string>
     <string name="settings_data">Data</string>
     <string name="settings_data_articles">Articles in the library</string>
     <string name="settings_data_words">Words saved</string>
@@ -154,7 +154,7 @@
     <string name="settings_clear_words">Clear word list</string>
     <string name="settings_clear_history">Clear article history</string>
     <string name="settings_about">About</string>
-    <string name="settings_about_body">An Android companion to the LingoDeck Chrome extension. Words saved here and in the browser land on the same Anki card.</string>
+    <string name="settings_about_body">An Android companion to the GlossLine Chrome extension. Words saved here and in the browser land on the same Anki card.</string>
     <string name="settings_clear_words_title">Clear the word list?</string>
     <plurals name="settings_clear_words_body">
         <item quantity="one">This removes the %1$d saved word from this device. Cards already in AnkiDroid are not touched.</item>
