@@ -17,6 +17,7 @@ import com.lingodeck.reader.library.LibraryScreen
 import com.lingodeck.reader.reader.LookupCard
 import com.lingodeck.reader.reader.ReaderScreen
 import com.lingodeck.reader.settings.SettingsScreen
+import com.lingodeck.reader.words.DictionaryScreen
 import com.lingodeck.reader.store.Settings
 import com.lingodeck.reader.data.Example
 import com.lingodeck.reader.data.Sense
@@ -107,6 +108,24 @@ class AppScreenshotTest {
     @Test
     fun wordsEmpty() = screen("words-empty") { Words(emptyList()) }
 
+    // A dictionary lookup with no article behind it: no sentence, no position. The card has to be
+    // the same card, which is the whole point of sharing it rather than writing a second one.
+    @Test
+    fun dictionaryWithAResult() = screen("dictionary-result") {
+        Dictionary(
+            state = UiState(lookup = Fixtures.verbLookup.copy(sentence = "", paragraphIndex = null, start = null, end = null)),
+        )
+    }
+
+    @Test
+    fun dictionaryWithRecentLookups() = screen("dictionary-recent") {
+        Dictionary(
+            state = UiState(
+                recentLookups = listOf("Entlastungen", "Bundesregierung", "Maßnahme", "Sparpaket"),
+            ),
+        )
+    }
+
     @Test
     fun lookupCardForANoun() = screen("lookup-card-noun") { Lookup(Fixtures.nounLookup) }
 
@@ -194,8 +213,24 @@ private fun Lookup(state: LookupUi) {
     )
 }
 
+/** The dictionary screen, with the callbacks inert. */
+@Composable
+private fun Dictionary(state: UiState) = DictionaryScreen(
+    state = state,
+    contentPadding = NoPadding,
+    onLookup = {},
+    onClearRecent = {},
+    onDismiss = {},
+    onSave = {},
+    onSendToAnki = {},
+    onSpeak = {},
+)
+
 @Composable
 private fun Words(items: List<VocabItem>) = WordListScreen(
+    articleFilter = null,
+    onArticleFilterChange = {},
+    onOpenDictionary = {},
     vocab = items,
     contentPadding = NoPadding,
     onQueryChange = {},

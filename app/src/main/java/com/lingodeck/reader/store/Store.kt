@@ -16,6 +16,7 @@ import java.io.File
 class Store(private val directory: File) {
     private val articlesFile = File(directory, "articles.json")
     private val vocabFile = File(directory, "vocab.json")
+    private val recentFile = File(directory, "recent-lookups.json")
 
     init {
         directory.mkdirs()
@@ -170,6 +171,36 @@ class Store(private val directory: File) {
         writeArray(vocabFile, array)
     }
 
+    /**
+     * Words looked up from the dictionary screen, most recent first.
+     *
+     * Separate from the vocabulary list on purpose: looking a word up and keeping it are
+     * different acts, and a reader who checks a verb twenty times has not collected twenty words.
+     * This is also the only record of a word that was looked up and *not* saved, which is the
+     * common case for a dictionary check.
+     */
+    @Synchronized
+    fun listRecentLookups(): List<String> {
+        val array = readArray(recentFile)
+        return (0 until array.length())
+            .map { array.optString(it) }
+            .filter { it.isNotEmpty() }
+            .take(MAX_RECENT_LOOKUPS)
+    }
+
+    /** Moves [word] to the front, adding it if new and dropping the tail past the cap. */
+    @Synchronized
+    fun rememberLookup(word: String) {
+        val trimmed = word.trim()
+        if (trimmed.isEmpty()) return
+        val existing = listRecentLookups().filterNot { it.equals(trimmed, ignoreCase = true) }
+        val updated = (listOf(trimmed) + existing).take(MAX_RECENT_LOOKUPS)
+        writeArray(recentFile, JSONArray(updated))
+    }
+
+    @Synchronized
+    fun clearRecentLookups() = writeArray(recentFile, JSONArray())
+
     private fun readArray(file: File): JSONArray {
         if (!file.isFile) return JSONArray()
         return runCatching { JSONArray(file.readText(Charsets.UTF_8)) }.getOrDefault(JSONArray())
@@ -184,5 +215,13 @@ class Store(private val directory: File) {
                 tmp.delete()
             }
         }
+    }
+
+    private companion object {
+        /**
+         * Two dozen. Enough to cover a sitting of lookups and one reading session's worth of
+         * corrections, without turning the dictionary screen into a list nobody reads.
+         */
+        const val MAX_RECENT_LOOKUPS = 24
     }
 }

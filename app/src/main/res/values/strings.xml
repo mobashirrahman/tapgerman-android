@@ -180,4 +180,11 @@
     <!-- Share sheet -->
     <string name="share_anki_export">Export Anki TSV</string>
     <string name="share_anki_mime">text/tab-separated-values</string>
+    <string name="dictionary_title">Dictionary</string>
+    <string name="dictionary_back">Back</string>
+    <string name="dictionary_hint">Type a German word</string>
+    <string name="dictionary_clear">Clear the search field</string>
+    <string name="dictionary_recent">Recent</string>
+    <string name="dictionary_clear_recent">Clear recent lookups</string>
+    <string name="words_search_dictionary">Search the dictionary</string>
 </resources>

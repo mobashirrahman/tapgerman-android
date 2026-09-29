@@ -120,13 +120,21 @@ object VocabFilterEngine {
         filter: VocabFilter,
         sort: VocabSort,
         query: String = "",
+        article: String? = null,
     ): List<VocabItem> {
         val searched = if (query.isBlank()) items else items.filter { matches(it, query) }
         val filtered = when (filter) {
             VocabFilter.All -> searched
             VocabFilter.NotSent -> searched.filter { it.sentToAnkiAt == null }
             VocabFilter.Sent -> searched.filter { it.sentToAnkiAt != null }
-            VocabFilter.ByArticle -> searched
+            // Narrowing to one article needs the article's title, which the word list picks. Null
+            // means nothing has been picked yet, and the full list stands rather than an empty
+            // one — a filter that can only ever show nothing is not a filter.
+            VocabFilter.ByArticle -> if (article == null) {
+                searched
+            } else {
+                searched.filter { it.articleTitle == article }
+            }
         }
         return when (sort) {
             VocabSort.Newest -> filtered.sortedByDescending { it.createdAt }

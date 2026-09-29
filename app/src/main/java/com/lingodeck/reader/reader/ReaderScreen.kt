@@ -237,7 +237,7 @@ fun ReaderScreen(
                     // afford to be.
                     activeRange = openLookup
                         ?.takeIf { it.paragraphIndex == index }
-                        ?.let { it.start until it.end },
+                        ?.range,
                     hintColor = lingo.wordHint,
                     savedColor = lingo.wordSaved,
                     pressedBackground = lingo.accent,

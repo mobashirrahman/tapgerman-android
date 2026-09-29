@@ -56,6 +56,7 @@ import com.lingodeck.reader.ui.Undo
 import com.lingodeck.reader.ui.components.MorphingLoadingIndicator
 import com.lingodeck.reader.ui.theme.LingoTheme
 import com.lingodeck.reader.ui.theme.Space
+import com.lingodeck.reader.words.DictionaryScreen
 import com.lingodeck.reader.words.WordListScreen
 import com.lingodeck.reader.R
 import androidx.compose.ui.res.stringResource
@@ -122,9 +123,11 @@ fun AppShell(
         }
     }
 
-    // Back from the reader returns to the library. `enableOnBackInvokedCallback` is on, so this
-    // BackHandler is what answers the gesture; without it the app would be dismissed instead.
+    // Back from a pushed level returns to the tab behind it. `enableOnBackInvokedCallback` is on,
+    // so this BackHandler is what answers the gesture; without it the app would be dismissed
+    // instead.
     BackHandler(enabled = state.screen == Screen.Reader) { model.closeArticle() }
+    BackHandler(enabled = state.screen == Screen.Dictionary) { model.closeDictionary() }
 
     // Read out here rather than inside transitionSpec: that lambda is not a composable
     // context, and reaching for the theme from inside it does not compile.
@@ -183,10 +186,11 @@ fun AppShell(
                 // Deeper levels slide in from the side; sibling tabs cross-fade with a slight
                 // scale, so moving between Library and Words does not read as pushing a new screen.
                 val slide = slideSpec
-                if (targetState == Screen.Reader) {
+                // Both pushed levels slide in from the side; tabs cross-fade between themselves.
+                if (targetState == Screen.Reader || targetState == Screen.Dictionary) {
                     (slideInHorizontally(slide) { it / 6 } + fadeIn(tween(220)))
                         .togetherWith(fadeOut(tween(160)))
-                } else if (initialState == Screen.Reader) {
+                } else if (initialState == Screen.Reader || initialState == Screen.Dictionary) {
                     fadeIn(tween(220))
                         .togetherWith(slideOutHorizontally(slide) { it / 6 } + fadeOut(tween(180)))
                 } else {
@@ -246,6 +250,8 @@ fun AppShell(
                     contentPadding = padding,
                     onQueryChange = model::setVocabQuery,
                     onFilterChange = model::setVocabFilter,
+                    articleFilter = vocabView.article,
+                    onArticleFilterChange = model::setVocabArticleFilter,
                     onSortChange = model::setVocabSort,
                     onDelete = model::deleteVocab,
                     onSendToAnki = model::sendStoredToAnki,
@@ -253,6 +259,21 @@ fun AppShell(
                     onReopenInArticle = model::reopenInArticle,
                     onExport = onExportTsv,
                     onBrowseLibrary = model::openLibrary,
+                    onOpenDictionary = model::openDictionary,
+                )
+
+                Screen.Dictionary -> DictionaryScreen(
+                    state = state,
+                    contentPadding = padding,
+                    onLookup = model::openStandaloneLookup,
+                    onClearRecent = model::clearRecentLookups,
+                    onDismiss = model::closeDictionary,
+                    onSave = model::saveLookupToVocab,
+                    onSendToAnki = {
+                        if (AnkiDroid.hasPermission(context)) model.sendLookupToAnki()
+                        else permissionLauncher.launch(AnkiDroid.PERMISSION)
+                    },
+                    onSpeak = model::speakLookupWord,
                 )
 
                 Screen.Settings -> SettingsScreen(
@@ -284,7 +305,10 @@ fun AppShell(
 
     // The lookup card is an overlay, not a screen, so it lives above the shell rather than inside
     // any of its branches and survives the screen underneath it changing.
-    state.lookup?.let { lookup ->
+    // Reader only. The card is an overlay anchored to a word in the text, so it has nothing to
+    // anchor to on the dictionary screen, which renders the same card inline below its field
+    // instead. Left ungated the two would both appear.
+    state.lookup?.takeIf { state.screen == Screen.Reader }?.let { lookup ->
         LookupCardHost(
             lookup = lookup,
             onDismiss = model::dismissLookup,

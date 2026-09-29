@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -27,6 +29,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.OutlinedTextField
@@ -72,6 +75,8 @@ fun WordListScreen(
     contentPadding: PaddingValues,
     onQueryChange: (String) -> Unit,
     onFilterChange: (VocabFilter) -> Unit,
+    articleFilter: String?,
+    onArticleFilterChange: (String?) -> Unit,
     onSortChange: (VocabSort) -> Unit,
     onDelete: (String) -> Unit,
     onSendToAnki: (VocabItem) -> Unit,
@@ -79,6 +84,7 @@ fun WordListScreen(
     onReopenInArticle: (VocabItem) -> Unit,
     onExport: () -> Unit,
     onBrowseLibrary: () -> Unit,
+    onOpenDictionary: () -> Unit,
     query: String = "",
     filter: VocabFilter = VocabFilter.All,
     sort: VocabSort = VocabSort.Newest,
@@ -86,7 +92,12 @@ fun WordListScreen(
     val listState = rememberLazyListState()
     val appBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(appBarState)
-    val visible = VocabFilterEngine.apply(vocab, filter, sort, query)
+    // The article [VocabFilter.ByArticle] narrows to. Defaulted here rather than in the view model
+    // because this is where the list — and therefore the order the articles appear in — is known,
+    // so picking the filter immediately shows a grouping instead of an unfiltered list.
+    val articleTitles = VocabFilterEngine.articleTitles(vocab)
+    val activeArticle = articleFilter ?: articleTitles.firstOrNull()
+    val visible = VocabFilterEngine.apply(vocab, filter, sort, query, activeArticle)
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -95,6 +106,15 @@ fun WordListScreen(
             MediumTopAppBar(
                 title = { Text(stringResource(R.string.words_title)) },
                 actions = {
+                    // Always present, unlike sort: an empty word list is exactly when someone
+                    // wants the dictionary, and a control that appears only once they have saved
+                    // something is a control the first-time reader never finds.
+                    IconButton(onClick = onOpenDictionary) {
+                        Icon(
+                            imageVector = Icons.Rounded.Search,
+                            contentDescription = stringResource(R.string.words_search_dictionary),
+                        )
+                    }
                     // Only when there is something to sort. On an empty list it was a live-looking
                     // control that did nothing.
                     if (vocab.isNotEmpty()) TextButton(
@@ -172,6 +192,27 @@ fun WordListScreen(
                                     selectedLabelColor = LingoTheme.colors.onAccentContainer,
                                 ),
                             )
+                        }
+                    }
+                }
+
+                // "By article" is only meaningful with something to choose from, so the picker
+                // appears with the filter rather than leaving it inert.
+                if (filter == VocabFilter.ByArticle && articleTitles.isNotEmpty()) {
+                    item(key = "articles") {
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(Space.sm)) {
+                            items(articleTitles, key = { it }) { title ->
+                                FilterChip(
+                                    selected = title == activeArticle,
+                                    onClick = { onArticleFilterChange(title) },
+                                    label = { Text(title, maxLines = 1) },
+                                    shape = MaterialTheme.shapes.small,
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = LingoTheme.colors.accentContainer,
+                                        selectedLabelColor = LingoTheme.colors.onAccentContainer,
+                                    ),
+                                )
+                            }
                         }
                     }
                 }

@@ -33,15 +33,27 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/** The four destinations. [Reader] is a pushed level, not a tab. */
-enum class Screen { Library, Reader, Words, Settings }
+/** The destinations. [Reader] and [Dictionary] are pushed levels, not tabs. */
+enum class Screen { Library, Reader, Words, Dictionary, Settings }
 
+/**
+ * A word on the lookup card, with whatever context it was opened from.
+ *
+ * The three position fields are nullable rather than defaulted to a sentinel because a lookup no
+ * longer has to come from an article: typing a word into the dictionary screen produces the same
+ * card with nothing behind it. A `-1` here would have been the obvious cheaper choice and would
+ * have meant every reader of this class had to know that `-1` meant "no article" — which is how
+ * the lemma bug happened in the first place, with one source of truth quietly not being the one
+ * being read. Nullability makes the distinction a compile error instead of a convention.
+ */
 data class LookupUi(
     val word: String,
-    val sentence: String,
-    val paragraphIndex: Int,
-    val start: Int,
-    val end: Int,
+    /** The sentence the word was tapped in. Empty for a lookup with no article behind it. */
+    val sentence: String = "",
+    /** Where in the article, or null when this lookup did not come from one. */
+    val paragraphIndex: Int? = null,
+    val start: Int? = null,
+    val end: Int? = null,
     /** Tap position in window pixels; the card opens beside the word instead of over the article. */
     val anchorX: Float = 0f,
     val anchorY: Float = 0f,
@@ -54,7 +66,20 @@ data class LookupUi(
     val error: UiText? = null,
     val saved: Boolean = false,
     val savedMessage: UiText? = null,
-)
+) {
+    /**
+     * Whether this lookup came from a word tapped in an open article.
+     *
+     * Everything that only makes sense with an article behind it — the session word list, jumping
+     * back to the word, quoting the sentence on a saved card — asks this first.
+     */
+    val isFromArticle: Boolean
+        get() = paragraphIndex != null && start != null && end != null
+
+    /** The character range in the article, or null when there is no article. */
+    val range: IntRange?
+        get() = if (start != null && end != null) start until end else null
+}
 
 /**
  * A word looked at during this reading session, kept so the reader can offer a list of them.
@@ -85,6 +110,8 @@ data class UiState(
     val pendingJump: PendingJump? = null,
     /** A removal the snackbar can offer to take back. Cleared once acted on or replaced. */
     val undo: Undo? = null,
+    /** Words looked up from the dictionary screen, most recent first. */
+    val recentLookups: List<String> = emptyList(),
 )
 
 /** A request to open an article and highlight a word inside it. */
@@ -148,6 +175,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun openWords() = _state.update { it.copy(screen = Screen.Words) }
 
     fun openSettings() = _state.update { it.copy(screen = Screen.Settings) }
+
+    /** The dictionary, as a pushed level on top of whichever tab asked for it. */
+    fun openDictionary() {
+        _state.update { it.copy(screen = Screen.Dictionary, lookup = null) }
+        refreshRecentLookups()
+    }
+
+    fun closeDictionary() = _state.update { it.copy(screen = Screen.Words, lookup = null) }
 
     fun closeArticle() {
         // Persist how far the reader got before leaving, so the library card can show it.
@@ -239,22 +274,44 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val word = paragraph.substring(start, end)
         val sentence = GermanTokenizer.sentenceContaining(paragraph, start).text
 
-        _state.update {
-            it.copy(
-                lookup = LookupUi(
-                    word = word,
-                    sentence = sentence,
-                    paragraphIndex = paragraphIndex,
-                    start = start,
-                    end = end,
-                    anchorX = anchorX,
-                    anchorY = anchorY,
-                ),
-            )
-        }
+        startLookup(
+            LookupUi(
+                word = word,
+                sentence = sentence,
+                paragraphIndex = paragraphIndex,
+                start = start,
+                end = end,
+                anchorX = anchorX,
+                anchorY = anchorY,
+            ),
+        )
+    }
+
+    /**
+     * Looks up a word typed into the dictionary screen, with no article behind it.
+     *
+     * The same card and the same save path as a tapped word, minus everything that needs a
+     * sentence. Worth having on its own: a reader who meets a word in conversation, or wants to
+     * check a verb's senses before reading anything, currently cannot do that at all.
+     */
+    fun openStandaloneLookup(word: String) {
+        val trimmed = word.trim()
+        if (trimmed.isEmpty()) return
+        rememberRecentLookup(trimmed)
+        startLookup(LookupUi(word = trimmed))
+    }
+
+    /**
+     * Publishes the card, then resolves it.
+     *
+     * Shared by both entry points so the lemma resolution, sense picking and error handling cannot
+     * drift between a tapped word and a typed one — the two cards are meant to be the same card.
+     */
+    private fun startLookup(lookup: LookupUi) {
+        _state.update { it.copy(lookup = lookup) }
 
         viewModelScope.launch {
-            val outcome = withContext(Dispatchers.IO) { KaikkiClient.lookup(word, "de") }
+            val outcome = withContext(Dispatchers.IO) { KaikkiClient.lookup(lookup.word, "de") }
             when (outcome) {
                 is KaikkiClient.LookupOutcome.Found -> {
                     val lemma = LemmaResolver.lemmaFor(outcome.result)
@@ -297,6 +354,35 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun dismissLookup() = _state.update { it.copy(lookup = null) }
 
     /**
+     * Records a dictionary lookup, most recent first.
+     *
+     * Loaded on open rather than kept for the life of the process, because the point is to survive
+     * being killed — a reader who mistyped "Entlastungen" three articles ago should not have to
+     * remember it was spelled with an s.
+     */
+    private fun rememberRecentLookup(word: String) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) { store.rememberLookup(word) }
+            refreshRecentLookups()
+        }
+    }
+
+    fun refreshRecentLookups() {
+        viewModelScope.launch {
+            val recent = withContext(Dispatchers.IO) { store.listRecentLookups() }
+            _state.update { it.copy(recentLookups = recent) }
+        }
+    }
+
+    fun clearRecentLookups() {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) { store.clearRecentLookups() }
+            refreshRecentLookups()
+        }
+    }
+
+
+    /**
      * Speaks the word as it appears in the article, so the learner hears the form they actually
      * met in context. (`extension/content.js` prefers the lemma; for reading practice the
      * inflected surface is the one worth hearing.)
@@ -324,30 +410,57 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * The card behind the currently open lookup. Built once so the local vocabulary id and the
      * Anki note's StableId can never diverge.
      */
-    private fun cardForLookup(): Pair<NoteIdentity.Card, Article>? {
-        val article = _state.value.article ?: return null
+    /**
+     * The card a lookup stands for, and the article it came from if there was one.
+     *
+     * The article is optional because a word looked up from the dictionary screen has none, and
+     * refusing to save it would have made the feature useless. Such a card cites the dictionary
+     * rather than a piece of news, and carries no sentence — which the Anki note and the stored
+     * item both already treat as optional.
+     */
+    private fun cardForLookup(): Pair<NoteIdentity.Card, Article?>? {
         val lookup = _state.value.lookup ?: return null
         val result = lookup.result ?: return null
+        val article = _state.value.article.takeIf { lookup.isFromArticle }
         val card = LookupCardBuilder.build(
             result = result,
             chosenGloss = lookup.chosenGloss,
             sentence = lookup.sentence,
         )
-        return card.copy(source = "${article.title} — ${article.url}") to article
+        val source = if (article != null) {
+            "${article.title} — ${article.url}"
+        } else {
+            result.sourceUrl ?: result.sourceName
+        }
+        return card.copy(source = source) to article
     }
 
-    private fun NoteIdentity.Card.toItem(article: Article, sentToAnkiAt: Long? = null): VocabItem =
-        toVocabItem(
-            articleTitle = article.title,
-            sourceUrl = article.url,
-            source = source ?: "${article.title} — ${article.url}",
-        ).copy(
-            // Where the word sits in the article, so the word list can reopen it there.
-            paragraphIndex = _state.value.lookup?.paragraphIndex,
-            wordStart = _state.value.lookup?.start,
-            wordEnd = _state.value.lookup?.end,
-            sentToAnkiAt = sentToAnkiAt,
+    /**
+     * The stored form of a card.
+     *
+     * With no article — a dictionary lookup — the item cites the dictionary and leaves the
+     * position fields null, which is the same shape older items have and the one the word list
+     * already knows how to present: it offers "open the article" rather than "open the word".
+     */
+    private fun NoteIdentity.Card.toItem(article: Article?, sentToAnkiAt: Long? = null): VocabItem {
+        val lookup = _state.value.lookup
+        val item = toVocabItem(
+            articleTitle = article?.title.orEmpty(),
+            sourceUrl = article?.url.orEmpty(),
+            source = source.orEmpty(),
         )
+        return if (article != null) {
+            item.copy(
+                // Where the word sits in the article, so the word list can reopen it there.
+                paragraphIndex = lookup?.paragraphIndex,
+                wordStart = lookup?.start,
+                wordEnd = lookup?.end,
+                sentToAnkiAt = sentToAnkiAt,
+            )
+        } else {
+            item.copy(sentToAnkiAt = sentToAnkiAt)
+        }
+    }
 
     /** Builds the card for the current lookup and saves it locally. */
     fun saveLookupToVocab() {
@@ -428,6 +541,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     /** Records a tapped word even when nothing was saved, so the in-article list is a real log. */
     fun recordSessionWord(word: String, gloss: String?) {
+        // No article means no session. The card calls this on open, and without the guard a
+        // dictionary lookup would quietly appear in the next article's word list.
+        if (_state.value.screen != Screen.Reader) return
         _state.update { current ->
             if (current.sessionWords.any { it.word == word }) {
                 current
@@ -442,6 +558,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun setVocabQuery(query: String) = _vocabView.update { it.copy(query = query) }
 
     fun setVocabFilter(filter: VocabFilter) = _vocabView.update { it.copy(filter = filter) }
+
+    fun setVocabArticleFilter(article: String?) = _vocabView.update { it.copy(article = article) }
 
     fun setVocabSort(sort: VocabSort) = _vocabView.update { it.copy(sort = sort) }
 
@@ -553,6 +671,8 @@ data class VocabViewState(
     val query: String = "",
     val filter: VocabFilter = VocabFilter.All,
     val sort: VocabSort = VocabSort.Newest,
+    /** The article [filter] is narrowed to. Only meaningful for [VocabFilter.ByArticle]. */
+    val article: String? = null,
 )
 
 /** A removal that can be taken back from the snackbar. */
