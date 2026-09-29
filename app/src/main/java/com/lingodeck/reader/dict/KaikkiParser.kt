@@ -2,6 +2,7 @@ package com.lingodeck.reader.dict
 
 import com.lingodeck.reader.data.DictEntry
 import com.lingodeck.reader.data.DictResult
+import com.lingodeck.reader.data.InflectedForm
 import com.lingodeck.reader.data.Example
 import com.lingodeck.reader.data.Sense
 import com.lingodeck.reader.util.encodeUriComponent
@@ -92,6 +93,21 @@ object KaikkiParser {
                 )
             }
 
+        // Only table rows. The raw array also holds derived words, diminutives and the like, which
+        // are not cells of a table and would crowd one out.
+        val tableForms = record.objectList("forms")
+            .filter { it.truthy("form") }
+            .filter { form -> form.optString("source") in TABLE_SOURCES }
+            .map { form: JSONObject ->
+                InflectedForm(
+                    form = form.optString("form"),
+                    tags = form.optJSONArray("tags")?.let { tags ->
+                        (0 until tags.length()).map { tags.optString(it) }
+                    }.orEmpty(),
+                    source = form.optString("source").takeIf { it.isNotEmpty() },
+                )
+            }
+
         val sounds = record.objectList("sounds")
         val head = record.objectList("head_templates").firstOrNull { it.truthy("expansion") }
         val formOf = senses.asSequence()
@@ -106,9 +122,13 @@ object KaikkiParser {
             audioUrl = sounds.firstOrNull { it.truthy("mp3_url") }?.optString("mp3_url") ?: "",
             formOf = formOf?.optString("word") ?: "",
             definitions = definitions,
+            forms = tableForms,
         )
     }
 }
+
+/** Kaikki's `source` values that mean "this row belongs to an inflection table". */
+private val TABLE_SOURCES = setOf("conjugation", "declension")
 
 /** JS truthiness for a string field: absent, null and "" all fall through to the fallback. */
 private fun JSONObject.truthy(key: String): Boolean = optString(key).isNotEmpty()

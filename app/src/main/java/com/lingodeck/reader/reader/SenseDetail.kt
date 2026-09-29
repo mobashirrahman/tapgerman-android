@@ -1,6 +1,7 @@
 package com.lingodeck.reader.reader
 
 import com.lingodeck.reader.data.Example
+import com.lingodeck.reader.data.InflectedForm
 import com.lingodeck.reader.data.LookupCardBuilder
 import com.lingodeck.reader.ui.LookupUi
 
@@ -28,6 +29,15 @@ data class SenseDetail(
     val gloss: String,
     val tags: List<String>,
     val examples: List<Example>,
+    /**
+     * The inflection table of the entries carrying this sense, when they have one.
+     *
+     * Carried per sense rather than looked up in the card because the tags and the examples are
+     * gathered the same way — from every entry that carries this gloss — and a conjugation that came
+     * from somewhere else would be the one thing on the card not describing the sense on screen.
+     * Empty for everything that is not a verb.
+     */
+    val forms: List<InflectedForm> = emptyList(),
 ) {
     /** Whether there is anything worth drawing beyond the gloss line itself. */
     val hasDetail: Boolean get() = tags.isNotEmpty() || examples.isNotEmpty()
@@ -78,7 +88,8 @@ private fun readableTag(tag: String): String = when {
  */
 fun senseDetails(lookup: LookupUi): List<SenseDetail> {
     val result = lookup.result ?: return emptyList()
-    val senses = LookupCardBuilder.displayEntries(result).flatMap { it.definitions }
+    val entries = LookupCardBuilder.displayEntries(result)
+    val senses = entries.flatMap { it.definitions }
     return lookup.glosses.map { gloss ->
         val matching = senses.filter { it.gloss == gloss }
         SenseDetail(
@@ -90,6 +101,14 @@ fun senseDetails(lookup: LookupUi): List<SenseDetail> {
             // Two examples per sense is the cap KaikkiParser already applies, so there is nothing
             // more to fetch here; duplicates across entries are dropped.
             examples = matching.flatMap { it.examples }.distinctBy { it.text },
+            // Deduplicated because a gloss is usually repeated across the verb's several entries,
+            // each carrying the same table; and only the first table that has rows, because merging
+            // two of them would produce a grid with every cell filled twice.
+            forms = entries
+                .filter { entry -> entry.definitions.any { it.gloss == gloss } }
+                .firstOrNull { entry -> entry.forms.isNotEmpty() }
+                ?.forms
+                .orEmpty(),
         )
     }
 }

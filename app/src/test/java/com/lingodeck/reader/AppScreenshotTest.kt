@@ -5,6 +5,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.github.takahirom.roborazzi.captureRoboImage
@@ -14,12 +17,14 @@ import com.lingodeck.reader.data.DictResult
 import com.lingodeck.reader.data.ThemeMode
 import com.lingodeck.reader.data.VocabItem
 import com.lingodeck.reader.library.LibraryScreen
+import com.lingodeck.reader.reader.ConjugationGrid
 import com.lingodeck.reader.reader.LookupCard
 import com.lingodeck.reader.reader.ReaderScreen
 import com.lingodeck.reader.settings.SettingsScreen
 import com.lingodeck.reader.words.DictionaryScreen
 import com.lingodeck.reader.store.Settings
 import com.lingodeck.reader.data.Example
+import com.lingodeck.reader.data.InflectedForm
 import com.lingodeck.reader.data.Sense
 import com.lingodeck.reader.ui.LookupUi
 import com.lingodeck.reader.ui.SessionWord
@@ -128,6 +133,24 @@ class AppScreenshotTest {
 
     @Test
     fun lookupCardForANoun() = screen("lookup-card-noun") { Lookup(Fixtures.nounLookup) }
+
+    // The conjugation section, collapsed: the three forms a reader reaches for, on one line.
+    @Test
+    fun lookupCardWithConjugationCollapsed() = screen("lookup-card-conjugation") {
+        Lookup(Fixtures.gehenLookup)
+    }
+
+    // The full grid. Its own baseline because the collapsed line is all the card screenshot shows,
+    // and a conjugation table that has never been rendered is a conjugation table that does not work.
+    @Test
+    fun conjugationGrid() = screen("conjugation-grid") {
+        val table = requireNotNull(
+            com.lingodeck.reader.dict.Conjugation.tableFor(Fixtures.gehenForms),
+        )
+        Column(Modifier.padding(16.dp)) {
+            ConjugationGrid(table)
+        }
+    }
 
     @Test
     fun settingsLight() = screen("settings-light") { SettingsScreenView() }
@@ -326,6 +349,67 @@ private object Fixtures {
     )
 
     /** A verb, from the real kaikki.org payload for "sagen". */
+    /** `gehen`'s real conjugation rows, parsed the way the app parses them. */
+    val gehenForms: List<InflectedForm> =
+        com.lingodeck.reader.dict.KaikkiFixtures.GEHEN_FORMS.lineSequence()
+            .filter { it.isNotBlank() }
+            .map { line ->
+                val o = org.json.JSONObject(line)
+                InflectedForm(
+                    form = o.getString("form"),
+                    tags = o.getJSONArray("tags").let { t -> (0 until t.length()).map { t.getString(it) } },
+                    source = o.optString("source").takeIf { it.isNotEmpty() },
+                )
+            }
+            .toList()
+
+    /**
+     * `gehen`, carrying its real conjugation table.
+     *
+     * A separate fixture from [verbLookup] rather than an added field on it: the table belongs to a
+     * particular verb, and hanging `gehen`'s forms off `sagen` would make a screenshot that looks
+     * right and is about nothing.
+     */
+    val gehenLookup = LookupUi(
+        word = "gehen",
+        sentence = "Er sagte, dass es am Montag regnet.",
+        paragraphIndex = 0,
+        start = 3,
+        end = 8,
+        loading = false,
+        result = DictResult(
+            word = "gehen",
+            language = "German",
+            languageCode = "de",
+            lemma = "gehen",
+            entries = listOf(
+                DictEntry(
+                    word = "gehen",
+                    partOfSpeech = "verb",
+                    head = "gehen (class 7 strong)",
+                    ipa = "ˈɡeːən",
+                    audioUrl = "",
+                    formOf = "",
+                    definitions = listOf(
+                        Sense(
+                            gloss = "to go",
+                            tags = listOf("table-tags", "class-7", "intransitive", "strong"),
+                            examples = emptyList(),
+                        ),
+                        Sense(
+                            gloss = "to walk",
+                            tags = listOf("table-tags", "class-7", "intransitive", "strong"),
+                            examples = emptyList(),
+                        ),
+                    ),
+                    forms = gehenForms,
+                ),
+            ),
+        ),
+        glosses = listOf("to go", "to walk"),
+        chosenGloss = "to go",
+    )
+
     val verbLookup = LookupUi(
         word = "sagte",
         sentence = "Er sagte, dass es am Montag regnet.",

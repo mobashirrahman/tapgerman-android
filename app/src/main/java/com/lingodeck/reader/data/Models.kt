@@ -44,6 +44,22 @@ data class Sense(
     val examples: List<Example>,
 )
 
+/**
+ * One inflected form of a word, with the grammatical labels Kaikki gives it.
+ *
+ * For a German verb these are the cells of a conjugation table: `geht` is
+ * `third-person / present / singular`, `ging` is `preterite`, and the tags are what make the grid
+ * reconstructable. Kept as raw tags rather than a parsed table because the model mirrors the
+ * payload — the table is built in [com.lingodeck.reader.dict.Conjugation] — and because a tag the
+ * builder does not recognise is still worth carrying.
+ */
+data class InflectedForm(
+    val form: String,
+    val tags: List<String> = emptyList(),
+    /** `conjugation` for a verb table, `declension` for a noun table, absent for a loose form. */
+    val source: String? = null,
+)
+
 data class DictEntry(
     val word: String,
     val partOfSpeech: String,
@@ -52,6 +68,15 @@ data class DictEntry(
     val audioUrl: String,
     val formOf: String,
     val definitions: List<Sense>,
+    /**
+     * Inflected forms, kept only where Kaikki attributes them to an inflection table.
+     *
+     * The unfiltered array is noise for this purpose: for `Haus` it is one genitive, one plural and
+     * twenty-eight diminutives, none of which is a declension case. Filtering on `source` at parse
+     * time keeps a noun's table separate from its derived words and keeps a verb's from carrying
+     * the adjective declension that shares the headword.
+     */
+    val forms: List<InflectedForm> = emptyList(),
 )
 
 data class DictResult(

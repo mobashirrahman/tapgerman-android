@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.lingodeck.reader.data.LookupCardBuilder
+import com.lingodeck.reader.dict.Conjugation
 import com.lingodeck.reader.ui.LookupUi
 import com.lingodeck.reader.ui.components.ErrorSurface
 import com.lingodeck.reader.ui.components.LingoButtonGroup
@@ -368,6 +369,18 @@ internal fun LookupCard(
                     )
                 }
 
+                // A verb's paradigm, after the meaning, the context and an example, because that is
+                // the order they are needed in. Last of the three because it is the one most readers
+                // never open: collapsed to a single line it costs almost nothing, and a six-by-four
+                // grid placed above the worked example would bury the thing the reader came for.
+                //
+                // Built from the chosen sense's entry, because that is the entry whose glosses are on
+                // screen, and it is the only place a conjugation can come from: the tags ride on the
+                // entry, not on the sense.
+                chosen?.let { sense -> Conjugation.tableFor(sense.forms) }?.let { table ->
+                    Spacer(Modifier.height(Space.sm))
+                    ConjugationBlock(table)
+                }
             }
 
             lookup.savedMessage?.let { message ->

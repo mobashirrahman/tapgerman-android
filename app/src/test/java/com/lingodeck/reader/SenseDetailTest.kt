@@ -1,13 +1,16 @@
 package com.lingodeck.reader
 
 import com.lingodeck.reader.data.DictEntry
+import com.lingodeck.reader.dict.Conjugation
 import com.lingodeck.reader.data.DictResult
 import com.lingodeck.reader.data.Example
+import com.lingodeck.reader.data.InflectedForm
 import com.lingodeck.reader.data.Sense
 import com.lingodeck.reader.reader.SenseDetail
 import com.lingodeck.reader.reader.senseDetails
 import com.lingodeck.reader.ui.LookupUi
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -220,5 +223,66 @@ class SenseDetailTest {
             ),
         )
         assertEquals("neuter · proper noun", senseDetails(result).first().tagsLabel)
+    }
+
+    // ---- the conjugation table rides along with the sense ----
+
+    @Test
+    fun `a verb sense carries its table`() {
+        val withTable = entry.copy(
+            forms = listOf(
+                InflectedForm("geht", listOf("indicative", "present", "third-person", "singular")),
+            ),
+        )
+        val details = senseDetails(lookupFor(withTable))
+        val table = Conjugation.tableFor(details.first().forms)
+        assertNotNull("a verb with a table in its payload should produce one", table)
+        assertEquals("geht", table!!.present[2].form)
+    }
+
+    @Test
+    fun `a noun sense carries no table`() {
+        val noun = entry.copy(
+            partOfSpeech = "noun",
+            definitions = listOf(Sense("house, building", listOf("neuter"), emptyList())),
+            forms = emptyList(),
+        )
+        assertTrue(senseDetails(lookupFor(noun)).first().forms.isEmpty())
+    }
+
+    @Test
+    fun `only the chosen sense's entries contribute a table`() {
+        // Two senses on one entry each carrying a different table. The card shows the chosen
+        // sense's, so a table from the other sense would be a correct-looking wrong answer.
+        val twoSenses = entry.copy(
+            definitions = listOf(
+                Sense("to go", listOf("intransitive"), emptyList()),
+                Sense("to walk", listOf("intransitive"), emptyList()),
+            ),
+            forms = listOf(InflectedForm("geht", listOf("indicative", "present", "third-person", "singular"))),
+        )
+        val details = senseDetails(lookupFor(twoSenses))
+        // Both senses live on one entry, so both legitimately see that entry's table. What must not
+        // happen is a sense picking up a table belonging to some other entry.
+        assertEquals(2, details.size)
+        details.forEach { sense ->
+            assertNotNull("sense ${sense.gloss} lost the table", Conjugation.tableFor(sense.forms))
+        }
+    }
+
+    private fun lookupFor(entry: DictEntry): LookupUi {
+        val result = DictResult(
+            word = entry.word,
+            language = "German",
+            languageCode = "de",
+            entries = listOf(entry),
+        )
+        val glosses = entry.definitions.map { it.gloss }
+        return LookupUi(
+            word = entry.word,
+            result = result,
+            glosses = glosses,
+            chosenGloss = glosses.firstOrNull(),
+        )
     }
 }

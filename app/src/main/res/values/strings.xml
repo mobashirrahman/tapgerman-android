@@ -189,4 +189,9 @@
     <string name="words_search_dictionary">Search the dictionary</string>
     <string name="settings_recordings">Use the dictionary\u2019s voice</string>
     <string name="settings_recordings_body">Wiktionary records German speakers saying each word, and those are played instead of the device\u2019s synthesised voice. Downloads a small recording the first time a word is spoken, then works offline. Turn it off to speak everything with the device voice and never fetch audio.</string>
+    <string name="lookup_conjugation">Conjugation</string>
+    <string name="lookup_present">Präsens</string>
+    <string name="lookup_preterite">Präteritum</string>
+    <string name="lookup_subjunctive_i">Konj. I</string>
+    <string name="lookup_subjunctive_ii">Konj. II</string>
 </resources>
