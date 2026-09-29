@@ -162,7 +162,7 @@ internal fun LookupCard(
     onSpeak: () -> Unit,
     onToggleAllSenses: () -> Unit,
     isShowingAllSenses: Boolean,
-    onLookupWord: (String) -> Unit = {},
+    onLookupWord: (String) -> Unit,
 ) {
     // Entrance. Honours the system's animation setting: with animations off the card is simply
     // there, which is what someone who has turned them off is asking for. Read outside the

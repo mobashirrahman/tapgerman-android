@@ -197,6 +197,7 @@ fun DictionaryScreen(
                     onSpeak = onSpeak,
                     onToggleAllSenses = { },
                     isShowingAllSenses = false,
+                    onLookupWord = onLookupWord,
                 )
             }
         }

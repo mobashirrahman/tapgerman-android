@@ -295,6 +295,7 @@ private fun Lookup(state: LookupUi) {
         onSpeak = {},
         onToggleAllSenses = {},
         isShowingAllSenses = false,
+        onLookupWord = {},
     )
 }
 
@@ -309,6 +310,7 @@ private fun Dictionary(state: UiState) = DictionaryScreen(
     onSave = {},
     onSendToAnki = {},
     onSpeak = {},
+    onLookupWord = {},
 )
 
 @Composable
