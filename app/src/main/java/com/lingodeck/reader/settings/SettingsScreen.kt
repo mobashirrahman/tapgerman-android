@@ -491,8 +491,3 @@ private fun ConfirmDialog(
         },
     )
 }
-
-/**
- * Provider labels and blurbs, kept beside the radio list so adding a provider is one enum entry
- * and one pair of string resources rather than a new branch in the settings composable.
- */
