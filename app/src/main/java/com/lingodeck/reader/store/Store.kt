@@ -109,10 +109,10 @@ class Store(private val directory: File) {
                 sourceUrl = o.optString("sourceUrl"),
                 source = o.optString("source"),
                 languageCode = o.optString("languageCode").ifEmpty { "de" },
-                paragraphIndex = if (o.has("paragraphIndex")) o.optInt("paragraphIndex") else null,
-                wordStart = if (o.has("wordStart")) o.optInt("wordStart") else null,
-                wordEnd = if (o.has("wordEnd")) o.optInt("wordEnd") else null,
-                sentToAnkiAt = if (o.has("sentToAnkiAt")) o.optLong("sentToAnkiAt") else null,
+                paragraphIndex = o.intOrNull("paragraphIndex"),
+                wordStart = o.intOrNull("wordStart"),
+                wordEnd = o.intOrNull("wordEnd"),
+                sentToAnkiAt = o.longOrNull("sentToAnkiAt"),
             )
         }.sortedByDescending { it.createdAt }
     }
@@ -224,4 +224,19 @@ class Store(private val directory: File) {
          */
         const val MAX_RECENT_LOOKUPS = 24
     }
+
+    /**
+     * `isNull`, not `has`, for a field written as `?: JSONObject.NULL`.
+     *
+     * `has` is true for a key whose value is `JSONObject.NULL` — the key is present, its value is
+     * "nothing" — and `optInt`/`optLong` answer a null with `0`. So `has` read every absent
+     * position as paragraph 0 and every word that had never been sent to Anki as sent at the
+     * epoch. Every saved word was badged "On Anki", was hidden by the "Not on Anki" filter, and
+     * was offered "reopen in article" pointing at an article it did not come from.
+     *
+     * `isNull` is true for a missing key as well, so it answers both halves correctly.
+     */
+    private fun JSONObject.intOrNull(key: String): Int? = if (isNull(key)) null else optInt(key)
+
+    private fun JSONObject.longOrNull(key: String): Long? = if (isNull(key)) null else optLong(key)
 }
