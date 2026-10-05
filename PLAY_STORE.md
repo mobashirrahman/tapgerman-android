@@ -27,8 +27,8 @@ AAB: `app/build/outputs/bundle/release/app-release.aab` (copy to `dist/` before 
    category **Education**, type App, free.
 3. Contact email (required, shown on listing): `tapgerman.support@gmail.com`
    (dedicated address, created).
-4. Publish the privacy policy on the **new standalone TapGerman page** (decided —
-   not the GlossLine site) and set that privacy-policy URL, e.g.
+4. Publish the privacy policy on the **new standalone TapGerman page** (decided)
+   and set that privacy-policy URL, e.g.
    `https://___/privacy` (Play fetches it — the URL must be live before submission).
 
 ## 2. Upload (personal accounts: closed testing first)
