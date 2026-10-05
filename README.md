@@ -1,7 +1,8 @@
-# GlossLine
+# TapGerman
 
-An Android companion to the [GlossLine](https://github.com/mobashirrahman/glossline) Chrome
-extension: the same word-level learning loop it does for subtitles, applied to German newspaper
+An Android companion to the [TapGerman](https://github.com/mobashirrahman/glossline) Chrome
+extension (repository still named `glossline` until the extension rename lands): the same
+word-level learning loop it does for subtitles, applied to German newspaper
 and web articles.
 
 Share an article from Chrome. Read it in German. Tap any word to see what it means. Keep the word
@@ -9,8 +10,7 @@ together with the sentence it came from. Send it to AnkiDroid.
 
 No full-page machine translation. The article stays in German.
 
-A *gloss* is the linguistic term for an explanatory note attached to a word, which is what tapping
-a word produces. The mark is a highlighted line of text.
+The name says what to do: tap any German word to learn it. The mark is a highlighted line of text.
 
 | | |
 |---|---|
@@ -20,7 +20,7 @@ a word produces. The mark is a highlighted line of text.
 ## The loop
 
 1. Find a German article in your browser.
-2. **Share → GlossLine** (or paste the address on the library screen, or type a word on **Words →
+2. **Share → TapGerman** (or paste the address on the library screen, or type a word on **Words →
    Dictionary** to look one up without reading anything first).
 3. Read the article in German. Every word is a tap target.
 4. Tap a word → lemma, part of speech, IPA, English glosses, the exact sentence it came from, the
@@ -45,14 +45,14 @@ reason it is pinned, so read that file first if something fails to resolve.
 
 ```bash
 ./gradlew :app:assembleDebug          # -> app/build/outputs/apk/debug/app-debug.apk
-./gradlew :app:testDebugUnitTest      # 105 tests, incl. parity against the web extension
+./gradlew :app:testDebugUnitTest      # 236 tests, incl. parity against the web extension
 ./gradlew :app:lintDebug              # 0 issues
 ```
 
 ### Installing the APK
 
 `assembleDebug` produces a debug-signed APK that installs on any device running Android 8.0 or
-newer and upgrades cleanly over an installed 0.1.0, because `versionCode` went to 2. Copy it and
+newer. Copy it and
 open it, allowing your file manager to install from unknown sources if it asks.
 
 For a release build, put a keystore and a `keystore.properties` in the repository root (both are
@@ -61,14 +61,18 @@ gitignored):
 ```properties
 storeFile=release.jks
 storePassword=…
-keyAlias=lingodeck
+keyAlias=tapgerman
 keyPassword=…
 ```
 
 ```bash
-keytool -genkeypair -v -keystore release.jks -keyalg RSA -keysize 4096 -validity 10000 -alias lingodeck
+keytool -genkeypair -v -keystore release.jks -keyalg RSA -keysize 4096 -validity 10000 -alias tapgerman
 ./gradlew :app:assembleRelease
 ```
+
+> The `release.jks` currently in use predates the TapGerman rename and still carries the
+> `glossline` key alias. Keep using that file and alias for Play uploads so sideloaded
+> testers upgrade cleanly; the example above is for a fresh key only.
 
 Without that file, `assembleRelease` still succeeds and produces an unsigned APK rather than
 failing, which is usually what you want in CI. R8 is off: the app is a few thousand lines with
@@ -79,7 +83,7 @@ break the AnkiDroid ContentProvider contract.
 
 The interface is a Material 3 Expressive design: indigo into violet, a round shape scale from 8dp
 to 34dp, spring-based motion, and an electric lime accent reserved for the four things it has to
-mean. Every token lives in `app/src/main/java/com/lingodeck/reader/ui/theme/`, and
+mean. Every token lives in `app/src/main/java/com/tapgerman/reader/ui/theme/`, and
 `app/src/main/res/values/strings.xml` holds all 124 user-facing strings.
 
 Two decisions worth knowing about, because both are counter-intuitive:
@@ -120,7 +124,7 @@ that any word was tappable.
 ## Testing
 
 ```bash
-./gradlew :app:testDebugUnitTest        # 105 tests
+./gradlew :app:testDebugUnitTest        # 236 tests
 ./gradlew :app:recordRoborazziDebug     # re-record the screenshot baselines
 ./gradlew :app:verifyRoborazziDebug     # compare against them
 ```
@@ -137,7 +141,7 @@ by looking.
 
 ## AnkiDroid
 
-Cards use the note type **`GlossLine Context v2`** with the same ten fields, templates and CSS as
+Cards use the note type **`TapGerman Context v2`** with the same ten fields, templates and CSS as
 the Chrome extension, so a card saved on the phone looks exactly like one saved from the browser.
 
 The app talks to `content://com.ichi2.anki.flashcards` directly (AnkiDroid's published
@@ -166,12 +170,17 @@ never more than one scroll away from where they are shown.
 
 ## Parity with the Chrome extension
 
-The extension was renamed LingoDeck → GlossLine, and this app followed it: application id
-`com.glossline.reader`, note type `GlossLine Context v2`, `glossline-v1-` StableId prefix,
-`glossline` Anki tag. **This is a breaking change for existing collections** — the identity
+The app was renamed GlossLine → TapGerman for the Play launch: application id
+`com.tapgerman.reader`, note type `TapGerman Context v2`, `tapgerman-v1-` StableId prefix,
+`tapgerman` Anki tag. **This is a breaking change for existing collections** — the identity
 strings are part of the note identity, so a word saved before the rename and the same word saved
-after land on two different notes. That was the extension's call too, and both sides were changed
-together so they still merge with each other.
+after land on two different notes (the third such break after LexiCue → LingoDeck →
+GlossLine). Both sides were renamed together in this change so they still merge with each
+other; the extension's remaining UI strings (popup, manifest, page channel) still say
+GlossLine and are a separate full-rebrand task that does not affect card identity.
+
+Previously, the extension was renamed LingoDeck → GlossLine and this app followed it with the
+same class of breaking change.
 
 The interesting requirement here is that a word saved on the phone and the same word saved from
 the browser must land on one Anki note. So the parts that decide card identity are not reimplemented
@@ -225,7 +234,7 @@ regenerated `goldens.json` and `AnkiTemplates.kt` together so the two can never 
 ## Layout
 
 ```
-app/src/main/java/com/lingodeck/reader/
+app/src/main/java/com/tapgerman/reader/
   util/Escaping.kt            ES-compatible trim/escape/encode primitives
   util/ReadingStats.kt        word counts, reading time, search/filter/sort  (unit tested)
   text/GermanTokenizer.kt     BreakIterator word + sentence segmentation

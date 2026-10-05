@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "lingodeck-reader"
+rootProject.name = "tapgerman-reader"
 include(":app")

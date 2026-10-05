@@ -18,15 +18,15 @@ val keystoreProperties = Properties().apply {
 }
 
 android {
-    namespace = "com.glossline.reader"
+    namespace = "com.tapgerman.reader"
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.glossline.reader"
+        applicationId = "com.tapgerman.reader"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 3
-        versionName = "0.3.0"
+        versionCode = 4
+        versionName = "1.0.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

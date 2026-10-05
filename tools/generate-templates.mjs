@@ -19,12 +19,12 @@ const raw = (value) => {
 };
 
 
-const kotlin = `package com.glossline.reader.anki
+const kotlin = `package com.tapgerman.reader.anki
 
 /**
  * GENERATED FILE - do not edit.
  *
- * Source: tools/generate-templates.mjs, which copies these strings out of the GlossLine Chrome
+ * Source: tools/generate-templates.mjs, which copies these strings out of the TapGerman Chrome
  * extension's extension/src/anki.js. Keeping them identical is what lets a card saved from the
  * phone look exactly like a card saved from the browser, and lets both land on one note.
  */
@@ -44,7 +44,7 @@ ${c.ANKI_FIELDS.map((f) => `        "${f}"`).join(",\n")},
 }
 `;
 
-const out = resolve(here, "../app/src/main/java/com/glossline/reader/anki/AnkiTemplates.kt");
+const out = resolve(here, "../app/src/main/java/com/tapgerman/reader/anki/AnkiTemplates.kt");
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, kotlin);
 console.log("wrote", out);

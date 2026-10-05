@@ -1,10 +1,12 @@
-// Generates src/test/resources/goldens.json by executing the *real* GlossLine web-extension
+// Generates src/test/resources/goldens.json by executing the *real* TapGerman web-extension
 // modules. The Android unit tests then assert byte-identical output, so a Kotlin refactor can
 // never silently drift from the card identity and dictionary URLs that the Chrome extension uses.
 //
 // Run: node tools/generate-goldens.mjs
-// Requires the GlossLine extension as a sibling checkout. The directory is still named
-// lingodeck on disk; the project inside it was renamed.
+// Requires the extension as a sibling checkout at ../../lingodeck (directory still named
+// lingodeck on disk). The extension's Anki identity strings were renamed to TapGerman
+// together with this app, so regenerating is safe; commit goldens.json and AnkiTemplates.kt
+// together so the two can never drift apart.
 
 import { writeFileSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -27,7 +29,7 @@ const card = (over = {}) => ({
   partOfSpeech: "Noun",
   ipa: "/ˈhaʊ̯zɐ/",
   languageCode: "de",
-  source: "tagesschau.de via GlossLine Reader",
+  source: "tagesschau.de via TapGerman Reader",
   ...over
 });
 
@@ -118,9 +120,9 @@ const goldens = {
     ["Das <b>Haus</b> & Co.", "Haus", [], anki.highlightSurface("Das <b>Haus</b> & Co.", "Haus")]
   ],
   buildAnkiNote: Object.fromEntries(
-    Object.entries(cards).map(([k, v]) => [k, anki.buildAnkiNote(v, "GlossLine", "")])
+    Object.entries(cards).map(([k, v]) => [k, anki.buildAnkiNote(v, "TapGerman", "")])
   ),
-  buildAnkiNoteAudio: anki.buildAnkiNote(cards.plain, "GlossLine", "[sound:x.mp3]"),
+  buildAnkiNoteAudio: anki.buildAnkiNote(cards.plain, "TapGerman", "[sound:x.mp3]"),
   constants: {
     ANKI_MODEL: anki.ANKI_MODEL,
     ANKI_CARD_TEMPLATE: anki.ANKI_CARD_TEMPLATE,

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Render the GlossLine icon vectors to PNG so the mark can actually be looked at.
+Render the TapGerman icon vectors to PNG so the mark can actually be looked at.
 
 The icon ships as three VectorDrawables and there is no way to see a VectorDrawable without
 launching Android Studio. This re-implements the same geometry in plain Python — the shapes are

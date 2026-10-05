@@ -1,0 +1,10 @@
+TapGerman is a German reader for English speakers.
+
+Share any German article from your browser and read it in German. Every word is tappable: tap to see the lemma, part of speech, pronunciation, and English glosses with translated examples, plus conjugation and declension tables.
+
+Save the meaning you actually met — with the exact sentence it came from — and send it to AnkiDroid. The same word in the same sense grows one card; a different sense gets its own card. Export TSV when AnkiDroid is not installed.
+
+• German → English dictionary (Kaikki / English Wiktionary, CC BY-SA 4.0)
+• Tap for meaning, hold to hear a native-speaker recording or device voice
+• Works on newspaper and web articles shared from any browser
+• No account, no analytics, no ads. Articles and words stay on your device.

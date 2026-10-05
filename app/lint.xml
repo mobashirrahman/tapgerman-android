@@ -27,6 +27,6 @@
       one-lint build with no code change at all.
     -->
     <issue id="UseKtx">
-        <ignore path="src/main/java/com/glossline/reader/anki/AnkiDroid.kt" />
+        <ignore path="src/main/java/com/tapgerman/reader/anki/AnkiDroid.kt" />
     </issue>
 </lint>

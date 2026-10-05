@@ -1,0 +1,1 @@
+1.0.0: renamed GlossLine → TapGerman (new Anki note type TapGerman Context v2 — old cards stay untouched in AnkiDroid). First F-Droid release.
