@@ -21,6 +21,12 @@ Users install the APK (allow unknown sources once) and optionally add the repo
 to Obtainium, which polls GitHub releases and offers updates. Publish `PRIVACY.md`
 on the TapGerman page and link it from the release notes.
 
+> Release convention (required by IzzyOnDroid's auto-updater and F-Droid's
+> `AutoUpdateMode`): every release is a versioned git tag (`v<versionName>`)
+> with the APK attached as `tapgerman-<versionName>.apk`. Never rename the
+> asset pattern and never re-sign with a different key — IzzyOnDroid records
+> the signing key on first sight and rejects key changes.
+
 ## Channel 2: F-Droid official repo (free, slow: review queue is weeks–months)
 
 This app fits F-Droid's criteria well: MIT-licensed, builds from source, no
