@@ -94,7 +94,7 @@ New personal accounts **cannot ship production on day one**: run a closed test w
   Phone screenshots ≥2: `screenshots/library.png` + `screenshots/lookup.png`
   (both 1080×2400 — compliant) ✅. Recommended before production: add Words +
   reader screenshots re-taken post-rename.
-- **Contact:** tapgerman.support@gmail.com + `https://github.com/mobashirrahman/glossline-android`.
+- **Contact:** tapgerman.support@gmail.com + `https://github.com/mobashirrahman/tapgerman-android`.
 
 ## 5. Pre-upload verification (run every release)
 

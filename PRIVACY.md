@@ -50,4 +50,4 @@ live in AnkiDroid and must be deleted there.
 
 ## Questions
 
-Open an issue at https://github.com/mobashirrahman/glossline-android/issues.
+Open an issue at https://github.com/mobashirrahman/tapgerman-android/issues.

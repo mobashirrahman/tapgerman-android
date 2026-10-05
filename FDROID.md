@@ -41,9 +41,9 @@ Submission (done once, in a browser — needs a GitLab account):
      - Education
    License: MIT
    AuthorName: mobashirrahman
-   WebSite: https://github.com/mobashirrahman/glossline-android
-   SourceCode: https://github.com/mobashirrahman/glossline-android
-   IssueTracker: https://github.com/mobashirrahman/glossline-android/issues
+   WebSite: https://github.com/mobashirrahman/tapgerman-android
+   SourceCode: https://github.com/mobashirrahman/tapgerman-android
+   IssueTracker: https://github.com/mobashirrahman/tapgerman-android/issues
    AutoName: TapGerman
    Description: |-
      TapGerman is a German reader for English speakers. Share any German
@@ -58,7 +58,7 @@ Submission (done once, in a browser — needs a GitLab account):
      Definitions: Kaikki / English Wiktionary, CC BY-SA 4.0.
 
    RepoType: git
-   Repo: https://github.com/mobashirrahman/glossline-android.git
+   Repo: https://github.com/mobashirrahman/tapgerman-android.git
 
    Builds:
      - versionName: 1.0.0
