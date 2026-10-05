@@ -31,14 +31,51 @@ ads, `targetSdk 36`. The in-repo work is already done:
   `images/phoneScreenshots/` (2× 1080×2400), `images/featureGraphic.png` (1024×500).
 - Privacy policy: `PRIVACY.md` (link it in the F-Droid submission).
 
-Submission (done once, in a browser):
+Submission (done once, in a browser — needs a GitLab account):
 
-1. Fork https://gitlab.com/fdroid/fdroiddata, add
-   `metadata/com.tapgerman.reader.yml` (use any recent MIT app's file as the
-   template: `Categories: [Education]`, `License: MIT`, `SourceCode`,
-   `IssueTracker`, current `VersionCode: 4` / `VersionName: 1.0.0` with
-   `commit: v1.0.0`, `gradle: [yes]`, no `AntiFeatures` — no ads, no tracking,
-   no non-free network service operated by the project).
+1. Fork https://gitlab.com/fdroid/fdroiddata, add the file
+   `metadata/com.tapgerman.reader.yml` with exactly this content:
+
+   ```yaml
+   Categories:
+     - Education
+   License: MIT
+   AuthorName: mobashirrahman
+   WebSite: https://github.com/mobashirrahman/glossline-android
+   SourceCode: https://github.com/mobashirrahman/glossline-android
+   IssueTracker: https://github.com/mobashirrahman/glossline-android/issues
+   AutoName: TapGerman
+   Description: |-
+     TapGerman is a German reader for English speakers. Share any German
+     article from your browser and read it in German. Every word is tappable:
+     tap to see the lemma, part of speech, pronunciation, and English glosses
+     with translated examples, plus conjugation and declension tables.
+
+     Save the meaning you actually met — with the exact sentence it came
+     from — and send it to AnkiDroid. No account, no analytics, no ads.
+     Articles and words stay on your device.
+
+     Definitions: Kaikki / English Wiktionary, CC BY-SA 4.0.
+
+   RepoType: git
+   Repo: https://github.com/mobashirrahman/glossline-android.git
+
+   Builds:
+     - versionName: 1.0.0
+       versionCode: 4
+       commit: v1.0.0
+       gradle:
+         - yes
+
+   AutoUpdateMode: Version v%v
+   UpdateCheckMode: Tags
+   CurrentVersion: 1.0.0
+   CurrentVersionCode: 4
+   ```
+
+   No `AntiFeatures`: no ads, no tracking, no non-free network service
+   operated by the project (Kaikki/Wiktionary are public data sources, and the
+   article fetch goes to the article's own site).
 2. Open the merge request against fdroiddata. A maintainer reviews, builds, and
    signs it with F-Droid's key (users get F-Droid's signature, not ours — normal).
 3. Answer review comments (usually: confirm the build recipe, confirm no binary
