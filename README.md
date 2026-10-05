@@ -1,8 +1,7 @@
 # TapGerman
 
-An Android companion to the [TapGerman](https://github.com/mobashirrahman/glossline) Chrome
-extension (repository still named `glossline` until the extension rename lands): the same
-word-level learning loop it does for subtitles, applied to German newspaper
+An Android companion to the [TapGerman](https://github.com/mobashirrahman/tapgerman) Chrome
+extension: the same word-level learning loop it does for subtitles, applied to German newspaper
 and web articles.
 
 Share an article from Chrome. Read it in German. Tap any word to see what it means. Keep the word
@@ -175,9 +174,8 @@ The app was renamed GlossLine → TapGerman for the Play launch: application id
 `tapgerman` Anki tag. **This is a breaking change for existing collections** — the identity
 strings are part of the note identity, so a word saved before the rename and the same word saved
 after land on two different notes (the third such break after LexiCue → LingoDeck →
-GlossLine). Both sides were renamed together in this change so they still merge with each
-other; the extension's remaining UI strings (popup, manifest, page channel) still say
-GlossLine and are a separate full-rebrand task that does not affect card identity.
+GlossLine). Both sides were fully renamed together in this change so they still merge
+with each other.
 
 Previously, the extension was renamed LingoDeck → GlossLine and this app followed it with the
 same class of breaking change.
@@ -212,11 +210,11 @@ Two subtleties worth keeping in mind if you touch this code:
 ### Regenerating the shared fixtures
 
 ```bash
-node tools/generate-goldens.mjs     # runs ../lingodeck/extension/src/{anki,dictionary}.js → goldens.json
+node tools/generate-goldens.mjs     # runs ../tapgerman/extension/src/{anki,dictionary}.js → goldens.json
 node tools/generate-templates.mjs   # goldens.json → AnkiTemplates.kt
 ```
 
-Both scripts expect the `lingodeck` repository checked out as a sibling directory. Commit the
+Both scripts expect the `tapgerman` repository checked out as a sibling directory. Commit the
 regenerated `goldens.json` and `AnkiTemplates.kt` together so the two can never drift apart.
 
 ## Privacy
@@ -282,5 +280,5 @@ tools/                        fixture generators, icon renderer
 ## License
 
 MIT. Dictionary content comes from Kaikki / English Wiktionary under CC BY-SA 4.0; see the
-[third-party notices](https://github.com/mobashirrahman/glossline/blob/main/THIRD_PARTY_NOTICES.md)
+[third-party notices](https://github.com/mobashirrahman/tapgerman/blob/main/THIRD_PARTY_NOTICES.md)
 in the main repository. Bundled fonts are under the SIL Open Font Licence 1.1.

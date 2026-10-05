@@ -6,12 +6,10 @@ AAB: `app/build/outputs/bundle/release/app-release.aab` (copy to `dist/` before 
 > Rename note: GlossLine → TapGerman is a **full identity break** (third after
 > LexiCue → LingoDeck → GlossLine). Application id, note type (`TapGerman Context v2`),
 > `tapgerman-v1-` StableId prefix, and `tapgerman` tag all changed. A word saved before
-> and after lands on two different Anki notes. The extension's Anki identity
-> (`extension/src/anki.js` + TSV tag/filename in `extension/popup.js`) was renamed
-> together with this app and both suites pass (73 extension + 236 Android tests);
-> `goldens.json`/`AnkiTemplates.kt` were regenerated from the renamed extension.
-> The extension's remaining UI strings (popup text, manifest, page channel) still say
-> GlossLine — a separate full-rebrand task that does not affect card identity.
+> and after lands on two different Anki notes. The extension (now
+> `mobashirrahman/tapgerman`) was fully renamed in the same change and both
+> suites pass (73 extension + 236 Android tests); `goldens.json`/
+> `AnkiTemplates.kt` were regenerated from the renamed extension.
 
 ## 0. Name check (do before upload)
 

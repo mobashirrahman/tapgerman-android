@@ -3,8 +3,8 @@
 // never silently drift from the card identity and dictionary URLs that the Chrome extension uses.
 //
 // Run: node tools/generate-goldens.mjs
-// Requires the extension as a sibling checkout at ../../lingodeck (directory still named
-// lingodeck on disk). The extension's Anki identity strings were renamed to TapGerman
+// Requires the extension as a sibling checkout at ../../tapgerman. The extension's
+// Anki identity strings were renamed to TapGerman
 // together with this app, so regenerating is safe; commit goldens.json and AnkiTemplates.kt
 // together so the two can never drift apart.
 
@@ -13,7 +13,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const ext = resolve(here, "../../lingodeck/extension/src");
+const ext = resolve(here, "../../tapgerman/extension/src");
 
 const anki = await import(pathToFileURL(resolve(ext, "anki.js")));
 const dict = await import(pathToFileURL(resolve(ext, "dictionary.js")));
@@ -67,7 +67,7 @@ const cards = {
 };
 
 const goldens = {
-  generatedFrom: "lingodeck/extension/src",
+  generatedFrom: "tapgerman/extension/src",
   // The exact card objects the identity hashes were computed from, so the Kotlin side never has to
   // re-type them and drift into a different shape.
   cards,
