@@ -38,7 +38,7 @@ Submission (done once, in a browser — needs a GitLab account):
 
    ```yaml
    Categories:
-     - Education
+     - Science & Education
    License: MIT
    AuthorName: mobashirrahman
    WebSite: https://github.com/mobashirrahman/tapgerman-android
@@ -64,10 +64,11 @@ Submission (done once, in a browser — needs a GitLab account):
      - versionName: 1.0.0
        versionCode: 4
        commit: v1.0.0
+       subdir: app
        gradle:
          - yes
 
-   AutoUpdateMode: Version v%v
+   AutoUpdateMode: Version
    UpdateCheckMode: Tags
    CurrentVersion: 1.0.0
    CurrentVersionCode: 4
